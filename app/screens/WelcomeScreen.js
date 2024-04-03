@@ -15,6 +15,9 @@ function WelcomeScreen(props) {
 
             <Image style={styles.logo} source={require('../assets/logo.png')} />
             <Text style={styles.tagLine} >Finish Line</Text>
+            
+            </View>
+            <View style={styles.clock}>
             <Clock />
             </View>
 
@@ -27,7 +30,7 @@ function WelcomeScreen(props) {
 const styles = StyleSheet.create({
     background: {
         flex: 1,
-        justifyContent: 'flex-end',
+        justifyContent: 'space-between',
         alignItems: 'center'
     },
     
@@ -45,6 +48,12 @@ const styles = StyleSheet.create({
         fontSize: 25,
         fontWeight: '600',
         paddingVertical: 20
+    },
+    clock: {
+        justifyContent: 'center',
+        alignItems: 'center',
+        flex: 1
+        
     }
     
 })

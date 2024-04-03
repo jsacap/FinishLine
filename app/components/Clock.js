@@ -26,7 +26,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   timeText: {
-    fontSize: 20,
+    fontSize: 50,
     fontWeight: 'bold',
   },
 });
