@@ -1,6 +1,8 @@
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
 
+import { FontAwesome5 } from '@expo/vector-icons';
+
 import colors from '../config/colors';
 import AppText from './AppText/AppText'
 
@@ -13,7 +15,8 @@ function TaskItem({title, time}) {
                 {title}
             </AppText>
             </View>
-            <View>
+            <View style={styles.time}>
+            <FontAwesome5 name="tasks" size={20} color="black" />
                 <AppText>{time}</AppText>
             </View>
         </View>
@@ -32,7 +35,11 @@ const styles = StyleSheet.create({
         
     },
     taskText: {
-        color: colors.white
+        color: colors.white,
+    },
+    time: {
+        alignItems: 'center', 
+        justifyContent: 'center',
     }
 })
 
