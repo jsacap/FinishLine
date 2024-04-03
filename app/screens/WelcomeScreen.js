@@ -3,6 +3,7 @@ import { ImageBackground, StyleSheet, View, Button, Image, Text } from 'react-na
 
 import colors from '../config/colors';
 import AppButton from '../components/AppButton';
+import Clock from '../components/Clock';
 
 function WelcomeScreen(props) {
     return (
@@ -14,6 +15,7 @@ function WelcomeScreen(props) {
 
             <Image style={styles.logo} source={require('../assets/logo.png')} />
             <Text style={styles.tagLine} >Finish Line</Text>
+            <Clock />
             </View>
 
             <AppButton title='START' onPress={() => {console.log('Press')}} />          
