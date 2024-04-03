@@ -1,8 +1,9 @@
 import React from 'react';
-import { ImageBackground, StyleSheet, View, Text, Image } from 'react-native';
+import { ImageBackground, StyleSheet, View, Button, Image } from 'react-native';
 
 import colors from '../config/colors';
-import AppText from '../components/AppText';
+import AppText from '../components/AppText/AppText';
+import AppButton from '../components/AppButton';
 
 function WelcomeScreen(props) {
     return (
@@ -14,10 +15,13 @@ function WelcomeScreen(props) {
             <Image style={styles.logo} source={require('../assets/logo.png')} />
             <AppText>Track Time</AppText>
             </View>
-            <View style={styles.startButton}>
-                <Text style={styles.startText}>Start My Day</Text>
-                
-            </View>            
+            <AppButton title='START' onPress={() => {console.log('Press')}} />          
+            <Button
+  onPress={() => {
+    console.log('You tapped the button!');
+  }}
+  title="Press Me"
+/>
             
         </ImageBackground>
     );
@@ -28,18 +32,7 @@ const styles = StyleSheet.create({
         justifyContent: 'flex-end',
         alignItems: 'center'
     },
-    startButton: {
-        width: '100%',
-        height: 70,
-        backgroundColor: colors.primary,
-        
-        
-    },
-    startText: {
-        fontSize: 20,
-        fontWeight: 'bold',
-        color: '#fff'
-    },
+    
     logo: {
         width: 100,
         height: 100,
