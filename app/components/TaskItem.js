@@ -25,7 +25,7 @@ function TaskItem({title, time}) {
 const styles = StyleSheet.create({
     taskContainer: {
         borderRadius: 40,
-        backgroundColor: '#dbb2ff',
+        backgroundColor: '#e3bae8',
         justifyContent: 'space-between', 
         alignItems: 'center',
         padding: 15,
