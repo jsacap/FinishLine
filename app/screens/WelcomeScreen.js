@@ -4,8 +4,10 @@ import { ImageBackground, StyleSheet, View, Button, Image, Text } from 'react-na
 import colors from '../config/colors';
 import AppButton from '../components/AppButton';
 import Clock from '../components/Clock';
+import AppText from '../components/AppText/AppText';
+import Greeting from '../components/Greeting';
 
-function WelcomeScreen(props) {
+function WelcomeScreen({user}) {
     return (
         <ImageBackground 
         blurRadius={2}
@@ -18,6 +20,7 @@ function WelcomeScreen(props) {
             
             </View>
             <View style={styles.clock}>
+                <Greeting user={user}/>
             <Clock />
             </View>
 

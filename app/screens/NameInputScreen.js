@@ -7,7 +7,7 @@ import colors from '../config/colors';
 import IconButton from '../components/IconButton';
 
 
-function NameInputScreen(props) {
+function NameInputScreen({onFinish}) {
     const [name, setName] = useState('');
     const handleOnChangeText = (text) => {
         setName(text)
@@ -17,7 +17,7 @@ function NameInputScreen(props) {
     const handleSubmit = async () => {
         const user = { name: name }
         await AsyncStorage.setItem('user', JSON.stringify(user))
-
+        if(onFinish) onFinish();
     }
     
 

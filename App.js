@@ -1,17 +1,25 @@
-import { useEffect, useState } from 'react';
-import { View } from 'react-native';
-import WelcomeScreen from './app/screens/WelcomeScreen';
-import TaskListScreen from './app/screens/TaskListScreen';
-import NameInputScreen from './app/screens/NameInputScreen';
+import React, { useEffect, useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import AppText from './app/components/AppText/AppText';
-import AddTaskScreen from './app/screens/AddTaskScreen';
+import NameInputScreen from './app/screens/NameInputScreen';
+import WelcomeScreen from './app/screens/WelcomeScreen';
 
 export default function App() {
-  
+  const [user, setUser] = useState({});
 
-  return (
-    <TaskListScreen />
-    // <NameInputScreen />
-  );
+  const findUser = async () => {
+    const result = await AsyncStorage.getItem('user');
+    if (result !== null) { 
+      setUser(JSON.parse(result));
+    }
+  };
+
+  useEffect(() => {
+    findUser();
+    // AsyncStorage.clear();
+  }, []);
+
+  if (!user.name) {
+    return <NameInputScreen onFinish={findUser} />;
+  }
+  return <WelcomeScreen user={user} />;
 }
