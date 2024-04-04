@@ -6,18 +6,10 @@ import AppText from '../components/AppText/AppText';
 import Greeting from '../components/Greeting';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
+import useFindUser from '../hooks/useFindUser';
 
-function TaskListScreen({user}) {
-    const [name, setName ] = useState({})
-    const findUser = async () => {
-    const result = await AsyncStorage.getItem('user');
-    setName(JSON.parse(result))
-  };
-
-  useEffect(() => {
-    findUser();
-  }, []);
-    
+function TaskListScreen() {
+    const user = useFindUser()
     return (
         <ImageBackground 
         style={styles.background}
@@ -26,7 +18,7 @@ function TaskListScreen({user}) {
             <SafeAreaView style={styles.safeArea}>
                 <View style={styles.name}>
 
-                <Greeting user={name}/>
+                <Greeting user={user}/>
                 </View>
                 <View style={styles.taskList}>
 
