@@ -9,7 +9,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 function TaskListScreen({user}) {
     const [name, setName ] = useState({})
-  const findUser = async () => {
+    const findUser = async () => {
     const result = await AsyncStorage.getItem('user');
     setName(JSON.parse(result))
   };
