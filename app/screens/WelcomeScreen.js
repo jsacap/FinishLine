@@ -1,13 +1,21 @@
 import React from 'react';
 import { ImageBackground, StyleSheet, View, Button, Image, Text } from 'react-native';
 
+import { useNavigation } from '@react-navigation/native';
+
 import colors from '../config/colors';
 import AppButton from '../components/AppButton';
 import Clock from '../components/Clock';
 import AppText from '../components/AppText/AppText';
 import Greeting from '../components/Greeting';
+import useFindUser from '../hooks/useFindUser';
 
-function WelcomeScreen({user}) {
+
+function WelcomeScreen() {
+    // const { user } = route.params;
+    const user = useFindUser();
+    const navigation = useNavigation()
+    console.log(user)
     return (
         <ImageBackground 
         blurRadius={2}
@@ -20,11 +28,11 @@ function WelcomeScreen({user}) {
             
             </View>
             <View style={styles.clock}>
-                <Greeting user={user}/>
+                {/* <Greeting user={user}/> */}
             <Clock />
             </View>
 
-            <AppButton title='START' onPress={() => {console.log('Press')}} />          
+            <AppButton title='START' onPress={() => {navigation.navigate('TaskList')}} />          
             
             
         </ImageBackground>

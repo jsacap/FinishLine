@@ -3,7 +3,6 @@ import { ImageBackground, SafeAreaView, StyleSheet, View, Platform, StatusBar } 
 import TaskItem from '../components/TaskItem';
 import TimeCompletion from '../components/TimeCompletion';
 import AppText from '../components/AppText/AppText';
-import Greeting from '../components/Greeting';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import useFindUser from '../hooks/useFindUser';
@@ -16,10 +15,7 @@ function TaskListScreen() {
         source={require('../assets/Background2.jpg')}
         >
             <SafeAreaView style={styles.safeArea}>
-                <View style={styles.name}>
-
-                <Greeting user={user}/>
-                </View>
+                
                 <View style={styles.taskList}>
 
             <TaskItem title='Task 1' time='30:00'/>            
