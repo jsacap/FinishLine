@@ -1,29 +1,38 @@
 import React, { useState } from 'react';
 import { View, StyleSheet, TextInput, StatusBar, Dimensions } from 'react-native';
 import AppText from '../components/AppText/AppText';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import colors from '../config/colors';
 import IconButton from '../components/IconButton';
 
+
 function NameInputScreen(props) {
-    const [user, setUser] = useState();
+    const [name, setName] = useState('');
     const handleOnChangeText = (text) => {
-        setUser(text)
+        setName(text)
 
     }
-    console.log(user)
+
+    const handleSubmit = async () => {
+        const user = { name: name }
+        await AsyncStorage.setItem('user', JSON.stringify(user))
+
+    }
+    
+
     return (
         <>
         <StatusBar hidden />
         <View style={styles.container}>
             <AppText>Welcome!</AppText>
             <TextInput 
-            value={user}
+            value={name}
             onChangeText={handleOnChangeText}
             placeholder='Enter Your Name...' 
             style={styles.textInput}
             />
-            <IconButton iconName="arrow-right" />
+            {name.trim().length >= 3 ? <IconButton iconName="arrow-right" onPress={handleSubmit} /> : null}
         </View>
         </>
     );
@@ -44,7 +53,7 @@ const styles = StyleSheet.create({
         borderRadius: 10,
         paddingLeft: 10,
         fontSize: 20,
-        marginTop: 5
+        marginBottom: 10
     }
 })
 
