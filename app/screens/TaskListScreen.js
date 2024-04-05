@@ -9,6 +9,7 @@ import {
   Platform,
   StatusBar,
   FlatList,
+  TouchableOpacity,
 } from "react-native";
 import TaskItem from "../components/TaskItem";
 import TimeCompletion from "../components/TimeCompletion";
@@ -64,12 +65,16 @@ function TaskListScreen() {
             data={tasks}
             keyExtractor={(item, index) => index.toString()}
             renderItem={({ item }) => (
-              <TaskItem
-                title={item.name}
-                time={`${Math.floor(item.durationMinutes / 60)}h:${
-                  item.durationMinutes % 60
-                }m`}
-              />
+              <TouchableOpacity
+                onPress={() => navigation.navigate("AddTask", { task: item })}
+              >
+                <TaskItem
+                  title={item.name}
+                  time={`${Math.floor(item.durationMinutes / 60)}h:${
+                    item.durationMinutes % 60
+                  }m`}
+                />
+              </TouchableOpacity>
             )}
           />
         </View>
