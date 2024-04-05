@@ -113,59 +113,61 @@ function TaskListScreen() {
   }, [countdownActive, remainingTime, currentTaskIndex, tasks]);
 
   return (
-    <ImageBackground
-      style={styles.background}
-      source={require("../assets/Background2.jpg")}
-    >
-      <View style={styles.buttons}>
-        <AppButton
-          style={styles.addButton}
-          title="Add Task"
-          onPress={() => navigation.navigate("AddTask")}
-        />
-        {tasks.length > 0 && (
+    <>
+      <ImageBackground
+        style={styles.background}
+        source={require("../assets/Background2.jpg")}
+      >
+        <View style={styles.buttons}>
           <AppButton
-            title={countdownActive ? "PAUSE" : "START"}
-            style={styles.playButton}
-            onPress={handleStart}
+            style={styles.addButton}
+            title="Add Task"
+            onPress={() => navigation.navigate("AddTask")}
           />
-        )}
-      </View>
+          {tasks.length > 0 && (
+            <AppButton
+              title={countdownActive ? "PAUSE" : "START"}
+              style={styles.playButton}
+              onPress={handleStart}
+            />
+          )}
+        </View>
 
-      <SafeAreaView style={styles.safeArea}>
-        <View style={styles.taskList}>
-          <FlatList
-            data={tasks}
-            keyExtractor={(item, index) => index.toString()}
-            renderItem={({ item, index }) => (
-              <TouchableOpacity
-                onPress={() => navigation.navigate("AddTask", { task: item })}
-                style={{ opacity: index < currentTaskIndex ? 0.5 : 1 }}
-              >
-                <TaskItem
-                  title={item.name}
-                  time={
-                    index === currentTaskIndex
-                      ? formatRemainingTime(remainingTime)
-                      : `${Math.floor(item.durationMinutes / 60)}h:${
-                          item.durationMinutes % 60
-                        }m`
-                  }
-                />
-              </TouchableOpacity>
-            )}
-          />
-        </View>
-        <View style={styles.time}>
-          <Header>Total Time</Header>
-          <AppText>{`${totalHours}h:${totalMinutes}m`}</AppText>
-        </View>
-        <View style={styles.time}>
-          <Header>Completion Time</Header>
-          <AppText>{endTime}</AppText>
-        </View>
-      </SafeAreaView>
-    </ImageBackground>
+        <SafeAreaView style={styles.safeArea}>
+          <View style={styles.taskList}>
+            <FlatList
+              data={tasks}
+              keyExtractor={(item, index) => index.toString()}
+              renderItem={({ item, index }) => (
+                <TouchableOpacity
+                  onPress={() => navigation.navigate("AddTask", { task: item })}
+                  style={{ opacity: index < currentTaskIndex ? 0.5 : 1 }}
+                >
+                  <TaskItem
+                    title={item.name}
+                    time={
+                      index === currentTaskIndex
+                        ? formatRemainingTime(remainingTime)
+                        : `${Math.floor(item.durationMinutes / 60)}h:${
+                            item.durationMinutes % 60
+                          }m`
+                    }
+                  />
+                </TouchableOpacity>
+              )}
+            />
+          </View>
+          <View style={styles.time}>
+            <Header>Total Time</Header>
+            <AppText>{`${totalHours}h:${totalMinutes}m`}</AppText>
+          </View>
+          <View style={styles.time}>
+            <Header>Completion Time</Header>
+            <AppText>{endTime}</AppText>
+          </View>
+        </SafeAreaView>
+      </ImageBackground>
+    </>
   );
 }
 const styles = StyleSheet.create({
@@ -195,7 +197,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   buttons: {
-    // flexDirection: "row",
+    top: 30,
     justifyContent: "space-between",
     width: 300,
     height: "15%",

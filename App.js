@@ -32,13 +32,13 @@ export default function App() {
     return (
       <>
         <NavigationContainer>
-          <Stack.Navigator>
+          <Stack.Navigator screenOptions={{ headerShown: false }}>
             <Stack.Screen name="Welcome" component={WelcomeScreen} />
             <Stack.Screen name="TaskList" component={TaskListScreen} />
             <Stack.Screen name="AddTask" component={AddTaskScreen} />
           </Stack.Navigator>
+          <Toast />
         </NavigationContainer>
-        <Toast />
       </>
     );
   }

@@ -8,6 +8,8 @@ import { Header } from "react-native/Libraries/NewAppScreen";
 import { useNavigation } from "@react-navigation/native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
+import Toast from "react-native-toast-message";
+
 function AddTaskScreen({ route }) {
   const navigation = useNavigation();
   const [taskName, setTaskName] = useState("");
@@ -31,9 +33,17 @@ function AddTaskScreen({ route }) {
   };
 
   const handleSubmit = async () => {
-    console.log("Hours:", hours, "Minutes:", minutes);
     const hoursNum = parseInt(hours, 10) || 0;
     const minutesNum = parseInt(minutes, 10) || 0;
+
+    if (!taskName.trim() || (hoursNum === 0 && minutesNum === 0)) {
+      Toast.show({
+        type: "error",
+        text1: "Error Adding New Task",
+        text2: "Ensure there is a name and time set",
+      });
+      return;
+    }
 
     const newTask = {
       id: taskId || new Date().getTime(),
@@ -47,6 +57,11 @@ function AddTaskScreen({ route }) {
 
     await AsyncStorage.setItem("tasks", JSON.stringify(updatedTasks));
     navigation.navigate("TaskList");
+    Toast.show({
+      type: "success",
+      text1: "Task Added!",
+      position: "bottom",
+    });
   };
 
   const handleDeleteTask = async () => {
@@ -55,6 +70,11 @@ function AddTaskScreen({ route }) {
       const filteredTasks = existingTasks.filter((task) => task.id !== taskId);
       await AsyncStorage.setItem("tasks", JSON.stringify(filteredTasks));
       navigation.goBack();
+      Toast.show({
+        type: "success",
+        text1: "Task Deleted",
+        position: "bottom",
+      });
     }
   };
 
