@@ -17,9 +17,11 @@ import useFindUser from "../hooks/useFindUser";
 import IconButton from "../components/IconButton";
 
 import { useNavigation } from "@react-navigation/native";
+import Header from "../components/Header";
 
 function TaskListScreen() {
   const user = useFindUser();
+  const navigation = useNavigation();
   const [tasks, setTasks] = useState([]);
 
   useEffect(() => {
@@ -30,7 +32,15 @@ function TaskListScreen() {
     };
     fetchTasks();
   }, []);
-  const navigation = useNavigation();
+
+  const getTotalDurationMinutes = (tasks) => {
+    return tasks.reduce((total, task) => total + task.durationMinutes, 0);
+  };
+
+  const totalDurationMinutes = getTotalDurationMinutes(tasks);
+  const totalHours = Math.floor(totalDurationMinutes / 60);
+  const totalMinutes = totalDurationMinutes % 60;
+
   return (
     <ImageBackground
       style={styles.background}
@@ -55,6 +65,10 @@ function TaskListScreen() {
               />
             )}
           />
+        </View>
+        <View style={styles.time}>
+          <Header>Total Time</Header>
+          <AppText>{`${totalHours}h:${totalMinutes}m`}</AppText>
         </View>
         <View style={styles.time}>
           <TimeCompletion />
