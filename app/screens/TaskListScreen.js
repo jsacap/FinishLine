@@ -21,9 +21,12 @@ import IconButton from "../components/IconButton";
 
 import { useNavigation } from "@react-navigation/native";
 import Header from "../components/Header";
+import AppButton from "../components/AppButton";
 
 function TaskListScreen() {
-  const user = useFindUser();
+  const [currentTaskIndex, setCurrentTaskIndex] = useState(0);
+  const [remainingTime, setRemainingTime] = useState(0);
+  const [totalDuration, setTOtalDuration] = useState(0);
   const navigation = useNavigation();
   const [tasks, setTasks] = useState([]);
 
@@ -54,10 +57,20 @@ function TaskListScreen() {
       style={styles.background}
       source={require("../assets/Background2.jpg")}
     >
-      <IconButton
-        iconName="plus"
-        onPress={() => navigation.navigate("AddTask")}
-      />
+      <View style={styles.buttons}>
+        <AppButton
+          style={styles.addButton}
+          title="Add Task"
+          onPress={() => navigation.navigate("AddTask")}
+        />
+        {tasks.length > 0 && (
+          <AppButton
+            title="START"
+            style={styles.playButton}
+            onPress={() => console.log("Start")}
+          />
+        )}
+      </View>
 
       <SafeAreaView style={styles.safeArea}>
         <View style={styles.taskList}>
@@ -109,13 +122,20 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   addButton: {
-    position: "absolute",
-    right: 0,
-    top: 0,
+    width: 60,
   },
   time: {
     justifyContent: "center",
     alignItems: "center",
+  },
+  buttons: {
+    // flexDirection: "row",
+    justifyContent: "space-between",
+    width: 300,
+    height: "15%",
+  },
+  playButton: {
+    backgroundColor: "green",
   },
 });
 
