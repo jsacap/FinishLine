@@ -1,34 +1,61 @@
-import React from "react";
+import React, { useState } from "react";
 import { View, StyleSheet, TextInput, Dimensions, Text } from "react-native";
 import AppText from "../components/AppText/AppText";
 
 import colors from "../config/colors";
 import IconButton from "../components/IconButton";
 import { Header } from "react-native/Libraries/NewAppScreen";
+import { useNavigation } from "@react-navigation/native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 function AddTaskScreen(props) {
+  const navigation = useNavigation();
+  const [taskName, setTaskName] = useState("");
+  const [hours, setHours] = useState("");
+  const [minutes, setMinutes] = useState("");
+
+  const handleSubmit = async () => {
+    const newTask = {
+      name: taskName,
+      durationMinutes: parseInt(hours, 10) * 60 + parseInt(minutes, 10),
+    };
+    const existingTasks = JSON.parse(await AsyncStorage.getItem("tasks")) || [];
+    const updatedTasks = [...existingTasks, newTask];
+    await AsyncStorage.setItem("tasks", JSON.stringify(updatedTasks));
+    navigation.navigate("TaskList");
+    console.log(newTask);
+  };
   return (
     <View style={styles.container}>
       <AppText>Enter task block</AppText>
-      <TextInput style={styles.textInput} placeholder="Task Name" />
+      <TextInput
+        style={styles.textInput}
+        placeholder="Task Name"
+        value={taskName}
+        onChangeText={setTaskName}
+      />
       <AppText>Estimated Duration</AppText>
       <View style={styles.timeInputs}>
         <TextInput
           style={styles.numberLayout}
           keyboardType="numeric"
           placeholder="HH"
+          value={hours}
+          onChangeText={setHours}
         />
         <Text style={styles.semicolon}>:</Text>
         <TextInput
           style={styles.numberLayout}
           keyboardType="numeric"
           placeholder="MM"
+          value={minutes}
+          onChangeText={setMinutes}
         />
       </View>
 
       <View style={styles.buttons}>
         <IconButton style={styles.cancelButton} iconName="arrow-left" />
-        <IconButton iconName="check" />
+        <IconButton iconName="check" onPress={handleSubmit} />
       </View>
     </View>
   );

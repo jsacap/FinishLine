@@ -6,6 +6,7 @@ import {
   View,
   Platform,
   StatusBar,
+  FlatList,
 } from "react-native";
 import TaskItem from "../components/TaskItem";
 import TimeCompletion from "../components/TimeCompletion";
@@ -19,6 +20,16 @@ import { useNavigation } from "@react-navigation/native";
 
 function TaskListScreen() {
   const user = useFindUser();
+  const [tasks, setTasks] = useState([]);
+
+  useEffect(() => {
+    const fetchTasks = async () => {
+      const storedTasks = await AsyncStorage.getItem("tasks");
+      const parsedTasks = storedTasks ? JSON.parse(storedTasks) : [];
+      setTasks(parsedTasks);
+    };
+    fetchTasks();
+  }, []);
   const navigation = useNavigation();
   return (
     <ImageBackground
@@ -31,7 +42,20 @@ function TaskListScreen() {
       />
 
       <SafeAreaView style={styles.safeArea}>
-        <View style={styles.taskList}></View>
+        <View style={styles.taskList}>
+          <FlatList
+            data={tasks}
+            keyExtractor={(item, index) => index.toString()}
+            renderItem={({ item }) => (
+              <TaskItem
+                title={item.name}
+                time={`${Math.floor(item.durationMinutes / 60)}h:${
+                  item.durationMinutes % 60
+                }m`}
+              />
+            )}
+          />
+        </View>
         <View style={styles.time}>
           <TimeCompletion />
         </View>
@@ -47,7 +71,7 @@ const styles = StyleSheet.create({
   },
   safeArea: {
     flex: 1,
-    width: "100%", // Ensure it takes the full width
+    width: "100%",
     alignItems: "center",
     paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 0,
     justifyContent: "space-between",
@@ -56,6 +80,7 @@ const styles = StyleSheet.create({
     justifyContent: "flex-start",
   },
   taskList: {
+    width: "90%",
     marginBottom: 20,
   },
   addButton: {
