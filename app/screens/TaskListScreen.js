@@ -92,7 +92,6 @@ function TaskListScreen() {
 const styles = StyleSheet.create({
   background: {
     flex: 1,
-
     alignItems: "center",
   },
   safeArea: {
@@ -113,6 +112,10 @@ const styles = StyleSheet.create({
     position: "absolute",
     right: 0,
     top: 0,
+  },
+  time: {
+    justifyContent: "center",
+    alignItems: "center",
   },
 });
 

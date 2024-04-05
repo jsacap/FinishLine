@@ -25,6 +25,11 @@ function AddTaskScreen({ route }) {
     }
   }, [route.params?.task]);
 
+  const fetchExistingTasks = async () => {
+    const tasksString = await AsyncStorage.getItem("tasks");
+    return tasksString ? JSON.parse(tasksString) : [];
+  };
+
   const handleSubmit = async () => {
     console.log("Hours:", hours, "Minutes:", minutes);
     const hoursNum = parseInt(hours, 10) || 0;
@@ -35,10 +40,7 @@ function AddTaskScreen({ route }) {
       name: taskName,
       durationMinutes: hoursNum * 60 + minutesNum,
     };
-
-    console.log("Duration Minutes:", newTask.durationMinutes); // Debug log
-
-    const existingTasks = JSON.parse(await AsyncStorage.getItem("tasks")) || [];
+    const existingTasks = await fetchExistingTasks();
     const updatedTasks = taskId
       ? existingTasks.map((task) => (task.id === taskId ? newTask : task))
       : [...existingTasks, newTask];
@@ -46,6 +48,13 @@ function AddTaskScreen({ route }) {
     await AsyncStorage.setItem("tasks", JSON.stringify(updatedTasks));
     navigation.navigate("TaskList");
   };
+
+  const handleDeleteTask = async () => {
+    if (taskId) {
+      // Logic to delete here
+    }
+  };
+
   return (
     <View style={styles.container}>
       <AppText>Enter task block</AppText>
@@ -75,7 +84,11 @@ function AddTaskScreen({ route }) {
       </View>
 
       <View style={styles.buttons}>
-        <IconButton style={styles.cancelButton} iconName="arrow-left" />
+        <IconButton
+          style={styles.cancelButton}
+          iconName="arrow-left"
+          onPress={() => navigation.goBack()}
+        />
         <IconButton iconName="check" onPress={handleSubmit} />
       </View>
     </View>
