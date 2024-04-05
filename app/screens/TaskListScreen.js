@@ -27,6 +27,7 @@ function TaskListScreen() {
   const [currentTaskIndex, setCurrentTaskIndex] = useState(0);
   const [remainingTime, setRemainingTime] = useState(0);
   const [totalDuration, setTOtalDuration] = useState(0);
+  const [endTime, setEndTime] = useState("");
   const navigation = useNavigation();
   const [tasks, setTasks] = useState([]);
 
@@ -52,6 +53,25 @@ function TaskListScreen() {
   const totalHours = Math.floor(totalDurationMinutes / 60);
   const totalMinutes = totalDurationMinutes % 60;
 
+  const handleStart = () => {
+    setCurrentTaskIndex(0);
+    setRemainingTime(tasks[0].durationMinutes);
+
+    // Calculate end time
+    const endTimeDate = new Date(
+      new Date().getTime() + totalDurationMinutes * 60000
+    ); // Convert minutes to milliseconds
+
+    // Format end time as a string (e.g., "2:30 PM")
+    const formattedEndTime = `${endTimeDate.getHours()}:${
+      endTimeDate.getMinutes() < 10 ? "0" : ""
+    }${endTimeDate.getMinutes()}`;
+
+    // Update state
+    setEndTime(formattedEndTime);
+    console.log(endTime);
+  };
+
   return (
     <ImageBackground
       style={styles.background}
@@ -67,7 +87,7 @@ function TaskListScreen() {
           <AppButton
             title="START"
             style={styles.playButton}
-            onPress={() => console.log("Start")}
+            onPress={handleStart}
           />
         )}
       </View>
@@ -96,7 +116,8 @@ function TaskListScreen() {
           <AppText>{`${totalHours}h:${totalMinutes}m`}</AppText>
         </View>
         <View style={styles.time}>
-          <TimeCompletion />
+          <Header>Completion Time</Header>
+          <AppText>{endTime}</AppText>
         </View>
       </SafeAreaView>
     </ImageBackground>
