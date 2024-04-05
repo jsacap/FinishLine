@@ -1,10 +1,11 @@
-import React, { useEffect, useState } from 'react';
-import { NavigationContainer } from '@react-navigation/native';
-import { createStackNavigator } from '@react-navigation/stack';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import NameInputScreen from './app/screens/NameInputScreen';
-import TaskListScreen from './app/screens/TaskListScreen';
-import WelcomeScreen from './app/screens/WelcomeScreen';
+import React, { useEffect, useState } from "react";
+import { NavigationContainer } from "@react-navigation/native";
+import { createStackNavigator } from "@react-navigation/stack";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import NameInputScreen from "./app/screens/NameInputScreen";
+import TaskListScreen from "./app/screens/TaskListScreen";
+import WelcomeScreen from "./app/screens/WelcomeScreen";
+import AddTaskScreen from "./app/screens/AddTaskScreen";
 
 const Stack = createStackNavigator();
 
@@ -12,8 +13,8 @@ export default function App() {
   const [user, setUser] = useState({});
 
   const findUser = async () => {
-    const result = await AsyncStorage.getItem('user');
-    if (result !== null) { 
+    const result = await AsyncStorage.getItem("user");
+    if (result !== null) {
       setUser(JSON.parse(result));
     }
   };
@@ -28,16 +29,14 @@ export default function App() {
   // }
   if (user.name) {
     return (
-    
       <NavigationContainer>
         <Stack.Navigator>
           <Stack.Screen name="Welcome" component={WelcomeScreen} />
           <Stack.Screen name="TaskList" component={TaskListScreen} />
+          <Stack.Screen name="AddTask" component={AddTaskScreen} />
         </Stack.Navigator>
       </NavigationContainer>
-    
     );
   }
   return <NameInputScreen onFinish={findUser} />;
-  
 }
