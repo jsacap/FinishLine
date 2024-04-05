@@ -21,8 +21,8 @@ export default function App() {
   };
 
   useEffect(() => {
-    findUser();
-    // AsyncStorage.clear();
+    // findUser();
+    AsyncStorage.clear();
   }, []);
 
   // if (!user.name) {

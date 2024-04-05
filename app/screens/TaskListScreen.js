@@ -112,6 +112,23 @@ function TaskListScreen() {
     return () => clearInterval(interval);
   }, [countdownActive, remainingTime, currentTaskIndex, tasks]);
 
+  const handleRestart = () => {
+    setCurrentTaskIndex(0);
+
+    setRemainingTime(tasks.length > 0 ? tasks[0].durationMinutes * 60 : 0);
+
+    // Calculate and set the total duration for all tasks as the end time
+    const totalSeconds = getTotalDurationMinutes(tasks) * 60;
+    const endTimeDate = new Date(new Date().getTime() + totalSeconds * 1000);
+    const formattedEndTime = `${endTimeDate.getHours()}:${
+      endTimeDate.getMinutes() < 10 ? "0" : ""
+    }${endTimeDate.getMinutes()}`;
+    setEndTime(formattedEndTime);
+
+    // Deactivate the countdown
+    setCoundownActive(false);
+  };
+
   return (
     <>
       <ImageBackground
@@ -158,12 +175,15 @@ function TaskListScreen() {
             />
           </View>
           <View style={styles.time}>
+            <View>
+              <IconButton iconName="fast-backward" onPress={handleRestart} />
+            </View>
             <Header>Total Time</Header>
             <AppText>{`${totalHours}h:${totalMinutes}m`}</AppText>
           </View>
           <View style={styles.time}>
-            <Header>Completion Time</Header>
-            <AppText>{endTime}</AppText>
+            <AppText>Completion Time</AppText>
+            <Header>{endTime}</Header>
           </View>
         </SafeAreaView>
       </ImageBackground>
