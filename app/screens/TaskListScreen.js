@@ -55,16 +55,24 @@ function TaskListScreen() {
   const totalMinutes = totalDurationMinutes % 60;
 
   const handleStart = () => {
-    setCurrentTaskIndex(0);
-    setRemainingTime(tasks[0].durationMinutes * 60);
-    const endTimeDate = new Date(
-      new Date().getTime() + totalDurationMinutes * 60000
-    );
-    const formattedEndTime = `${endTimeDate.getHours()}:${
-      endTimeDate.getMinutes() < 10 ? "0" : ""
-    }${endTimeDate.getMinutes()}`;
-    setEndTime(formattedEndTime);
-    setCoundownActive(true);
+    if (countdownActive) {
+      setCoundownActive(false);
+    } else {
+      if (remainingTime === 0) {
+        setCurrentTaskIndex(0);
+        setRemainingTime(tasks.length > 0 ? tasks[0].durationMinutes * 60 : 0);
+        const totalSeconds = getTotalDurationMinutes(tasks) * 60;
+        const endTimeDate = new Date(
+          new Date().getTime() + totalSeconds * 1000
+        );
+        const formattedEndTime = `${endTimeDate.getHours()}:${
+          endTimeDate.getMinutes() < 10 ? "0" : ""
+        }${endTimeDate.getMinutes()}`;
+        setEndTime(formattedEndTime);
+      }
+      // Activating or reactivating the countdown
+      setCoundownActive(true);
+    }
   };
 
   const formatRemainingTime = (seconds) => {
@@ -103,7 +111,7 @@ function TaskListScreen() {
         />
         {tasks.length > 0 && (
           <AppButton
-            title="START"
+            title={countdownActive ? "PAUSE" : "START"}
             style={styles.playButton}
             onPress={handleStart}
           />
@@ -122,13 +130,12 @@ function TaskListScreen() {
               >
                 <TaskItem
                   title={item.name}
-                  time={`${Math.floor(item.durationMinutes / 60)}h:${
-                    item.durationMinutes % 60
-                  }m`}
-                  remainingTime={
-                    index === currentTaskIndex && countdownActive
+                  time={
+                    index === currentTaskIndex
                       ? formatRemainingTime(remainingTime)
-                      : null
+                      : `${Math.floor(item.durationMinutes / 60)}h:${
+                          item.durationMinutes % 60
+                        }m`
                   }
                 />
               </TouchableOpacity>
