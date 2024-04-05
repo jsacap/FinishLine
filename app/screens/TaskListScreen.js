@@ -30,6 +30,7 @@ function TaskListScreen() {
   const [endTime, setEndTime] = useState("");
   const navigation = useNavigation();
   const [tasks, setTasks] = useState([]);
+  const [countdownActive, setCoundownActive] = useState(false);
 
   useFocusEffect(
     React.useCallback(() => {
@@ -55,22 +56,39 @@ function TaskListScreen() {
 
   const handleStart = () => {
     setCurrentTaskIndex(0);
-    setRemainingTime(tasks[0].durationMinutes);
-
-    // Calculate end time
+    setRemainingTime(tasks[0].durationMinutes * 60);
     const endTimeDate = new Date(
       new Date().getTime() + totalDurationMinutes * 60000
-    ); // Convert minutes to milliseconds
-
-    // Format end time as a string (e.g., "2:30 PM")
+    );
     const formattedEndTime = `${endTimeDate.getHours()}:${
       endTimeDate.getMinutes() < 10 ? "0" : ""
     }${endTimeDate.getMinutes()}`;
-
-    // Update state
     setEndTime(formattedEndTime);
-    console.log(endTime);
+    setCoundownActive(true);
   };
+
+  const formatRemainingTime = (seconds) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}m:${secs < 10 ? "0" : ""}${secs}s`;
+  };
+
+  useEffect(() => {
+    let interval = null;
+
+    if (countdownActive && remainingTime > 0) {
+      interval = setInterval(() => {
+        setRemainingTime((prevTime) => prevTime - 1);
+      }, 1000);
+    } else if (remainingTime <= 0 && currentTaskIndex < tasks.length - 1) {
+      setCurrentTaskIndex((prevIndex) => prevIndex + 1);
+      setRemainingTime(tasks[currentTaskIndex + 1].durationMinutes * 60);
+    } else if (currentTaskIndex >= tasks.length - 1) {
+      setCoundownActive(false);
+    }
+
+    return () => clearInterval(interval);
+  }, [countdownActive, remainingTime, currentTaskIndex, tasks]);
 
   return (
     <ImageBackground
@@ -97,15 +115,21 @@ function TaskListScreen() {
           <FlatList
             data={tasks}
             keyExtractor={(item, index) => index.toString()}
-            renderItem={({ item }) => (
+            renderItem={({ item, index }) => (
               <TouchableOpacity
                 onPress={() => navigation.navigate("AddTask", { task: item })}
+                style={{ opacity: index < currentTaskIndex ? 0.5 : 1 }}
               >
                 <TaskItem
                   title={item.name}
                   time={`${Math.floor(item.durationMinutes / 60)}h:${
                     item.durationMinutes % 60
                   }m`}
+                  remainingTime={
+                    index === currentTaskIndex && countdownActive
+                      ? formatRemainingTime(remainingTime)
+                      : null
+                  }
                 />
               </TouchableOpacity>
             )}

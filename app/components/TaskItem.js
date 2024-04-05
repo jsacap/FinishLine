@@ -6,7 +6,11 @@ import { FontAwesome5 } from "@expo/vector-icons";
 import colors from "../config/colors";
 import AppText from "./AppText/AppText";
 
-function TaskItem({ title, time }) {
+function TaskItem({ title, time, remainingTime }) {
+  const displayTime = `${Math.floor(remainingTime / 3600)}h:${Math.floor(
+    (remainingTime % 3600) / 60
+  )}m`;
+
   return (
     <View style={styles.taskContainer}>
       <View>
@@ -14,7 +18,11 @@ function TaskItem({ title, time }) {
       </View>
       <View style={styles.time}>
         <FontAwesome5 name="tasks" size={20} color="black" />
-        <AppText>{time}</AppText>
+        {remainingTime ? (
+          <AppText>{remainingTime}</AppText>
+        ) : (
+          <AppText>{time}</AppText>
+        )}
       </View>
     </View>
   );
