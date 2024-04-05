@@ -1,4 +1,6 @@
 import React, { useEffect, useState } from "react";
+import { useFocusEffect } from "@react-navigation/native";
+
 import {
   ImageBackground,
   SafeAreaView,
@@ -24,14 +26,19 @@ function TaskListScreen() {
   const navigation = useNavigation();
   const [tasks, setTasks] = useState([]);
 
-  useEffect(() => {
-    const fetchTasks = async () => {
-      const storedTasks = await AsyncStorage.getItem("tasks");
-      const parsedTasks = storedTasks ? JSON.parse(storedTasks) : [];
-      setTasks(parsedTasks);
-    };
-    fetchTasks();
-  }, []);
+  useFocusEffect(
+    React.useCallback(() => {
+      const fetchTasks = async () => {
+        const storedTasks = await AsyncStorage.getItem("tasks");
+        const parsedTasks = storedTasks ? JSON.parse(storedTasks) : [];
+        setTasks(parsedTasks);
+      };
+
+      fetchTasks();
+
+      return () => {}; // Optional cleanup function
+    }, [])
+  );
 
   const getTotalDurationMinutes = (tasks) => {
     return tasks.reduce((total, task) => total + task.durationMinutes, 0);

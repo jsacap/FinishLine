@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { View, StyleSheet, TextInput, Dimensions, Text } from "react-native";
 import AppText from "../components/AppText/AppText";
 
@@ -8,22 +8,43 @@ import { Header } from "react-native/Libraries/NewAppScreen";
 import { useNavigation } from "@react-navigation/native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-function AddTaskScreen(props) {
+function AddTaskScreen({ route }) {
   const navigation = useNavigation();
   const [taskName, setTaskName] = useState("");
   const [hours, setHours] = useState("");
   const [minutes, setMinutes] = useState("");
+  const [taskId, setTaskId] = useState(null);
+  useEffect(() => {
+    if (route.params?.task) {
+      const task = route.params.task;
+      setTaskName(task.name);
+      const duration = task.durationMinutes;
+      setHours(Math.floor(duration / 60).toString());
+      setMinutes((duration % 60).toString());
+      setTaskId(task.id);
+    }
+  }, [route.params?.task]);
 
   const handleSubmit = async () => {
+    console.log("Hours:", hours, "Minutes:", minutes);
+    const hoursNum = parseInt(hours, 10) || 0;
+    const minutesNum = parseInt(minutes, 10) || 0;
+
     const newTask = {
+      id: taskId || new Date().getTime(),
       name: taskName,
-      durationMinutes: parseInt(hours, 10) * 60 + parseInt(minutes, 10),
+      durationMinutes: hoursNum * 60 + minutesNum,
     };
+
+    console.log("Duration Minutes:", newTask.durationMinutes); // Debug log
+
     const existingTasks = JSON.parse(await AsyncStorage.getItem("tasks")) || [];
-    const updatedTasks = [...existingTasks, newTask];
+    const updatedTasks = taskId
+      ? existingTasks.map((task) => (task.id === taskId ? newTask : task))
+      : [...existingTasks, newTask];
+
     await AsyncStorage.setItem("tasks", JSON.stringify(updatedTasks));
     navigation.navigate("TaskList");
-    console.log(newTask);
   };
   return (
     <View style={styles.container}>
