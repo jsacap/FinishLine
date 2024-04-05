@@ -53,6 +53,20 @@ function TaskListScreen() {
   const totalDurationMinutes = getTotalDurationMinutes(tasks);
   const totalHours = Math.floor(totalDurationMinutes / 60);
   const totalMinutes = totalDurationMinutes % 60;
+  const updateEndTime = () => {
+    let totalRemainingSeconds = remainingTime;
+    for (let i = currentTaskIndex + 1; i < tasks.length; i++) {
+      totalRemainingSeconds += tasks[i].durationMinutes * 60;
+    }
+
+    const endTimeDate = new Date(
+      new Date().getTime() + totalRemainingSeconds * 1000
+    );
+    const formattedEndTime = `${endTimeDate.getHours()}:${
+      endTimeDate.getMinutes() < 10 ? "0" : ""
+    }${endTimeDate.getMinutes()}`;
+    setEndTime(formattedEndTime);
+  };
 
   const handleStart = () => {
     if (countdownActive) {
@@ -70,8 +84,8 @@ function TaskListScreen() {
         }${endTimeDate.getMinutes()}`;
         setEndTime(formattedEndTime);
       }
-      // Activating or reactivating the countdown
       setCoundownActive(true);
+      updateEndTime();
     }
   };
 
