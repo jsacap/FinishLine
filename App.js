@@ -6,6 +6,7 @@ import NameInputScreen from "./app/screens/NameInputScreen";
 import TaskListScreen from "./app/screens/TaskListScreen";
 import WelcomeScreen from "./app/screens/WelcomeScreen";
 import AddTaskScreen from "./app/screens/AddTaskScreen";
+import Toast from "react-native-toast-message";
 
 const Stack = createStackNavigator();
 
@@ -29,13 +30,16 @@ export default function App() {
   // }
   if (user.name) {
     return (
-      <NavigationContainer>
-        <Stack.Navigator>
-          <Stack.Screen name="Welcome" component={WelcomeScreen} />
-          <Stack.Screen name="TaskList" component={TaskListScreen} />
-          <Stack.Screen name="AddTask" component={AddTaskScreen} />
-        </Stack.Navigator>
-      </NavigationContainer>
+      <>
+        <NavigationContainer>
+          <Stack.Navigator>
+            <Stack.Screen name="Welcome" component={WelcomeScreen} />
+            <Stack.Screen name="TaskList" component={TaskListScreen} />
+            <Stack.Screen name="AddTask" component={AddTaskScreen} />
+          </Stack.Navigator>
+        </NavigationContainer>
+        <Toast />
+      </>
     );
   }
   return <NameInputScreen onFinish={findUser} />;
