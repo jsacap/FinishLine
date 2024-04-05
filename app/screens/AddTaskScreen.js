@@ -51,7 +51,10 @@ function AddTaskScreen({ route }) {
 
   const handleDeleteTask = async () => {
     if (taskId) {
-      // Logic to delete here
+      const existingTasks = await fetchExistingTasks();
+      const filteredTasks = existingTasks.filter((task) => task.id !== taskId);
+      await AsyncStorage.setItem("tasks", JSON.stringify(filteredTasks));
+      navigation.goBack();
     }
   };
 
@@ -90,6 +93,11 @@ function AddTaskScreen({ route }) {
           onPress={() => navigation.goBack()}
         />
         <IconButton iconName="check" onPress={handleSubmit} />
+        <IconButton
+          iconName="trash-alt"
+          style={styles.deleteButton}
+          onPress={handleDeleteTask}
+        />
       </View>
     </View>
   );
@@ -113,8 +121,12 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   cancelButton: {
-    backgroundColor: colors.secondary,
+    backgroundColor: "gray",
     marginRight: 20,
+  },
+  deleteButton: {
+    backgroundColor: colors.secondary,
+    margin: 20,
   },
   buttons: {
     flexDirection: "row",
