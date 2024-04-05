@@ -93,11 +93,13 @@ function AddTaskScreen({ route }) {
           onPress={() => navigation.goBack()}
         />
         <IconButton iconName="check" onPress={handleSubmit} />
-        <IconButton
-          iconName="trash-alt"
-          style={styles.deleteButton}
-          onPress={handleDeleteTask}
-        />
+        {taskId && (
+          <IconButton
+            iconName="trash-alt"
+            style={styles.deleteButton}
+            onPress={handleDeleteTask}
+          />
+        )}
       </View>
     </View>
   );
