@@ -9,6 +9,7 @@ import { useNavigation } from "@react-navigation/native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 import Toast from "react-native-toast-message";
+import TimeButton from "../components/AppText/TimeButton";
 
 function AddTaskScreen({ route }) {
   const navigation = useNavigation();
@@ -105,6 +106,13 @@ function AddTaskScreen({ route }) {
           onChangeText={setMinutes}
         />
       </View>
+      <View style={styles.presetTimeButtons}>
+        <TimeButton time={5} />
+        <TimeButton time={10} />
+        <TimeButton time={15} />
+        <TimeButton time={30} />
+        <TimeButton time={10} />
+      </View>
 
       <View style={styles.buttons}>
         <IconButton
@@ -172,6 +180,9 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     fontSize: 30,
     marginRight: 20,
+  },
+  presetTimeButtons: {
+    flexDirection: "row",
   },
 });
 
