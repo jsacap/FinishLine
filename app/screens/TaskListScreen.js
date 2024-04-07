@@ -23,7 +23,7 @@ import { useNavigation } from "@react-navigation/native";
 import Header from "../components/Header";
 import AppButton from "../components/AppButton";
 
-function TaskListScreen({ route }) {
+function TaskListScreen() {
   const [currentTaskIndex, setCurrentTaskIndex] = useState(0);
   const [remainingTime, setRemainingTime] = useState(0);
   const [totalDuration, setTOtalDuration] = useState(0);
@@ -31,25 +31,19 @@ function TaskListScreen({ route }) {
   const navigation = useNavigation();
   const [tasks, setTasks] = useState([]);
   const [countdownActive, setCoundownActive] = useState(false);
-  const [refreshTrigger, setRefreshTrigger] = useState(0);
 
   useFocusEffect(
     React.useCallback(() => {
-      async function fetchAndUpdateTasks() {
+      const fetchTasks = async () => {
         const storedTasks = await AsyncStorage.getItem("tasks");
         const parsedTasks = storedTasks ? JSON.parse(storedTasks) : [];
         setTasks(parsedTasks);
-        if (countdownActive && currentTaskIndex < parsedTasks.length) {
-          const currentTask = parsedTasks[currentTaskIndex];
-          const newRemainingTime = currentTask.durationMinutes * 60;
-          if (newRemainingTime !== remainingTime) {
-            setRemainingTime(newRemainingTime);
-          }
-        }
-      }
+      };
 
-      fetchAndUpdateTasks();
-    }, [countdownActive, currentTaskIndex])
+      fetchTasks();
+
+      return () => {}; // Optional cleanup function
+    }, [])
   );
 
   const getTotalDurationMinutes = (tasks) => {
@@ -74,7 +68,7 @@ function TaskListScreen({ route }) {
     setEndTime(formattedEndTime);
   };
 
-  const toggleTimer = () => {
+  const handleStart = () => {
     if (countdownActive) {
       setCoundownActive(false);
     } else {
@@ -120,7 +114,10 @@ function TaskListScreen({ route }) {
 
   const handleRestart = () => {
     setCurrentTaskIndex(0);
+
     setRemainingTime(tasks.length > 0 ? tasks[0].durationMinutes * 60 : 0);
+
+    // Calculate and set the total duration for all tasks as the end time
     const totalSeconds = getTotalDurationMinutes(tasks) * 60;
     const endTimeDate = new Date(new Date().getTime() + totalSeconds * 1000);
     const formattedEndTime = `${endTimeDate.getHours()}:${
@@ -148,7 +145,7 @@ function TaskListScreen({ route }) {
             <AppButton
               title={countdownActive ? "PAUSE" : "START"}
               style={styles.playButton}
-              onPress={toggleTimer}
+              onPress={handleStart}
             />
           )}
         </View>
@@ -160,24 +157,7 @@ function TaskListScreen({ route }) {
               keyExtractor={(item, index) => index.toString()}
               renderItem={({ item, index }) => (
                 <TouchableOpacity
-                  onPress={() => {
-                    if (countdownActive) {
-                      toggleTimer();
-                    }
-                    if (index === currentTaskIndex) {
-                      const remainingHours = Math.floor(remainingTime / 3600);
-                      const remainingMinutes = Math.floor(
-                        (remainingTime % 3600) / 60
-                      );
-                      navigation.navigate("AddTask", {
-                        task: item,
-                        remainingHours: remainingHours.toString(),
-                        remainingMinutes: remainingMinutes.toString(),
-                      });
-                    } else {
-                      navigation.navigate("AddTask", { task: item });
-                    }
-                  }}
+                  onPress={() => navigation.navigate("AddTask", { task: item })}
                   style={{ opacity: index < currentTaskIndex ? 0.5 : 1 }}
                 >
                   <TaskItem

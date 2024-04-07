@@ -14,25 +14,19 @@ import TimeButton from "../components/AppText/TimeButton";
 function AddTaskScreen({ route }) {
   const navigation = useNavigation();
   const [taskName, setTaskName] = useState("");
-  const [hours, setHours] = useState("0");
-  const [minutes, setMinutes] = useState("0");
+  const [hours, setHours] = useState("");
+  const [minutes, setMinutes] = useState("");
   const [taskId, setTaskId] = useState(null);
-
   useEffect(() => {
     if (route.params?.task) {
       const task = route.params.task;
       setTaskName(task.name);
+      const duration = task.durationMinutes;
+      setHours(Math.floor(duration / 60).toString());
+      setMinutes((duration % 60).toString());
       setTaskId(task.id);
-      if (route.params.remainingHours && route.params.remainingMinutes) {
-        setHours(route.params.remainingHours);
-        setMinutes(route.params.remainingMinutes);
-      } else {
-        const duration = task.durationMinutes;
-        setHours(Math.floor(duration / 60).toString());
-        setMinutes((duration % 60).toString());
-      }
     }
-  }, [route.params]);
+  }, [route.params?.task]);
 
   const fetchExistingTasks = async () => {
     const tasksString = await AsyncStorage.getItem("tasks");
@@ -63,7 +57,7 @@ function AddTaskScreen({ route }) {
       : [...existingTasks, newTask];
 
     await AsyncStorage.setItem("tasks", JSON.stringify(updatedTasks));
-    navigation.navigate("TaskList", { updated: true });
+    navigation.navigate("TaskList");
     Toast.show({
       type: "success",
       text1: "Task Added!",
