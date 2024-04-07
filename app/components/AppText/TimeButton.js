@@ -4,7 +4,9 @@ import React from "react";
 export default function TimeButton({ time, onPress }) {
   return (
     <TouchableOpacity style={styles.container} onPress={onPress}>
-      <Text>+{time} mins</Text>
+      <Text>
+        +{time} {time === 1 ? "min" : "mins"}
+      </Text>
     </TouchableOpacity>
   );
 }
@@ -17,5 +19,6 @@ const styles = StyleSheet.create({
     borderRadius: 30,
     justifyContent: "center",
     alignItems: "center",
+    margin: 5,
   },
 });

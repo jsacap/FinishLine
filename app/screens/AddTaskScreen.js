@@ -22,12 +22,17 @@ function AddTaskScreen({ route }) {
     if (route.params?.task) {
       const task = route.params.task;
       setTaskName(task.name);
-      const duration = task.durationMinutes;
-      setHours(Math.floor(duration / 60).toString());
-      setMinutes((duration % 60).toString());
       setTaskId(task.id);
+      if (route.params.remainingHours && route.params.remainingMinutes) {
+        setHours(route.params.remainingHours);
+        setMinutes(route.params.remainingMinutes);
+      } else {
+        const duration = task.durationMinutes;
+        setHours(Math.floor(duration / 60).toString());
+        setMinutes((duration % 60).toString());
+      }
     }
-  }, [route.params?.task]);
+  }, [route.params]);
 
   const fetchExistingTasks = async () => {
     const tasksString = await AsyncStorage.getItem("tasks");
@@ -58,7 +63,7 @@ function AddTaskScreen({ route }) {
       : [...existingTasks, newTask];
 
     await AsyncStorage.setItem("tasks", JSON.stringify(updatedTasks));
-    navigation.navigate("TaskList");
+    navigation.navigate("TaskList", { updated: true });
     Toast.show({
       type: "success",
       text1: "Task Added!",
@@ -118,7 +123,10 @@ function AddTaskScreen({ route }) {
         />
       </View>
       <View style={styles.presetTimeButtons}>
+        <TimeButton time={1} onPress={() => handleTimeIncrement(1)} />
         <TimeButton time={5} onPress={() => handleTimeIncrement(5)} />
+        <TimeButton time={15} onPress={() => handleTimeIncrement(15)} />
+        <TimeButton time={30} onPress={() => handleTimeIncrement(30)} />
       </View>
 
       <View style={styles.buttons}>
