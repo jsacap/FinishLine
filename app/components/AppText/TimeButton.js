@@ -1,13 +1,14 @@
-import { View, Text, StyleSheet } from "react-native";
+import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import React from "react";
 
-export default function TimeButton({ time }) {
+export default function TimeButton({ time, onPress }) {
   return (
-    <View style={styles.container}>
+    <TouchableOpacity style={styles.container} onPress={onPress}>
       <Text>+{time} mins</Text>
-    </View>
+    </TouchableOpacity>
   );
 }
+
 const styles = StyleSheet.create({
   container: {
     borderWidth: 2,

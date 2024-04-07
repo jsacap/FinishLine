@@ -14,9 +14,10 @@ import TimeButton from "../components/AppText/TimeButton";
 function AddTaskScreen({ route }) {
   const navigation = useNavigation();
   const [taskName, setTaskName] = useState("");
-  const [hours, setHours] = useState("");
-  const [minutes, setMinutes] = useState("");
+  const [hours, setHours] = useState("0");
+  const [minutes, setMinutes] = useState("0");
   const [taskId, setTaskId] = useState(null);
+
   useEffect(() => {
     if (route.params?.task) {
       const task = route.params.task;
@@ -79,6 +80,16 @@ function AddTaskScreen({ route }) {
     }
   };
 
+  const handleTimeIncrement = (addedMinutes) => {
+    let currentMinutes = parseInt(minutes, 10) || 0;
+    let currentHours = parseInt(hours, 10) || 0;
+    let totalMinutes = currentMinutes + addedMinutes;
+    let additionalHours = Math.floor(totalMinutes / 60);
+    totalMinutes = totalMinutes % 60;
+    setHours((currentHours + additionalHours).toString());
+    setMinutes(totalMinutes.toString());
+  };
+
   return (
     <View style={styles.container}>
       <AppText>Enter task block</AppText>
@@ -95,7 +106,7 @@ function AddTaskScreen({ route }) {
           keyboardType="numeric"
           placeholder="HH"
           value={hours}
-          onChangeText={setHours}
+          onChangeText={(text) => setHours(text)}
         />
         <Text style={styles.semicolon}>:</Text>
         <TextInput
@@ -103,15 +114,11 @@ function AddTaskScreen({ route }) {
           keyboardType="numeric"
           placeholder="MM"
           value={minutes}
-          onChangeText={setMinutes}
+          onChangeText={(text) => setMinutes(text)}
         />
       </View>
       <View style={styles.presetTimeButtons}>
-        <TimeButton time={5} />
-        <TimeButton time={10} />
-        <TimeButton time={15} />
-        <TimeButton time={30} />
-        <TimeButton time={10} />
+        <TimeButton time={5} onPress={() => handleTimeIncrement(5)} />
       </View>
 
       <View style={styles.buttons}>
