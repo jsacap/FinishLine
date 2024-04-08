@@ -21,12 +21,12 @@ function AddTaskScreen({ route }) {
     if (route.params?.task) {
       const task = route.params.task;
       setTaskName(task.name);
-      const duration = task.durationMinutes;
+      setTaskId(task.id);
+      const duration = route.params?.remainingMinutes ?? task.durationMinutes;
       setHours(Math.floor(duration / 60).toString());
       setMinutes((duration % 60).toString());
-      setTaskId(task.id);
     }
-  }, [route.params?.task]);
+  }, [route.params?.task, route.params?.remainingMinutes]);
 
   const fetchExistingTasks = async () => {
     const tasksString = await AsyncStorage.getItem("tasks");

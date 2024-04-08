@@ -1,27 +1,25 @@
-import React, { useEffect, useState } from "react";
 import { useFocusEffect } from "@react-navigation/native";
+import React, { useEffect, useState } from "react";
 
-import {
-  ImageBackground,
-  SafeAreaView,
-  StyleSheet,
-  View,
-  Platform,
-  StatusBar,
-  FlatList,
-  TouchableOpacity,
-} from "react-native";
-import TaskItem from "../components/TaskItem";
-import TimeCompletion from "../components/TimeCompletion";
-import AppText from "../components/AppText/AppText";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import {
+  FlatList,
+  ImageBackground,
+  Platform,
+  SafeAreaView,
+  StatusBar,
+  StyleSheet,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import AppText from "../components/AppText/AppText";
+import TaskItem from "../components/TaskItem";
 
-import useFindUser from "../hooks/useFindUser";
 import IconButton from "../components/IconButton";
 
 import { useNavigation } from "@react-navigation/native";
-import Header from "../components/Header";
 import AppButton from "../components/AppButton";
+import Header from "../components/Header";
 
 function TaskListScreen() {
   const [currentTaskIndex, setCurrentTaskIndex] = useState(0);
@@ -34,15 +32,21 @@ function TaskListScreen() {
 
   useFocusEffect(
     React.useCallback(() => {
-      const fetchTasks = async () => {
+      const refreshTasks = async () => {
         const storedTasks = await AsyncStorage.getItem("tasks");
         const parsedTasks = storedTasks ? JSON.parse(storedTasks) : [];
         setTasks(parsedTasks);
+
+        if (!countdownActive) {
+          setCurrentTaskIndex(0); // Reset to start from the first task
+          const totalSeconds = getTotalDurationMinutes(parsedTasks) * 60;
+          setRemainingTime(
+            parsedTasks.length > 0 ? parsedTasks[0].durationMinutes * 60 : 0
+          );
+          updateEndTime(totalSeconds);
+        }
       };
-
-      fetchTasks();
-
-      return () => {}; // Optional cleanup function
+      refreshTasks();
     }, [])
   );
 
@@ -157,7 +161,22 @@ function TaskListScreen() {
               keyExtractor={(item, index) => index.toString()}
               renderItem={({ item, index }) => (
                 <TouchableOpacity
-                  onPress={() => navigation.navigate("AddTask", { task: item })}
+                  onPress={() => {
+                    const editingCurrentTask =
+                      index === currentTaskIndex && countdownActive;
+                    if (editingCurrentTask) {
+                      setCoundownActive(false); // Pause if the current task is being edited
+                    }
+                    // Calculate remaining hours and minutes if editing the current task
+                    const remainingMinutes = editingCurrentTask
+                      ? Math.floor(remainingTime / 60)
+                      : item.durationMinutes;
+                    navigation.navigate("AddTask", {
+                      task: item,
+                      editingCurrentTask,
+                      remainingMinutes: remainingMinutes,
+                    });
+                  }}
                   style={{ opacity: index < currentTaskIndex ? 0.5 : 1 }}
                 >
                   <TaskItem
