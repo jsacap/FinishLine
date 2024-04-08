@@ -24,11 +24,12 @@ import Header from "../components/Header";
 function TaskListScreen() {
   const [currentTaskIndex, setCurrentTaskIndex] = useState(0);
   const [remainingTime, setRemainingTime] = useState(0);
-  const [totalDuration, setTOtalDuration] = useState(0);
+  const [totalDuration, setTotalDuration] = useState(0);
   const [endTime, setEndTime] = useState("");
   const navigation = useNavigation();
   const [tasks, setTasks] = useState([]);
   const [countdownActive, setCoundownActive] = useState(false);
+  const [timerStarted, setTimerStarted] = useState(false);
 
   useFocusEffect(
     React.useCallback(() => {
@@ -38,7 +39,7 @@ function TaskListScreen() {
         setTasks(parsedTasks);
 
         if (!countdownActive) {
-          setCurrentTaskIndex(0); // Reset to start from the first task
+          setCurrentTaskIndex(0);
           const totalSeconds = getTotalDurationMinutes(parsedTasks) * 60;
           setRemainingTime(
             parsedTasks.length > 0 ? parsedTasks[0].durationMinutes * 60 : 0
@@ -76,21 +77,14 @@ function TaskListScreen() {
     if (countdownActive) {
       setCoundownActive(false);
     } else {
-      if (remainingTime === 0) {
+      if (!timerStarted || remainingTime === 0) {
         setCurrentTaskIndex(0);
         setRemainingTime(tasks.length > 0 ? tasks[0].durationMinutes * 60 : 0);
-        const totalSeconds = getTotalDurationMinutes(tasks) * 60;
-        const endTimeDate = new Date(
-          new Date().getTime() + totalSeconds * 1000
-        );
-        const formattedEndTime = `${endTimeDate.getHours()}:${
-          endTimeDate.getMinutes() < 10 ? "0" : ""
-        }${endTimeDate.getMinutes()}`;
-        setEndTime(formattedEndTime);
+        setTimerStarted(true); // Indicating that the timer has been started at least once.
       }
       setCoundownActive(true);
-      updateEndTime();
     }
+    updateEndTime();
   };
 
   const formatRemainingTime = (seconds) => {
@@ -147,7 +141,9 @@ function TaskListScreen() {
           />
           {tasks.length > 0 && (
             <AppButton
-              title={countdownActive ? "PAUSE" : "START"}
+              title={
+                !timerStarted ? "START" : countdownActive ? "PAUSE" : "RESUME"
+              }
               style={styles.playButton}
               onPress={handleStart}
             />
