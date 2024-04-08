@@ -1,4 +1,5 @@
 import { useFocusEffect } from "@react-navigation/native";
+import AddTaskScreen from "./AddTaskScreen";
 import React, { useEffect, useState } from "react";
 
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -7,9 +8,9 @@ import {
   ImageBackground,
   Platform,
   SafeAreaView,
-  Text,
   StatusBar,
   StyleSheet,
+  Text,
   TouchableOpacity,
   View,
 } from "react-native";
@@ -20,8 +21,8 @@ import IconButton from "../components/IconButton";
 
 import { useNavigation } from "@react-navigation/native";
 import AppButton from "../components/AppButton";
-import Header from "../components/Header";
 import BottomSheet from "../components/BottomSheet";
+import Header from "../components/Header";
 
 function TaskListScreen() {
   const [currentTaskIndex, setCurrentTaskIndex] = useState(0);
@@ -29,10 +30,21 @@ function TaskListScreen() {
   const [totalDuration, setTotalDuration] = useState(0);
   const [endTime, setEndTime] = useState("");
   const navigation = useNavigation();
+  const [editTask, SetEditTask] = useState(null);
   const [tasks, setTasks] = useState([]);
   const [countdownActive, setCoundownActive] = useState(false);
   const [timerStarted, setTimerStarted] = useState(false);
   const [isBottomSheetVisible, setIsBottomSheetVisible] = useState(false);
+
+  const handleOpenBottomSheetNewTask = () => {
+    SetEditTask(null); // Prepare for adding a new task
+    setIsBottomSheetVisible(true);
+  };
+
+  const handleOpenBottomSheetEditTask = (task) => {
+    SetEditTask(task); // Prepare for editing an existing task
+    setIsBottomSheetVisible(true);
+  };
 
   const toggleBottomSheet = () => {
     setIsBottomSheetVisible(!isBottomSheetVisible);
@@ -122,7 +134,6 @@ function TaskListScreen() {
 
     setRemainingTime(tasks.length > 0 ? tasks[0].durationMinutes * 60 : 0);
 
-    // Calculate and set the total duration for all tasks as the end time
     const totalSeconds = getTotalDurationMinutes(tasks) * 60;
     const endTimeDate = new Date(new Date().getTime() + totalSeconds * 1000);
     const formattedEndTime = `${endTimeDate.getHours()}:${
@@ -130,15 +141,44 @@ function TaskListScreen() {
     }${endTimeDate.getMinutes()}`;
     setEndTime(formattedEndTime);
 
-    // Deactivate the countdown
     setCoundownActive(false);
   };
+  function renderBottomSheetContent() {
+    if (!isBottomSheetVisible) return null;
+
+    return (
+      <AddTaskScreen
+        task={editTask}
+        onTaskSubmit={(newOrUpdatedTask) => {
+          const updatedTasks = editTask
+            ? tasks.map((task) =>
+                task.id === editTask.id ? newOrUpdatedTask : task
+              )
+            : [
+                ...tasks,
+                { ...newOrUpdatedTask, id: new Date().getTime().toString() },
+              ];
+
+          setTasks(updatedTasks);
+          AsyncStorage.setItem("tasks", JSON.stringify(updatedTasks));
+
+          SetEditTask(null);
+          toggleBottomSheet();
+        }}
+        onTaskCancel={() => {
+          SetEditTask(null);
+          toggleBottomSheet();
+        }}
+      />
+    );
+  }
 
   return (
     <>
       <ImageBackground
         style={styles.background}
         source={require("../assets/Background2.jpg")}
+        onPress={toggleBottomSheet}
       >
         <View style={styles.buttons}>
           <AppButton
@@ -146,12 +186,7 @@ function TaskListScreen() {
             title="Add Task"
             onPress={handleStart}
           />
-          <BottomSheet
-            isVisible={isBottomSheetVisible}
-            onClose={toggleBottomSheet}
-          >
-            <Text>Testing</Text>
-          </BottomSheet>
+
           {/* <AppButton
             style={styles.addButton}
             title="Add Task"
@@ -179,17 +214,20 @@ function TaskListScreen() {
                     const editingCurrentTask =
                       index === currentTaskIndex && countdownActive;
                     if (editingCurrentTask) {
-                      setCoundownActive(false); // Pause if the current task is being edited
+                      setCoundownActive(false);
                     }
-                    // Calculate remaining hours and minutes if editing the current task
                     const remainingMinutes = editingCurrentTask
                       ? Math.floor(remainingTime / 60)
                       : item.durationMinutes;
-                    navigation.navigate("AddTask", {
-                      task: item,
+
+                    const taskDataForEditing = {
+                      ...item,
                       editingCurrentTask,
                       remainingMinutes: remainingMinutes,
-                    });
+                    };
+
+                    setIsBottomSheetVisible(true);
+                    handleOpenBottomSheetEditTask(item);
                   }}
                   style={{ opacity: index < currentTaskIndex ? 0.5 : 1 }}
                 >
@@ -220,6 +258,38 @@ function TaskListScreen() {
           </View>
         </SafeAreaView>
       </ImageBackground>
+      <BottomSheet isVisible={isBottomSheetVisible} onClose={toggleBottomSheet}>
+        <AddTaskScreen
+          task={editTask}
+          onTaskSubmit={(newOrUpdatedTask) => {
+            if (editTask) {
+              // Edit mode: Find and update the existing task
+              const updatedTasks = tasks.map((task) =>
+                task.id === editTask.id
+                  ? { ...newOrUpdatedTask, id: editTask.id }
+                  : task
+              );
+              setTasks(updatedTasks);
+            } else {
+              const updatedTasks = [
+                ...tasks,
+                {
+                  ...newOrUpdatedTask,
+                  id: new Date().getTime().toString(),
+                },
+              ];
+              setTasks(updatedTasks);
+            }
+            AsyncStorage.setItem("tasks", JSON.stringify(updatedTasks));
+            toggleBottomSheet(); // Close the BottomSheet
+            SetEditTask(null); // Reset the editTask state
+          }}
+          onTaskCancel={() => {
+            toggleBottomSheet(); // Simply close the BottomSheet
+            SetEditTask(null); // Reset the editTask state
+          }}
+        />
+      </BottomSheet>
     </>
   );
 }

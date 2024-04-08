@@ -11,109 +11,76 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import Toast from "react-native-toast-message";
 import TimeButton from "../components/AppText/TimeButton";
 
-function AddTaskScreen({ route }) {
-  const navigation = useNavigation();
-  const [taskName, setTaskName] = useState("");
-  const [hours, setHours] = useState("");
-  const [minutes, setMinutes] = useState("");
-  const [taskId, setTaskId] = useState(null);
-  useEffect(() => {
-    if (route.params?.task) {
-      const task = route.params.task;
-      setTaskName(task.name);
-      setTaskId(task.id);
-      const duration = route.params?.remainingMinutes ?? task.durationMinutes;
-      setHours(Math.floor(duration / 60).toString());
-      setMinutes((duration % 60).toString());
-    }
-  }, [route.params?.task, route.params?.remainingMinutes]);
+function AddTaskScreen({
+  task = null, // Default task is null for new task
+  onTaskSubmit,
+  onTaskCancel,
+}) {
+  const [taskName, setTaskName] = useState(task?.name || "");
+  const [hours, setHours] = useState(
+    task ? Math.floor(task.durationMinutes / 60).toString() : ""
+  );
+  const [minutes, setMinutes] = useState(
+    task ? (task.durationMinutes % 60).toString() : ""
+  );
 
-  const fetchExistingTasks = async () => {
-    const tasksString = await AsyncStorage.getItem("tasks");
-    return tasksString ? JSON.parse(tasksString) : [];
+  const handleTimeIncrement = (addedMinutes) => {
+    const totalMinutes = parseInt(minutes || "0", 10) + addedMinutes;
+    const totalHours =
+      parseInt(hours || "0", 10) + Math.floor(totalMinutes / 60);
+    const newMinutes = totalMinutes % 60;
+
+    setHours(totalHours.toString());
+    setMinutes(newMinutes.toString());
   };
 
   const handleSubmit = async () => {
-    const hoursNum = parseInt(hours, 10) || 0;
-    const minutesNum = parseInt(minutes, 10) || 0;
-
-    if (!taskName.trim() || (hoursNum === 0 && minutesNum === 0)) {
+    if (!taskName || (!hours && !minutes)) {
       Toast.show({
         type: "error",
-        text1: "Error Adding New Task",
-        text2: "Ensure there is a name and time set",
+        text1: "Error",
+        text2: "Please fill all the fields.",
       });
       return;
     }
 
+    const durationMinutes =
+      parseInt(hours || "0", 10) * 60 + parseInt(minutes || "0", 10);
+
     const newTask = {
-      id: taskId || new Date().getTime(),
+      id: task?.id || new Date().getTime().toString(),
       name: taskName,
-      durationMinutes: hoursNum * 60 + minutesNum,
+      durationMinutes,
     };
-    const existingTasks = await fetchExistingTasks();
-    const updatedTasks = taskId
-      ? existingTasks.map((task) => (task.id === taskId ? newTask : task))
-      : [...existingTasks, newTask];
 
-    await AsyncStorage.setItem("tasks", JSON.stringify(updatedTasks));
-    navigation.navigate("TaskList");
-    Toast.show({
-      type: "success",
-      text1: "Task Added!",
-      position: "bottom",
-    });
-  };
-
-  const handleDeleteTask = async () => {
-    if (taskId) {
-      const existingTasks = await fetchExistingTasks();
-      const filteredTasks = existingTasks.filter((task) => task.id !== taskId);
-      await AsyncStorage.setItem("tasks", JSON.stringify(filteredTasks));
-      navigation.goBack();
-      Toast.show({
-        type: "success",
-        text1: "Task Deleted",
-        position: "bottom",
-      });
-    }
-  };
-
-  const handleTimeIncrement = (addedMinutes) => {
-    let currentMinutes = parseInt(minutes, 10) || 0;
-    let currentHours = parseInt(hours, 10) || 0;
-    let totalMinutes = currentMinutes + addedMinutes;
-    let additionalHours = Math.floor(totalMinutes / 60);
-    totalMinutes = totalMinutes % 60;
-    setHours((currentHours + additionalHours).toString());
-    setMinutes(totalMinutes.toString());
+    onTaskSubmit(newTask);
   };
 
   return (
     <View style={styles.container}>
-      <AppText>Enter task block</AppText>
       <TextInput
         style={styles.textInput}
-        placeholder="Task Name"
-        value={taskName}
         onChangeText={setTaskName}
+        value={taskName}
+        placeholder="Task Name"
       />
-      <AppText>Estimated Duration</AppText>
+      <AppText>Estimated Time Duration</AppText>
       <View style={styles.timeInputs}>
         <TextInput
           style={styles.numberLayout}
-          keyboardType="numeric"
-          placeholder="HH"
-          value={hours}
           onChangeText={(text) => setHours(text)}
+          value={hours}
+          keyboardType="numeric"
+          placeholder="Hours"
         />
         <Text style={styles.semicolon}>:</Text>
+
         <TextInput
           style={styles.numberLayout}
-          keyboardType="numeric"
-          placeholder="MM"
-          value={minutes}
           onChangeText={(text) => setMinutes(text)}
+          value={minutes}
+          keyboardType="numeric"
+          placeholder="Minutes"
         />
       </View>
       <View style={styles.presetTimeButtons}>
@@ -122,21 +89,13 @@ function AddTaskScreen({ route }) {
         <TimeButton time={15} onPress={() => handleTimeIncrement(15)} />
         <TimeButton time={30} onPress={() => handleTimeIncrement(30)} />
       </View>
-
       <View style={styles.buttons}>
         <IconButton
           style={styles.cancelButton}
           iconName="arrow-left"
-          onPress={() => navigation.goBack()}
+          onPress={onTaskCancel}
         />
         <IconButton iconName="check" onPress={handleSubmit} />
-        {taskId && (
-          <IconButton
-            iconName="trash-alt"
-            style={styles.deleteButton}
-            onPress={handleDeleteTask}
-          />
-        )}
       </View>
     </View>
   );
@@ -162,6 +121,12 @@ const styles = StyleSheet.create({
   cancelButton: {
     backgroundColor: "gray",
     marginRight: 20,
+    width: 50,
+  },
+  submitButton: {
+    backgroundColor: "gray",
+    marginRight: 20,
+    width: 50,
   },
   deleteButton: {
     backgroundColor: colors.secondary,

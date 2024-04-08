@@ -10,15 +10,14 @@ import {
 const screenHeight = Dimensions.get("window").height;
 
 const BottomSheet = ({ isVisible, children, onClose }) => {
-  // Adjust to control how much of the sheet is visible when opened
-  const openHeight = screenHeight / 2; // Opens up to half of the screen height
+  const openHeight = screenHeight / 2;
 
   const translateY = useRef(new Animated.Value(screenHeight)).current;
 
   React.useEffect(() => {
     if (isVisible) {
       Animated.timing(translateY, {
-        toValue: screenHeight - openHeight, // Move up to show the bottom sheet
+        toValue: screenHeight - openHeight,
         duration: 300,
         useNativeDriver: true,
       }).start();
@@ -39,7 +38,6 @@ const BottomSheet = ({ isVisible, children, onClose }) => {
             styles.container,
             {
               transform: [{ translateY }],
-              // Adjust height to match openHeight if you want a solid background color
               height: openHeight,
             },
           ]}
