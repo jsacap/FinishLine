@@ -12,9 +12,10 @@ import Toast from "react-native-toast-message";
 import TimeButton from "../components/AppText/TimeButton";
 
 function AddTaskScreen({
-  task = null, // Default task is null for new task
+  task = null,
   onTaskSubmit,
   onTaskCancel,
+  onTaskDelete,
 }) {
   const [taskName, setTaskName] = useState(task?.name || "");
   const [hours, setHours] = useState(
@@ -23,6 +24,15 @@ function AddTaskScreen({
   const [minutes, setMinutes] = useState(
     task ? (task.durationMinutes % 60).toString() : ""
   );
+  const fetchExistingTasks = async () => {
+    const tasksString = await AsyncStorage.getItem("tasks");
+    return tasksString ? JSON.parse(tasksString) : [];
+  };
+  useEffect(() => {
+    setTaskName(task?.name || "");
+    setHours(task ? Math.floor(task.durationMinutes / 60).toString() : "");
+    setMinutes(task ? (task.durationMinutes % 60).toString() : "");
+  }, [task]);
 
   const handleTimeIncrement = (addedMinutes) => {
     const totalMinutes = parseInt(minutes || "0", 10) + addedMinutes;
@@ -54,6 +64,18 @@ function AddTaskScreen({
     };
 
     onTaskSubmit(newTask);
+    Toast.show({
+      type: "success",
+      text1: "Task Added",
+    });
+  };
+
+  const handleDeleteTask = () => {
+    if (task?.id && onTaskDelete) {
+      onTaskDelete(task.id);
+    } else {
+      console.error("onTaskDelete function is not provided.");
+    }
   };
 
   return (
@@ -96,6 +118,13 @@ function AddTaskScreen({
           onPress={onTaskCancel}
         />
         <IconButton iconName="check" onPress={handleSubmit} />
+        {task && (
+          <IconButton
+            style={styles.deleteButton}
+            iconName="trash-alt"
+            onPress={handleDeleteTask}
+          />
+        )}
       </View>
     </View>
   );

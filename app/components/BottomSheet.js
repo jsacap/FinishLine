@@ -23,12 +23,15 @@ const BottomSheet = ({ isVisible, children, onClose }) => {
       }).start();
     } else {
       Animated.timing(translateY, {
-        toValue: screenHeight, // Move down to hide the bottom sheet
+        toValue: screenHeight,
         duration: 300,
         useNativeDriver: true,
       }).start();
     }
   }, [isVisible, translateY, screenHeight, openHeight]);
+  if (!isVisible) {
+    return null;
+  }
 
   return (
     <TouchableWithoutFeedback onPress={onClose}>

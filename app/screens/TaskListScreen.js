@@ -169,22 +169,64 @@ function TaskListScreen() {
           SetEditTask(null);
           toggleBottomSheet();
         }}
+        onTaskDelete={(taskId) => {
+          const updatedTasks = tasks.filter((task) => task.id !== taskId);
+          setTasks(updatedTasks);
+          AsyncStorage.setItem("tasks", JSON.stringify(updatedTasks));
+          toggleBottomSheet();
+          SetEditTask(null); // Ensure this state update logic matches your application's structure
+        }}
       />
     );
   }
 
   return (
     <>
+      <BottomSheet isVisible={isBottomSheetVisible} onClose={toggleBottomSheet}>
+        <AddTaskScreen
+          task={editTask}
+          onTaskSubmit={(newOrUpdatedTask) => {
+            const updatedTasks = editTask
+              ? tasks.map((task) =>
+                  task.id === editTask.id
+                    ? { ...newOrUpdatedTask, id: editTask.id }
+                    : task
+                )
+              : [
+                  ...tasks,
+                  {
+                    ...newOrUpdatedTask,
+                    id: new Date().getTime().toString(),
+                  },
+                ];
+
+            setTasks(updatedTasks);
+            AsyncStorage.setItem("tasks", JSON.stringify(updatedTasks));
+            toggleBottomSheet();
+            SetEditTask(null);
+          }}
+          onTaskCancel={() => {
+            toggleBottomSheet();
+            SetEditTask(null);
+          }}
+          onTaskDelete={(taskId) => {
+            const updatedTasks = tasks.filter((task) => task.id !== taskId);
+            setTasks(updatedTasks);
+            AsyncStorage.setItem("tasks", JSON.stringify(updatedTasks));
+            toggleBottomSheet();
+            SetEditTask(null);
+          }}
+        />
+      </BottomSheet>
       <ImageBackground
         style={styles.background}
         source={require("../assets/Background2.jpg")}
-        onPress={toggleBottomSheet}
       >
         <View style={styles.buttons}>
           <AppButton
             style={styles.addButton}
             title="Add Task"
-            onPress={handleStart}
+            onPress={toggleBottomSheet}
           />
 
           {/* <AppButton
@@ -258,38 +300,6 @@ function TaskListScreen() {
           </View>
         </SafeAreaView>
       </ImageBackground>
-      <BottomSheet isVisible={isBottomSheetVisible} onClose={toggleBottomSheet}>
-        <AddTaskScreen
-          task={editTask}
-          onTaskSubmit={(newOrUpdatedTask) => {
-            if (editTask) {
-              // Edit mode: Find and update the existing task
-              const updatedTasks = tasks.map((task) =>
-                task.id === editTask.id
-                  ? { ...newOrUpdatedTask, id: editTask.id }
-                  : task
-              );
-              setTasks(updatedTasks);
-            } else {
-              const updatedTasks = [
-                ...tasks,
-                {
-                  ...newOrUpdatedTask,
-                  id: new Date().getTime().toString(),
-                },
-              ];
-              setTasks(updatedTasks);
-            }
-            AsyncStorage.setItem("tasks", JSON.stringify(updatedTasks));
-            toggleBottomSheet(); // Close the BottomSheet
-            SetEditTask(null); // Reset the editTask state
-          }}
-          onTaskCancel={() => {
-            toggleBottomSheet(); // Simply close the BottomSheet
-            SetEditTask(null); // Reset the editTask state
-          }}
-        />
-      </BottomSheet>
     </>
   );
 }
