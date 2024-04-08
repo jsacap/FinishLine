@@ -7,6 +7,7 @@ import {
   ImageBackground,
   Platform,
   SafeAreaView,
+  Text,
   StatusBar,
   StyleSheet,
   TouchableOpacity,
@@ -20,6 +21,7 @@ import IconButton from "../components/IconButton";
 import { useNavigation } from "@react-navigation/native";
 import AppButton from "../components/AppButton";
 import Header from "../components/Header";
+import BottomSheet from "../components/BottomSheet";
 
 function TaskListScreen() {
   const [currentTaskIndex, setCurrentTaskIndex] = useState(0);
@@ -30,6 +32,11 @@ function TaskListScreen() {
   const [tasks, setTasks] = useState([]);
   const [countdownActive, setCoundownActive] = useState(false);
   const [timerStarted, setTimerStarted] = useState(false);
+  const [isBottomSheetVisible, setIsBottomSheetVisible] = useState(false);
+
+  const toggleBottomSheet = () => {
+    setIsBottomSheetVisible(!isBottomSheetVisible);
+  };
 
   useFocusEffect(
     React.useCallback(() => {
@@ -137,8 +144,19 @@ function TaskListScreen() {
           <AppButton
             style={styles.addButton}
             title="Add Task"
-            onPress={() => navigation.navigate("AddTask")}
+            onPress={handleStart}
           />
+          <BottomSheet
+            isVisible={isBottomSheetVisible}
+            onClose={toggleBottomSheet}
+          >
+            <Text>Testing</Text>
+          </BottomSheet>
+          {/* <AppButton
+            style={styles.addButton}
+            title="Add Task"
+            onPress={() => navigation.navigate("AddTask")}
+          /> */}
           {tasks.length > 0 && (
             <AppButton
               title={
