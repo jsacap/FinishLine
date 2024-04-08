@@ -42,7 +42,7 @@ function TaskListScreen() {
   };
 
   const handleOpenBottomSheetEditTask = (task) => {
-    SetEditTask(task); // Prepare for editing an existing task
+    SetEditTask(task);
     setIsBottomSheetVisible(true);
   };
 
@@ -143,79 +143,46 @@ function TaskListScreen() {
 
     setCoundownActive(false);
   };
-  function renderBottomSheetContent() {
-    if (!isBottomSheetVisible) return null;
 
-    return (
-      <AddTaskScreen
-        task={editTask}
-        onTaskSubmit={(newOrUpdatedTask) => {
-          const updatedTasks = editTask
-            ? tasks.map((task) =>
-                task.id === editTask.id ? newOrUpdatedTask : task
-              )
-            : [
-                ...tasks,
-                { ...newOrUpdatedTask, id: new Date().getTime().toString() },
-              ];
+  const handleTaskSubmit = async (newOrUpdatedTask) => {
+    const updatedTasks = editTask
+      ? tasks.map((task) =>
+          task.id === editTask.id
+            ? { ...newOrUpdatedTask, id: editTask.id }
+            : task
+        )
+      : [
+          ...tasks,
+          { ...newOrUpdatedTask, id: new Date().getTime().toString() },
+        ];
 
-          setTasks(updatedTasks);
-          AsyncStorage.setItem("tasks", JSON.stringify(updatedTasks));
+    setTasks(updatedTasks);
+    await AsyncStorage.setItem("tasks", JSON.stringify(updatedTasks));
+    SetEditTask(null);
+    toggleBottomSheet();
+  };
 
-          SetEditTask(null);
-          toggleBottomSheet();
-        }}
-        onTaskCancel={() => {
-          SetEditTask(null);
-          toggleBottomSheet();
-        }}
-        onTaskDelete={(taskId) => {
-          const updatedTasks = tasks.filter((task) => task.id !== taskId);
-          setTasks(updatedTasks);
-          AsyncStorage.setItem("tasks", JSON.stringify(updatedTasks));
-          toggleBottomSheet();
-          SetEditTask(null); // Ensure this state update logic matches your application's structure
-        }}
-      />
-    );
-  }
+  const handleTaskCancel = () => {
+    SetEditTask(null);
+    toggleBottomSheet();
+  };
+
+  const handleTaskDelete = async (taskId) => {
+    const updatedTasks = tasks.filter((task) => task.id !== taskId);
+    setTasks(updatedTasks);
+    await AsyncStorage.setItem("tasks", JSON.stringify(updatedTasks));
+    SetEditTask(null);
+    toggleBottomSheet();
+  };
 
   return (
     <>
       <BottomSheet isVisible={isBottomSheetVisible} onClose={toggleBottomSheet}>
         <AddTaskScreen
           task={editTask}
-          onTaskSubmit={(newOrUpdatedTask) => {
-            const updatedTasks = editTask
-              ? tasks.map((task) =>
-                  task.id === editTask.id
-                    ? { ...newOrUpdatedTask, id: editTask.id }
-                    : task
-                )
-              : [
-                  ...tasks,
-                  {
-                    ...newOrUpdatedTask,
-                    id: new Date().getTime().toString(),
-                  },
-                ];
-
-            setTasks(updatedTasks);
-            AsyncStorage.setItem("tasks", JSON.stringify(updatedTasks));
-            toggleBottomSheet();
-            SetEditTask(null);
-          }}
-          onTaskCancel={() => {
-            toggleBottomSheet();
-            SetEditTask(null);
-          }}
-          onTaskDelete={(taskId) => {
-            const updatedTasks = tasks.filter((task) => task.id !== taskId);
-            setTasks(updatedTasks);
-            AsyncStorage.setItem("tasks", JSON.stringify(updatedTasks));
-            toggleBottomSheet();
-            SetEditTask(null);
-          }}
+          onTaskSubmit={handleTaskSubmit}
+          onTaskCancel={handleTaskCancel}
+          onTaskDelete={handleTaskDelete}
         />
       </BottomSheet>
       <ImageBackground
