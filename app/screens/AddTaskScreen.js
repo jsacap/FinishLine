@@ -91,6 +91,22 @@ function AddTaskScreen({
 
   return (
     <View style={styles.container}>
+      <View style={styles.buttons}>
+        <IconButton
+          style={styles.cancelButton}
+          iconName="arrow-left"
+          onPress={onTaskCancel}
+        />
+        <IconButton iconName="check" onPress={handleSubmit} />
+        {task && (
+          <IconButton
+            style={styles.deleteButton}
+            iconName="trash-alt"
+            onPress={handleDeleteTask}
+          />
+        )}
+      </View>
+
       <TextInput
         style={styles.textInput}
         onChangeText={setTaskName}
@@ -122,21 +138,6 @@ function AddTaskScreen({
         <TimeButton time={15} onPress={() => handleTimeIncrement(15)} />
         <TimeButton time={30} onPress={() => handleTimeIncrement(30)} />
       </View>
-      <View style={styles.buttons}>
-        <IconButton
-          style={styles.cancelButton}
-          iconName="arrow-left"
-          onPress={onTaskCancel}
-        />
-        <IconButton iconName="check" onPress={handleSubmit} />
-        {task && (
-          <IconButton
-            style={styles.deleteButton}
-            iconName="trash-alt"
-            onPress={handleDeleteTask}
-          />
-        )}
-      </View>
     </View>
   );
 }
@@ -145,8 +146,9 @@ const width = Dimensions.get("window").width - 50;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: "center",
+    justifyContent: "space-between",
     alignItems: "center",
+    paddingBottom: 60,
   },
   textInput: {
     borderWidth: 2,
@@ -174,6 +176,7 @@ const styles = StyleSheet.create({
   },
   buttons: {
     flexDirection: "row",
+   
   },
   numberLayout: {
     borderWidth: 2,

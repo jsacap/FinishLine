@@ -30,17 +30,18 @@ function TaskItem({ title, time, remainingTime }) {
 const styles = StyleSheet.create({
   taskContainer: {
     borderRadius: 40,
-    backgroundColor: "#e3bae8",
+    backgroundColor: "#46c2e8",
     justifyContent: "space-between",
     alignItems: "center",
     padding: 15,
-    width: "80%",
+    width: "90%",
     height: "auto",
     flexDirection: "row",
     marginTop: 10,
   },
   taskText: {
     color: colors.white,
+    fontSize: 24,
   },
   time: {
     alignItems: "center",

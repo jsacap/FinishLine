@@ -1,4 +1,4 @@
-import React, { useRef } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import {
   Animated,
   StyleSheet,
@@ -6,13 +6,33 @@ import {
   Dimensions,
   TouchableWithoutFeedback,
 } from "react-native";
-
-const screenHeight = Dimensions.get("window").height;
+import { Keyboard } from "react-native";
 
 const BottomSheet = ({ isVisible, children, onClose }) => {
-  const openHeight = screenHeight / 2;
-
+  const screenHeight = Dimensions.get("window").height;
+  const [bottomSheetHeight, setBottomSheetHeight] = useState(screenHeight / 2);
   const translateY = useRef(new Animated.Value(screenHeight)).current;
+  const openHeight = screenHeight / 2;
+  useEffect(() => {
+    const keyboardDidShowListener = Keyboard.addListener(
+      "keyboardDidShow",
+      (e) => {
+        const keyboardHeight = e.endCoordinates.height;
+        const newHeight = screenHeight - keyboardHeight - 20;
+        setBottomSheetHeight(newHeight);
+      }
+    );
+    const keyboardDidHideListener = Keyboard.addListener(
+      "keyboardDidHide",
+      () => {
+        setBottomSheetHeight(screenHeight / 2);
+      }
+    );
+    return () => {
+      keyboardDidShowListener.remove();
+      keyboardDidHideListener.remove();
+    };
+  }, [screenHeight]);
 
   React.useEffect(() => {
     if (isVisible) {
@@ -41,7 +61,7 @@ const BottomSheet = ({ isVisible, children, onClose }) => {
             styles.container,
             {
               transform: [{ translateY }],
-              height: openHeight,
+              height: bottomSheetHeight,
             },
           ]}
         >
@@ -64,8 +84,8 @@ const styles = StyleSheet.create({
     position: "absolute",
     left: 0,
     right: 0,
-    backgroundColor: "#fff",
-    height: "50%", // Adjust as needed
+    backgroundColor: "gray",
+    height: "50%",
     borderTopRightRadius: 20,
     borderTopLeftRadius: 20,
     overflow: "hidden",
