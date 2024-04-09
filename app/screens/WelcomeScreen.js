@@ -25,11 +25,11 @@ function WelcomeScreen() {
     <ImageBackground
       blurRadius={2}
       style={styles.background}
-      source={require("../assets/Background.jpg")}
+      source={require("../assets/Background.webp")}
     >
       <View style={styles.logoContainer}>
         <Image style={styles.logo} source={require("../assets/logo.png")} />
-        <Text style={styles.tagLine}>Finish Line</Text>
+        <Text style={styles.tagLine}>TimeStack</Text>
       </View>
       <View style={styles.clock}>
         <Greeting user={user} />
@@ -67,9 +67,10 @@ const styles = StyleSheet.create({
     paddingVertical: 20,
   },
   clock: {
-    justifyContent: "center",
+    justifyContent: "flex-end",
     alignItems: "center",
     flex: 1,
+    marginBottom: 20,
   },
 });
 

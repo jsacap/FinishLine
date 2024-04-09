@@ -98,7 +98,7 @@ function TaskListScreen() {
       if (!timerStarted || remainingTime === 0) {
         setCurrentTaskIndex(0);
         setRemainingTime(tasks.length > 0 ? tasks[0].durationMinutes * 60 : 0);
-        setTimerStarted(true); // Indicating that the timer has been started at least once.
+        setTimerStarted(true);
       }
       setCoundownActive(true);
     }
@@ -180,7 +180,35 @@ function TaskListScreen() {
     SetEditTask(null);
     toggleBottomSheet();
   };
+  const renderItem = ({ item, index }) => (
+    <TouchableOpacity
+      onPress={() => {
+        const editingCurrentTask =
+          index === currentTaskIndex && countdownActive;
+        if (editingCurrentTask) {
+          setCoundownActive(false);
+        }
+        const remainingMinutes = editingCurrentTask
+          ? Math.floor(remainingTime / 60)
+          : item.durationMinutes;
 
+        setIsBottomSheetVisible(true);
+        handleOpenBottomSheetEditTask(item, remainingTime, editingCurrentTask);
+      }}
+      style={{ opacity: index < currentTaskIndex ? 0.5 : 1 }}
+    >
+      <TaskItem
+        title={item.name}
+        time={
+          index === currentTaskIndex
+            ? formatRemainingTime(remainingTime)
+            : `${Math.floor(item.durationMinutes / 60)}h:${
+                item.durationMinutes % 60
+              }m`
+        }
+      />
+    </TouchableOpacity>
+  );
   return (
     <>
       <BottomSheet isVisible={isBottomSheetVisible} onClose={toggleBottomSheet}>
@@ -223,45 +251,7 @@ function TaskListScreen() {
             <FlatList
               data={tasks}
               keyExtractor={(item, index) => index.toString()}
-              renderItem={({ item, index }) => (
-                <TouchableOpacity
-                  onPress={() => {
-                    const editingCurrentTask =
-                      index === currentTaskIndex && countdownActive;
-                    if (editingCurrentTask) {
-                      setCoundownActive(false);
-                    }
-                    const remainingMinutes = editingCurrentTask
-                      ? Math.floor(remainingTime / 60)
-                      : item.durationMinutes;
-
-                    const taskDataForEditing = {
-                      ...item,
-                      editingCurrentTask,
-                      remainingMinutes: remainingMinutes,
-                    };
-
-                    setIsBottomSheetVisible(true);
-                    handleOpenBottomSheetEditTask(
-                      item,
-                      remainingTime,
-                      editingCurrentTask
-                    );
-                  }}
-                  style={{ opacity: index < currentTaskIndex ? 0.5 : 1 }}
-                >
-                  <TaskItem
-                    title={item.name}
-                    time={
-                      index === currentTaskIndex
-                        ? formatRemainingTime(remainingTime)
-                        : `${Math.floor(item.durationMinutes / 60)}h:${
-                            item.durationMinutes % 60
-                          }m`
-                    }
-                  />
-                </TouchableOpacity>
-              )}
+              renderItem={renderItem}
             />
           </View>
           <View style={styles.time}>
