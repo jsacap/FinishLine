@@ -16,6 +16,7 @@ import {
 } from "react-native";
 import AppText from "../components/AppText/AppText";
 import TaskItem from "../components/TaskItem";
+import colors from "../config/colors";
 
 import IconButton from "../components/IconButton";
 
@@ -23,6 +24,7 @@ import { useNavigation } from "@react-navigation/native";
 import AppButton from "../components/AppButton";
 import BottomSheet from "../components/BottomSheet";
 import Header from "../components/Header";
+import { TouchableHighlight } from "react-native-gesture-handler";
 
 function TaskListScreen() {
   const [currentTaskIndex, setCurrentTaskIndex] = useState(0);
@@ -181,7 +183,8 @@ function TaskListScreen() {
     toggleBottomSheet();
   };
   const renderItem = ({ item, index }) => (
-    <TouchableOpacity
+    <TouchableHighlight
+      underlayColor={colors.taskItemSecondary}
       onPress={() => {
         const editingCurrentTask =
           index === currentTaskIndex && countdownActive;
@@ -207,7 +210,7 @@ function TaskListScreen() {
               }m`
         }
       />
-    </TouchableOpacity>
+    </TouchableHighlight>
   );
   return (
     <>
@@ -273,6 +276,7 @@ function TaskListScreen() {
 const styles = StyleSheet.create({
   background: {
     flex: 1,
+
     alignItems: "center",
   },
   safeArea: {
@@ -286,8 +290,9 @@ const styles = StyleSheet.create({
     justifyContent: "flex-start",
   },
   taskList: {
-    width: "90%",
-    marginBottom: 20,
+    width: "100%",
+    marginVertical: 20,
+    padding: 5,
   },
   addButton: {
     width: 60,

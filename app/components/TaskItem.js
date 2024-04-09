@@ -19,7 +19,7 @@ function TaskItem({ title, time, remainingTime }) {
       <View style={styles.time}>
         <FontAwesome5 name="tasks" size={20} color="black" />
         {remainingTime ? (
-          <AppText>{remainingTime}</AppText>
+          <AppText style={styles.taskText}>{remainingTime}</AppText>
         ) : (
           <AppText>{time}</AppText>
         )}
@@ -30,17 +30,17 @@ function TaskItem({ title, time, remainingTime }) {
 const styles = StyleSheet.create({
   taskContainer: {
     borderRadius: 40,
-    backgroundColor: "#46c2e8",
+    backgroundColor: colors.taskItemPrimary,
     justifyContent: "space-between",
     alignItems: "center",
     padding: 15,
-    width: "90%",
+    width: "100%",
     height: "auto",
     flexDirection: "row",
     marginTop: 10,
   },
   taskText: {
-    color: colors.white,
+    color: colors.black,
     fontSize: 24,
   },
   time: {
