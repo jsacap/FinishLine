@@ -30,8 +30,15 @@ function AddTaskScreen({
   };
   useEffect(() => {
     setTaskName(task?.name || "");
-    setHours(task ? Math.floor(task.durationMinutes / 60).toString() : "");
-    setMinutes(task ? (task.durationMinutes % 60).toString() : "");
+    if (task?.isCurrentTask && task?.remainingTime != null) {
+      const hours = Math.floor(task.remainingTime / 3600);
+      const minutes = Math.floor((task.remainingTime % 3600) / 60);
+      setHours(hours.toString());
+      setMinutes(minutes.toString());
+    } else {
+      setHours(task ? Math.floor(task.durationMinutes / 60).toString() : "");
+      setMinutes(task ? (task.durationMinutes % 60).toString() : "");
+    }
   }, [task]);
 
   const handleTimeIncrement = (addedMinutes) => {
@@ -67,14 +74,18 @@ function AddTaskScreen({
     Toast.show({
       type: "success",
       text1: "Task Added",
+      position: "bottom",
     });
   };
 
   const handleDeleteTask = () => {
     if (task?.id && onTaskDelete) {
       onTaskDelete(task.id);
-    } else {
-      console.error("onTaskDelete function is not provided.");
+      Toast.show({
+        type: "success",
+        text1: "Task Deleted",
+        position: "bottom",
+      });
     }
   };
 

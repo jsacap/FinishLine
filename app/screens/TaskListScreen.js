@@ -37,12 +37,17 @@ function TaskListScreen() {
   const [isBottomSheetVisible, setIsBottomSheetVisible] = useState(false);
 
   const handleOpenBottomSheetNewTask = () => {
-    SetEditTask(null); // Prepare for adding a new task
+    SetEditTask(null);
     setIsBottomSheetVisible(true);
   };
 
-  const handleOpenBottomSheetEditTask = (task) => {
-    SetEditTask(task);
+  const handleOpenBottomSheetEditTask = (
+    task,
+    remainingTime = null,
+    isCurrentTask = false
+  ) => {
+    SetEditTask({ ...task, remainingTime, isCurrentTask });
+    // SetEditTask(task);
     setIsBottomSheetVisible(true);
   };
 
@@ -52,21 +57,15 @@ function TaskListScreen() {
 
   useFocusEffect(
     React.useCallback(() => {
-      const refreshTasks = async () => {
+      const fetchTasks = async () => {
         const storedTasks = await AsyncStorage.getItem("tasks");
         const parsedTasks = storedTasks ? JSON.parse(storedTasks) : [];
         setTasks(parsedTasks);
-
-        if (!countdownActive) {
-          setCurrentTaskIndex(0);
-          const totalSeconds = getTotalDurationMinutes(parsedTasks) * 60;
-          setRemainingTime(
-            parsedTasks.length > 0 ? parsedTasks[0].durationMinutes * 60 : 0
-          );
-          updateEndTime(totalSeconds);
-        }
       };
-      refreshTasks();
+
+      fetchTasks();
+
+      return () => {}; // Optional cleanup function
     }, [])
   );
 
@@ -145,6 +144,9 @@ function TaskListScreen() {
   };
 
   const handleTaskSubmit = async (newOrUpdatedTask) => {
+    let isCurrentTaskBeingEdited =
+      editTask &&
+      currentTaskIndex === tasks.findIndex((task) => task.id === editTask.id);
     const updatedTasks = editTask
       ? tasks.map((task) =>
           task.id === editTask.id
@@ -158,6 +160,10 @@ function TaskListScreen() {
 
     setTasks(updatedTasks);
     await AsyncStorage.setItem("tasks", JSON.stringify(updatedTasks));
+    if (isCurrentTaskBeingEdited) {
+      setRemainingTime(newOrUpdatedTask.durationMinutes * 60);
+    }
+    updateEndTime();
     SetEditTask(null);
     toggleBottomSheet();
   };
@@ -236,7 +242,11 @@ function TaskListScreen() {
                     };
 
                     setIsBottomSheetVisible(true);
-                    handleOpenBottomSheetEditTask(item);
+                    handleOpenBottomSheetEditTask(
+                      item,
+                      remainingTime,
+                      editingCurrentTask
+                    );
                   }}
                   style={{ opacity: index < currentTaskIndex ? 0.5 : 1 }}
                 >

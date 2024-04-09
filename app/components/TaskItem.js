@@ -37,6 +37,7 @@ const styles = StyleSheet.create({
     width: "80%",
     height: "auto",
     flexDirection: "row",
+    marginTop: 10,
   },
   taskText: {
     color: colors.white,
