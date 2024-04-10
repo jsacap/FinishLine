@@ -1,21 +1,17 @@
-import LinearGradient from "react-native-linear-gradient";
-
 import React, { useEffect, useState } from "react";
 import {
-  View,
-  StyleSheet,
-  TextInput,
   Dimensions,
-  Text,
   Platform,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
 } from "react-native";
 import AppText from "../components/AppText/AppText";
 
-import colors from "../config/colors";
-import IconButton from "../components/IconButton";
-import { Header } from "react-native/Libraries/NewAppScreen";
-import { useNavigation } from "@react-navigation/native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import IconButton from "../components/IconButton";
+import colors from "../config/colors";
 
 import Toast from "react-native-toast-message";
 import TimeButton from "../components/AppText/TimeButton";
@@ -184,31 +180,18 @@ const styles = StyleSheet.create({
   },
   cancelButton: {
     backgroundColor: "gray",
-    marginRight: 20,
-    width: 50,
-    ...Platform.select({
-      ios: {
-        shadowColor: "#000",
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.25,
-        shadowRadius: 3.84,
-      },
-      android: {
-        elevation: 5,
-      },
-    }),
   },
   submitButton: {
     backgroundColor: "gray",
     marginRight: 20,
   },
   deleteButton: {
-    backgroundColor: colors.secondary,
+    backgroundColor: colors.danger,
     margin: 20,
   },
   buttons: {
     flexDirection: "row",
-    justifyContent: "space-evenly",
+    justifyContent: "space-between",
     ...Platform.select({
       ios: {
         shadowColor: "#000",
@@ -221,6 +204,8 @@ const styles = StyleSheet.create({
       },
     }),
     marginBottom: 10,
+    justifyContent: "space-evenly",
+    width: "70%",
   },
   numberLayout: {
     borderWidth: 2,

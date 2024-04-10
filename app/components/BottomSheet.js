@@ -1,4 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
+
+import LinearGradient from "react-native-linear-gradient";
 import {
   Animated,
   Dimensions,
@@ -94,7 +96,6 @@ const styles = StyleSheet.create({
     overflow: "hidden",
     zIndex: 10,
     ...Platform.select({
-      // Shadow for iOS and elevation for Android for a floating effect
       ios: {
         shadowColor: "#000",
         shadowOffset: { width: 0, height: -3 },
@@ -107,7 +108,6 @@ const styles = StyleSheet.create({
     }),
   },
   handle: {
-    // Simple handle indicator at the top
     width: 40,
     height: 5,
     backgroundColor: "#ccc",
