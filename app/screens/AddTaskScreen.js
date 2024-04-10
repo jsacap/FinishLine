@@ -10,12 +10,15 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 
 import Toast from "react-native-toast-message";
 import TimeButton from "../components/AppText/TimeButton";
+import { handleTaskDelete } from "../components/TaskHelper";
 
 function AddTaskScreen({
   task = null,
   onTaskSubmit,
   onTaskCancel,
-  onTaskDelete,
+  tasks,
+  setTasks,
+  toggleBottomSheet,
 }) {
   const [taskName, setTaskName] = useState(task?.name || "");
   const [hours, setHours] = useState(
@@ -102,7 +105,15 @@ function AddTaskScreen({
           <IconButton
             style={styles.deleteButton}
             iconName="trash-alt"
-            onPress={handleDeleteTask}
+            onPress={() =>
+              handleTaskDelete(
+                task.id,
+                tasks,
+                setTasks,
+                () => {},
+                toggleBottomSheet
+              )
+            }
           />
         )}
       </View>
@@ -176,7 +187,6 @@ const styles = StyleSheet.create({
   },
   buttons: {
     flexDirection: "row",
-   
   },
   numberLayout: {
     borderWidth: 2,

@@ -25,6 +25,8 @@ import AppButton from "../components/AppButton";
 import BottomSheet from "../components/BottomSheet";
 import Header from "../components/Header";
 import { TouchableHighlight } from "react-native-gesture-handler";
+import TaskItemSwipeDelete from "../components/TaskItemSwipeDelete";
+import { handleTaskDelete } from "../components/TaskHelper";
 
 function TaskListScreen() {
   const [currentTaskIndex, setCurrentTaskIndex] = useState(0);
@@ -175,13 +177,6 @@ function TaskListScreen() {
     toggleBottomSheet();
   };
 
-  const handleTaskDelete = async (taskId) => {
-    const updatedTasks = tasks.filter((task) => task.id !== taskId);
-    setTasks(updatedTasks);
-    await AsyncStorage.setItem("tasks", JSON.stringify(updatedTasks));
-    SetEditTask(null);
-    toggleBottomSheet();
-  };
   const renderItem = ({ item, index }) => (
     <TouchableHighlight
       underlayColor={colors.taskItemSecondary}
@@ -202,6 +197,19 @@ function TaskListScreen() {
     >
       <TaskItem
         title={item.name}
+        renderRightActions={() => (
+          <TaskItemSwipeDelete
+            onPress={() =>
+              handleTaskDelete(
+                item.id,
+                tasks,
+                setTasks,
+                SetEditTask,
+                toggleBottomSheet
+              )
+            }
+          />
+        )}
         time={
           index === currentTaskIndex
             ? formatRemainingTime(remainingTime)
@@ -219,9 +227,12 @@ function TaskListScreen() {
           task={editTask}
           onTaskSubmit={handleTaskSubmit}
           onTaskCancel={handleTaskCancel}
-          onTaskDelete={handleTaskDelete}
+          tasks={tasks}
+          setTasks={setTasks}
+          toggleBottomSheet={toggleBottomSheet}
         />
       </BottomSheet>
+
       <ImageBackground
         style={styles.background}
         source={require("../assets/Background2.jpg")}
