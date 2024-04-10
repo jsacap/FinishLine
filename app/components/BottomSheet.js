@@ -93,6 +93,28 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 20,
     overflow: "hidden",
     zIndex: 10,
+    ...Platform.select({
+      // Shadow for iOS and elevation for Android for a floating effect
+      ios: {
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: -3 },
+        shadowOpacity: 0.1,
+        shadowRadius: 3,
+      },
+      android: {
+        elevation: 20,
+      },
+    }),
+  },
+  handle: {
+    // Simple handle indicator at the top
+    width: 40,
+    height: 5,
+    backgroundColor: "#ccc",
+    borderRadius: 2.5,
+    alignSelf: "center",
+    marginTop: 8,
+    marginBottom: 16,
   },
 });
 

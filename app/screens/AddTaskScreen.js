@@ -1,7 +1,14 @@
 import LinearGradient from "react-native-linear-gradient";
 
 import React, { useEffect, useState } from "react";
-import { View, StyleSheet, TextInput, Dimensions, Text } from "react-native";
+import {
+  View,
+  StyleSheet,
+  TextInput,
+  Dimensions,
+  Text,
+  Platform,
+} from "react-native";
 import AppText from "../components/AppText/AppText";
 
 import colors from "../config/colors";
@@ -119,7 +126,6 @@ function AddTaskScreen({
           />
         )}
       </View>
-
       <TextInput
         style={styles.textInput}
         onChangeText={setTaskName}
@@ -133,7 +139,7 @@ function AddTaskScreen({
           onChangeText={(text) => setHours(text)}
           value={hours}
           keyboardType="numeric"
-          placeholder="Hours"
+          placeholder="HH"
         />
         <Text style={styles.semicolon}>:</Text>
 
@@ -142,7 +148,7 @@ function AddTaskScreen({
           onChangeText={(text) => setMinutes(text)}
           value={minutes}
           keyboardType="numeric"
-          placeholder="Minutes"
+          placeholder="mm"
         />
       </View>
       <View style={styles.presetTimeButtons}>
@@ -180,6 +186,17 @@ const styles = StyleSheet.create({
     backgroundColor: "gray",
     marginRight: 20,
     width: 50,
+    ...Platform.select({
+      ios: {
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.25,
+        shadowRadius: 3.84,
+      },
+      android: {
+        elevation: 5,
+      },
+    }),
   },
   submitButton: {
     backgroundColor: "gray",
@@ -192,6 +209,17 @@ const styles = StyleSheet.create({
   buttons: {
     flexDirection: "row",
     justifyContent: "space-evenly",
+    ...Platform.select({
+      ios: {
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.25,
+        shadowRadius: 3.84,
+      },
+      android: {
+        elevation: 5,
+      },
+    }),
     marginBottom: 10,
   },
   numberLayout: {
@@ -217,6 +245,7 @@ const styles = StyleSheet.create({
   presetTimeButtons: {
     flexDirection: "row",
   },
+  buttonShadow: {},
 });
 
 export default AddTaskScreen;
