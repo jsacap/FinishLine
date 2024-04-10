@@ -76,7 +76,7 @@ function AddTaskScreen({
     onTaskSubmit(newTask);
     Toast.show({
       type: "success",
-      text1: "Task Added",
+      text1: task?.id ? "Task Edited Successfully" : "Task Added",
       position: "bottom",
     });
   };
