@@ -26,6 +26,9 @@ function AddTaskScreen({
   toggleBottomSheet,
 }) {
   const [taskName, setTaskName] = useState(task?.name || "");
+  const [taskStatus, setTaskStatus] = useState(
+    task?.taskStatus || "incomplete"
+  );
   const [hours, setHours] = useState(
     task ? Math.floor(task.durationMinutes / 60).toString() : ""
   );
@@ -68,14 +71,13 @@ function AddTaskScreen({
       });
       return;
     }
-
     const durationMinutes =
       parseInt(hours || "0", 10) * 60 + parseInt(minutes || "0", 10);
-
     const newTask = {
       id: task?.id || new Date().getTime().toString(),
       name: taskName,
       durationMinutes,
+      taskStatus: task?.taskStatus || "incomplete",
     };
 
     onTaskSubmit(newTask);

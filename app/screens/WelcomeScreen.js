@@ -50,6 +50,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "space-between",
     alignItems: "center",
+    opacity: 0.9,
   },
 
   logo: {

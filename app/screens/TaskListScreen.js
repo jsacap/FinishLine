@@ -28,6 +28,7 @@ import Header from "../components/Header";
 import { TouchableHighlight } from "react-native-gesture-handler";
 import TaskItemSwipeDelete from "../components/TaskItemSwipeDelete";
 import { handleTaskDelete } from "../components/TaskHelper";
+import CompletedTasks from "../components/CompletedTasks";
 
 function TaskListScreen() {
   const [currentTaskIndex, setCurrentTaskIndex] = useState(0);
@@ -117,7 +118,6 @@ function TaskListScreen() {
 
   useEffect(() => {
     let interval = null;
-
     if (countdownActive && remainingTime > 0) {
       interval = setInterval(() => {
         setRemainingTime((prevTime) => prevTime - 1);
@@ -131,6 +131,28 @@ function TaskListScreen() {
 
     return () => clearInterval(interval);
   }, [countdownActive, remainingTime, currentTaskIndex, tasks]);
+
+  useEffect(() => {
+    if (remainingTime > 0 || !countdownActive) return;
+    const markCurrentTaskAsComplete = () => {
+      const updatedTasks = tasks.map((task, index) => {
+        if (index === currentTaskIndex) {
+          return { ...task, taskStatus: "completed" };
+        }
+        return task;
+      });
+      setTasks(updatedTasks);
+      AsyncStorage.setItem("tasks", JSON.stringify(updatedTasks));
+      console.log(updatedTasks);
+    };
+    markCurrentTaskAsComplete();
+    if (currentTaskIndex < tasks.length - 1) {
+      setCurrentTaskIndex((currentIndex) => currentIndex + 1);
+      setRemainingTime(tasks[currentTaskIndex + 1].durationMinutes * 60);
+    } else {
+      setCoundownActive(false);
+    }
+  }, [remainingTime, countdownActive, currentTaskIndex, tasks]);
 
   const handleRestart = () => {
     setCurrentTaskIndex(0);
@@ -275,6 +297,7 @@ function TaskListScreen() {
             <Header>Total Time</Header>
             <AppText>{`${totalHours}h:${totalMinutes}m`}</AppText>
           </View>
+          <CompletedTasks />
           <View style={styles.time}>
             <AppText>Completion Time</AppText>
             <Header>{endTime}</Header>
