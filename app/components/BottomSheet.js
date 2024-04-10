@@ -1,12 +1,13 @@
-import React, { useRef, useState, useEffect } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   Animated,
-  StyleSheet,
-  View,
   Dimensions,
+  Keyboard,
+  StyleSheet,
   TouchableWithoutFeedback,
+  View,
 } from "react-native";
-import { Keyboard } from "react-native";
+import colors from "../config/colors";
 
 const BottomSheet = ({ isVisible, children, onClose }) => {
   const screenHeight = Dimensions.get("window").height;
@@ -54,7 +55,7 @@ const BottomSheet = ({ isVisible, children, onClose }) => {
   }
 
   return (
-    <TouchableWithoutFeedback onPress={onClose}>
+    <TouchableWithoutFeedback>
       <View style={styles.overlay}>
         <Animated.View
           style={[
@@ -65,7 +66,9 @@ const BottomSheet = ({ isVisible, children, onClose }) => {
             },
           ]}
         >
-          <TouchableWithoutFeedback>{children}</TouchableWithoutFeedback>
+          <TouchableWithoutFeedback onPress={onClose}>
+            {children}
+          </TouchableWithoutFeedback>
         </Animated.View>
       </View>
     </TouchableWithoutFeedback>
@@ -84,7 +87,7 @@ const styles = StyleSheet.create({
     position: "absolute",
     left: 0,
     right: 0,
-    backgroundColor: "gray",
+    backgroundColor: colors.white,
     height: "50%",
     borderTopRightRadius: 20,
     borderTopLeftRadius: 20,

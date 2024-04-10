@@ -1,6 +1,7 @@
 import { useFocusEffect } from "@react-navigation/native";
 import AddTaskScreen from "./AddTaskScreen";
 import React, { useEffect, useState } from "react";
+import { Keyboard } from "react-native";
 
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import {
@@ -51,7 +52,6 @@ function TaskListScreen() {
     isCurrentTask = false
   ) => {
     SetEditTask({ ...task, remainingTime, isCurrentTask });
-    // SetEditTask(task);
     setIsBottomSheetVisible(true);
   };
 

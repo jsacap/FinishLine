@@ -1,3 +1,5 @@
+import LinearGradient from "react-native-linear-gradient";
+
 import React, { useEffect, useState } from "react";
 import { View, StyleSheet, TextInput, Dimensions, Text } from "react-native";
 import AppText from "../components/AppText/AppText";
@@ -97,7 +99,7 @@ function AddTaskScreen({
       <View style={styles.buttons}>
         <IconButton
           style={styles.cancelButton}
-          iconName="arrow-left"
+          iconName="angle-left"
           onPress={onTaskCancel}
         />
         <IconButton iconName="check" onPress={handleSubmit} />
@@ -157,19 +159,22 @@ const width = Dimensions.get("window").width - 50;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: "space-between",
+    justifyContent: "space-evenly",
     alignItems: "center",
     paddingBottom: 60,
   },
   textInput: {
     borderWidth: 2,
     borderColor: colors.primary,
-    width,
+    width: "90%",
     height: 50,
     borderRadius: 10,
     paddingLeft: 10,
     fontSize: 20,
     marginBottom: 10,
+    alignItems: "center",
+    textAlign: "center",
+    justifyContent: "center",
   },
   cancelButton: {
     backgroundColor: "gray",
@@ -179,7 +184,6 @@ const styles = StyleSheet.create({
   submitButton: {
     backgroundColor: "gray",
     marginRight: 20,
-    width: 50,
   },
   deleteButton: {
     backgroundColor: colors.secondary,
@@ -187,6 +191,8 @@ const styles = StyleSheet.create({
   },
   buttons: {
     flexDirection: "row",
+    justifyContent: "space-evenly",
+    marginBottom: 10,
   },
   numberLayout: {
     borderWidth: 2,

@@ -5,15 +5,15 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { TouchableWithoutFeedback } from "react-native-gesture-handler";
 function TaskItemSwipeDelete({ onPress }) {
   return (
-    <TouchableWithoutFeedback onPress={onPress}>
-      <View style={styles.container}>
+    <View style={styles.container}>
+      <TouchableWithoutFeedback onPress={onPress}>
         <MaterialCommunityIcons
           name="trash-can"
           size={35}
           color={colors.white}
         />
-      </View>
-    </TouchableWithoutFeedback>
+      </TouchableWithoutFeedback>
+    </View>
   );
 }
 const styles = StyleSheet.create({
