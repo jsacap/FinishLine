@@ -198,7 +198,7 @@ function TaskListScreen() {
     SetEditTask(null);
     toggleBottomSheet();
   };
-
+  // From flatlist to show incomplete tasks
   const renderItem = ({ item, index }) => (
     <TouchableHighlight
       underlayColor={colors.taskItemSecondary}
@@ -212,7 +212,6 @@ function TaskListScreen() {
           ? Math.floor(remainingTime / 60)
           : item.durationMinutes;
 
-        setIsBottomSheetVisible(true);
         handleOpenBottomSheetEditTask(item, remainingTime, editingCurrentTask);
       }}
       style={{ opacity: index < currentTaskIndex ? 0.5 : 1 }}
@@ -226,8 +225,8 @@ function TaskListScreen() {
                 item.id,
                 tasks,
                 setTasks,
-                SetEditTask,
-                toggleBottomSheet
+                SetEditTask
+                // toggleBottomSheet
               )
             }
           />
@@ -251,7 +250,7 @@ function TaskListScreen() {
           onTaskCancel={handleTaskCancel}
           tasks={tasks}
           setTasks={setTasks}
-          toggleBottomSheet={toggleBottomSheet}
+          setBottomSheetVisibility={() => setIsBottomSheetVisible(false)}
         />
       </BottomSheet>
 

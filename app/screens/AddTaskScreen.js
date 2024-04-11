@@ -23,7 +23,7 @@ function AddTaskScreen({
   onTaskCancel,
   tasks,
   setTasks,
-  toggleBottomSheet,
+  setBottomSheetVisibility,
 }) {
   const [taskName, setTaskName] = useState(task?.name || "");
   const [taskStatus, setTaskStatus] = useState(
@@ -91,6 +91,7 @@ function AddTaskScreen({
   const handleDeleteTask = () => {
     if (task?.id && onTaskDelete) {
       onTaskDelete(task.id);
+      setBottomSheetVisibility();
       Toast.show({
         type: "success",
         text1: "Task Deleted",
@@ -117,8 +118,7 @@ function AddTaskScreen({
                 task.id,
                 tasks,
                 setTasks,
-                () => {},
-                toggleBottomSheet
+                setBottomSheetVisibility
               )
             }
           />
