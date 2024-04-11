@@ -1,9 +1,7 @@
 import { useFocusEffect } from "@react-navigation/native";
-import AddTaskScreen from "./AddTaskScreen";
-import React, { useEffect, useState } from "react";
-import { Keyboard } from "react-native";
 
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import React, { useEffect, useState } from "react";
 import {
   FlatList,
   ImageBackground,
@@ -11,39 +9,56 @@ import {
   SafeAreaView,
   StatusBar,
   StyleSheet,
-  Text,
-  TouchableOpacity,
   View,
 } from "react-native";
 import AppText from "../components/AppText/AppText";
 import TaskItem from "../components/TaskItem";
 import colors from "../config/colors";
+import AddTaskScreen from "./AddTaskScreen";
 
 import IconButton from "../components/IconButton";
 
 import { useNavigation } from "@react-navigation/native";
+import { TouchableHighlight } from "react-native-gesture-handler";
 import AppButton from "../components/AppButton";
 import BottomSheet from "../components/BottomSheet";
-import Header from "../components/Header";
-import { TouchableHighlight } from "react-native-gesture-handler";
-import TaskItemSwipeDelete from "../components/TaskItemSwipeDelete";
-import { handleTaskDelete } from "../components/TaskHelper";
 import CompletedTasks from "../components/CompletedTasks";
+import Header from "../components/Header";
+import { handleTaskDelete } from "../components/TaskHelper";
+import TaskItemSwipeDelete from "../components/TaskItemSwipeDelete";
+import useTasksStore from "../store/TaskStore";
+import TaskListItem from "../components/TaskListItem";
 
 function TaskListScreen() {
+  const {
+    tasks,
+    setEditTask,
+    countdownActive,
+    tick,
+    initializeTimer,
+    toggleBottomSheetVisibility,
+    totalDuration,
+    endTime,
+    handleStart,
+    handleRestart,
+    isBottomSheetVisible,
+  } = useTasksStore((state) => ({
+    tasks: state.tasks.filter((task) => task.taskStatus === "incomplete"),
+    totalDuration: state.totalDuration,
+    endTime: state.endTime,
+    initializeTimer: state.initializeTimer,
+    isBottomSheetVisible: state.isBottomSheetVisible,
+  }));
   const [currentTaskIndex, setCurrentTaskIndex] = useState(0);
-  const [remainingTime, setRemainingTime] = useState(0);
-  const [totalDuration, setTotalDuration] = useState(0);
-  const [endTime, setEndTime] = useState("");
   const navigation = useNavigation();
-  const [editTask, SetEditTask] = useState(null);
-  const [tasks, setTasks] = useState([]);
-  const [countdownActive, setCoundownActive] = useState(false);
   const [timerStarted, setTimerStarted] = useState(false);
-  const [isBottomSheetVisible, setIsBottomSheetVisible] = useState(false);
+  const [refreshTrigger, setRefreshTrigger] = useState(Date.now());
+
+  const fetchTasks = useTasksStore((state) => state.fetchTasks);
+  const completeTask = useTasksStore((state) => state.completeTask);
 
   const handleOpenBottomSheetNewTask = () => {
-    SetEditTask(null);
+    setEditTask(null);
     setIsBottomSheetVisible(true);
   };
 
@@ -52,7 +67,7 @@ function TaskListScreen() {
     remainingTime = null,
     isCurrentTask = false
   ) => {
-    SetEditTask({ ...task, remainingTime, isCurrentTask });
+    setEditTask({ ...task, remainingTime, isCurrentTask });
     setIsBottomSheetVisible(true);
   };
 
@@ -62,16 +77,12 @@ function TaskListScreen() {
 
   useFocusEffect(
     React.useCallback(() => {
-      const fetchTasks = async () => {
-        const storedTasks = await AsyncStorage.getItem("tasks");
-        const parsedTasks = storedTasks ? JSON.parse(storedTasks) : [];
-        setTasks(parsedTasks);
-      };
-
       fetchTasks();
 
-      return () => {}; // Optional cleanup function
-    }, [])
+      return () => {
+        // Optional: Any cleanup actions
+      };
+    }, [fetchTasks])
   );
 
   const getTotalDurationMinutes = (tasks) => {
@@ -96,19 +107,19 @@ function TaskListScreen() {
     setEndTime(formattedEndTime);
   };
 
-  const handleStart = () => {
-    if (countdownActive) {
-      setCoundownActive(false);
-    } else {
-      if (!timerStarted || remainingTime === 0) {
-        setCurrentTaskIndex(0);
-        setRemainingTime(tasks.length > 0 ? tasks[0].durationMinutes * 60 : 0);
-        setTimerStarted(true);
-      }
-      setCoundownActive(true);
-    }
-    updateEndTime();
-  };
+  // const handleStart = () => {
+  //   if (countdownActive) {
+  //     setCoundownActive(false);
+  //   } else {
+  //     if (!timerStarted || remainingTime === 0) {
+  //       setCurrentTaskIndex(0);
+  //       setRemainingTime(tasks.length > 0 ? tasks[0].durationMinutes * 60 : 0);
+  //       setTimerStarted(true);
+  //     }
+  //     setCoundownActive(true);
+  //   }
+  //   updateEndTime();
+  // };
 
   const formatRemainingTime = (seconds) => {
     const mins = Math.floor(seconds / 60);
@@ -117,57 +128,39 @@ function TaskListScreen() {
   };
 
   useEffect(() => {
-    let interval = null;
-    if (countdownActive && remainingTime > 0) {
-      interval = setInterval(() => {
-        setRemainingTime((prevTime) => prevTime - 1);
-      }, 1000);
-    } else if (remainingTime <= 0 && currentTaskIndex < tasks.length - 1) {
-      setCurrentTaskIndex((prevIndex) => prevIndex + 1);
-      setRemainingTime(tasks[currentTaskIndex + 1].durationMinutes * 60);
-    } else if (currentTaskIndex >= tasks.length - 1) {
-      setCoundownActive(false);
-    }
+    const interval = countdownActive
+      ? setInterval(() => {
+          tick();
+        }, 1000)
+      : null;
 
-    return () => clearInterval(interval);
-  }, [countdownActive, remainingTime, currentTaskIndex, tasks]);
+    return () => {
+      if (interval) {
+        clearInterval(interval);
+      }
+    };
+  }, [countdownActive, tick]);
 
   useEffect(() => {
-    if (remainingTime > 0 || !countdownActive) return;
-    const markCurrentTaskAsComplete = () => {
-      const updatedTasks = tasks.map((task, index) => {
-        if (index === currentTaskIndex) {
-          return { ...task, taskStatus: "completed" };
-        }
-        return task;
-      });
-      setTasks(updatedTasks);
-      AsyncStorage.setItem("tasks", JSON.stringify(updatedTasks));
-      console.log(updatedTasks);
-    };
-    markCurrentTaskAsComplete();
-    if (currentTaskIndex < tasks.length - 1) {
-      setCurrentTaskIndex((currentIndex) => currentIndex + 1);
-      setRemainingTime(tasks[currentTaskIndex + 1].durationMinutes * 60);
-    } else {
-      setCoundownActive(false);
-    }
-  }, [remainingTime, countdownActive, currentTaskIndex, tasks]);
+    fetchTasks().then(() => {
+      initializeTimer();
+    });
+  }, []);
 
-  const handleRestart = () => {
-    setCurrentTaskIndex(0);
+  // const handleRestart = () => {
+  //   setCurrentTaskIndex(0);
 
-    setRemainingTime(tasks.length > 0 ? tasks[0].durationMinutes * 60 : 0);
+  //   setRemainingTime(tasks.length > 0 ? tasks[0].durationMinutes * 60 : 0);
 
-    const totalSeconds = getTotalDurationMinutes(tasks) * 60;
-    const endTimeDate = new Date(new Date().getTime() + totalSeconds * 1000);
-    const formattedEndTime = `${endTimeDate.getHours()}:${
-      endTimeDate.getMinutes() < 10 ? "0" : ""
-    }${endTimeDate.getMinutes()}`;
-    setEndTime(formattedEndTime);
+  //   const totalSeconds = getTotalDurationMinutes(tasks) * 60;
+  //   const endTimeDate = new Date(new Date().getTime() + totalSeconds * 1000);
+  //   const formattedEndTime = `${endTimeDate.getHours()}:${
+  //     endTimeDate.getMinutes() < 10 ? "0" : ""
+  //   }${endTimeDate.getMinutes()}`;
+  //   setEndTime(formattedEndTime);
 
-    setCoundownActive(false);
-  };
+  //   setCoundownActive(false);
+  // };
 
   const handleTaskSubmit = async (newOrUpdatedTask) => {
     let isCurrentTaskBeingEdited =
@@ -198,60 +191,18 @@ function TaskListScreen() {
     SetEditTask(null);
     toggleBottomSheet();
   };
-  // From flatlist to show incomplete tasks
-  const renderItem = ({ item, index }) => (
-    <TouchableHighlight
-      underlayColor={colors.taskItemSecondary}
-      onPress={() => {
-        const editingCurrentTask =
-          index === currentTaskIndex && countdownActive;
-        if (editingCurrentTask) {
-          setCoundownActive(false);
-        }
-        const remainingMinutes = editingCurrentTask
-          ? Math.floor(remainingTime / 60)
-          : item.durationMinutes;
 
-        handleOpenBottomSheetEditTask(item, remainingTime, editingCurrentTask);
-      }}
-      style={{ opacity: index < currentTaskIndex ? 0.5 : 1 }}
-    >
-      <TaskItem
-        title={item.name}
-        renderRightActions={() => (
-          <TaskItemSwipeDelete
-            onPress={() =>
-              handleTaskDelete(
-                item.id,
-                tasks,
-                setTasks,
-                SetEditTask
-                // toggleBottomSheet
-              )
-            }
-          />
-        )}
-        time={
-          index === currentTaskIndex
-            ? formatRemainingTime(remainingTime)
-            : `${Math.floor(item.durationMinutes / 60)}h:${
-                item.durationMinutes % 60
-              }m`
-        }
-      />
-    </TouchableHighlight>
-  );
   return (
     <>
       <BottomSheet isVisible={isBottomSheetVisible} onClose={toggleBottomSheet}>
-        <AddTaskScreen
-          task={editTask}
-          onTaskSubmit={handleTaskSubmit}
-          onTaskCancel={handleTaskCancel}
-          tasks={tasks}
-          setTasks={setTasks}
-          setBottomSheetVisibility={() => setIsBottomSheetVisible(false)}
-        />
+        <AddTaskScreen />
+        {/* <AddTaskScreen
+          task={editTask} // Pass the task to edit, if any
+          onTaskCancel={() => {
+            setIsBottomSheetVisible(false);
+          }}
+          setBottomSheetVisibility={setIsBottomSheetVisible} // Function to control visibility
+        /> */}
       </BottomSheet>
 
       <ImageBackground
@@ -260,23 +211,16 @@ function TaskListScreen() {
       >
         <View style={styles.buttons}>
           <AppButton
-            style={styles.addButton}
             title="Add Task"
-            onPress={toggleBottomSheet}
+            onPress={() => setEditTask(null)}
+            style={styles.addButton}
           />
 
-          {/* <AppButton
-            style={styles.addButton}
-            title="Add Task"
-            onPress={() => navigation.navigate("AddTask")}
-          /> */}
           {tasks.length > 0 && (
             <AppButton
-              title={
-                !timerStarted ? "START" : countdownActive ? "PAUSE" : "RESUME"
-              }
-              style={styles.playButton}
+              title={countdownActive ? "Pause" : "Start"}
               onPress={handleStart}
+              style={styles.playButton}
             />
           )}
         </View>
@@ -286,7 +230,9 @@ function TaskListScreen() {
             <FlatList
               data={tasks}
               keyExtractor={(item, index) => index.toString()}
-              renderItem={renderItem}
+              renderItem={({ item, index }) => (
+                <TaskListItem item={item} index={index} />
+              )}
             />
           </View>
           <View style={styles.time}>
@@ -296,7 +242,7 @@ function TaskListScreen() {
             <Header>Total Time</Header>
             <AppText>{`${totalHours}h:${totalMinutes}m`}</AppText>
           </View>
-          <CompletedTasks />
+          <CompletedTasks refreshTrigger={refreshTrigger} />
           <View style={styles.time}>
             <AppText>Completion Time</AppText>
             <Header>{endTime}</Header>

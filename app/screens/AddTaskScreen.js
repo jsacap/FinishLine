@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import useTasksStore from "../store/TaskStore";
 import {
   Dimensions,
   Platform,
@@ -19,50 +20,29 @@ import { handleTaskDelete } from "../components/TaskHelper";
 
 function AddTaskScreen({
   task = null,
-  onTaskSubmit,
   onTaskCancel,
-  tasks,
-  setTasks,
   setBottomSheetVisibility,
 }) {
+  const { addOrUpdateTask } = useTasksStore((state) => ({
+    addOrUpdateTask: state.addOrUpdateTask,
+  }));
   const [taskName, setTaskName] = useState(task?.name || "");
-  const [taskStatus, setTaskStatus] = useState(
-    task?.taskStatus || "incomplete"
-  );
   const [hours, setHours] = useState(
     task ? Math.floor(task.durationMinutes / 60).toString() : ""
   );
   const [minutes, setMinutes] = useState(
     task ? (task.durationMinutes % 60).toString() : ""
   );
-  const fetchExistingTasks = async () => {
-    const tasksString = await AsyncStorage.getItem("tasks");
-    return tasksString ? JSON.parse(tasksString) : [];
-  };
+
   useEffect(() => {
-    setTaskName(task?.name || "");
-    if (task?.isCurrentTask && task?.remainingTime != null) {
-      const hours = Math.floor(task.remainingTime / 3600);
-      const minutes = Math.floor((task.remainingTime % 3600) / 60);
-      setHours(hours.toString());
-      setMinutes(minutes.toString());
-    } else {
-      setHours(task ? Math.floor(task.durationMinutes / 60).toString() : "");
-      setMinutes(task ? (task.durationMinutes % 60).toString() : "");
+    if (task) {
+      setTaskName(task.name);
+      setHours(Math.floor(task.durationMinutes / 60).toString());
+      setMinutes((task.durationMinutes % 60).toString());
     }
   }, [task]);
 
-  const handleTimeIncrement = (addedMinutes) => {
-    const totalMinutes = parseInt(minutes || "0", 10) + addedMinutes;
-    const totalHours =
-      parseInt(hours || "0", 10) + Math.floor(totalMinutes / 60);
-    const newMinutes = totalMinutes % 60;
-
-    setHours(totalHours.toString());
-    setMinutes(newMinutes.toString());
-  };
-
-  const handleSubmit = async () => {
+  const handleSubmit = () => {
     if (!taskName || (!hours && !minutes)) {
       Toast.show({
         type: "error",
@@ -71,8 +51,7 @@ function AddTaskScreen({
       });
       return;
     }
-    const durationMinutes =
-      parseInt(hours || "0", 10) * 60 + parseInt(minutes || "0", 10);
+    const durationMinutes = parseInt(hours, 10) * 60 + parseInt(minutes, 10);
     const newTask = {
       id: task?.id || new Date().getTime().toString(),
       name: taskName,
@@ -80,24 +59,13 @@ function AddTaskScreen({
       taskStatus: task?.taskStatus || "incomplete",
     };
 
-    onTaskSubmit(newTask);
+    addOrUpdateTask(newTask);
     Toast.show({
       type: "success",
       text1: task?.id ? "Task Edited Successfully" : "Task Added",
       position: "bottom",
     });
-  };
-
-  const handleDeleteTask = () => {
-    if (task?.id && onTaskDelete) {
-      onTaskDelete(task.id);
-      setBottomSheetVisibility();
-      Toast.show({
-        type: "success",
-        text1: "Task Deleted",
-        position: "bottom",
-      });
-    }
+    setBottomSheetVisibility(false);
   };
 
   return (
@@ -109,20 +77,6 @@ function AddTaskScreen({
           onPress={onTaskCancel}
         />
         <IconButton iconName="check" onPress={handleSubmit} />
-        {task && (
-          <IconButton
-            style={styles.deleteButton}
-            iconName="trash-alt"
-            onPress={() =>
-              handleTaskDelete(
-                task.id,
-                tasks,
-                setTasks,
-                setBottomSheetVisibility
-              )
-            }
-          />
-        )}
       </View>
       <TextInput
         style={styles.textInput}
@@ -134,26 +88,37 @@ function AddTaskScreen({
       <View style={styles.timeInputs}>
         <TextInput
           style={styles.numberLayout}
-          onChangeText={(text) => setHours(text)}
+          onChangeText={setHours}
           value={hours}
           keyboardType="numeric"
           placeholder="HH"
         />
         <Text style={styles.semicolon}>:</Text>
-
         <TextInput
           style={styles.numberLayout}
-          onChangeText={(text) => setMinutes(text)}
+          onChangeText={setMinutes}
           value={minutes}
           keyboardType="numeric"
           placeholder="mm"
         />
       </View>
       <View style={styles.presetTimeButtons}>
-        <TimeButton time={1} onPress={() => handleTimeIncrement(1)} />
-        <TimeButton time={5} onPress={() => handleTimeIncrement(5)} />
-        <TimeButton time={15} onPress={() => handleTimeIncrement(15)} />
-        <TimeButton time={30} onPress={() => handleTimeIncrement(30)} />
+        <TimeButton
+          time={1}
+          onPress={() => setMinutes((prev) => String(+prev + 1))}
+        />
+        <TimeButton
+          time={5}
+          onPress={() => setMinutes((prev) => String(+prev + 5))}
+        />
+        <TimeButton
+          time={15}
+          onPress={() => setMinutes((prev) => String(+prev + 15))}
+        />
+        <TimeButton
+          time={30}
+          onPress={() => setMinutes((prev) => String(+prev + 30))}
+        />
       </View>
     </View>
   );

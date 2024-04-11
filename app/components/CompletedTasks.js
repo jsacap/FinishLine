@@ -3,23 +3,11 @@ import { View, FlatList, TouchableHighlight, StyleSheet } from "react-native";
 import TaskItem from "./TaskItem";
 import colors from "../config/colors";
 import Header from "./Header";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-
+import useTasksStore from "../store/TaskStore";
 export default function CompletedTasks() {
-  const [completedTasks, setCompletedTasks] = useState([]);
-
-  useEffect(() => {
-    fetchCompletedTasks();
-  }, []);
-
-  const fetchCompletedTasks = async () => {
-    const taskString = await AsyncStorage.getItem("tasks");
-    const tasks = taskString ? JSON.parse(taskString) : [];
-    const completedTasks = tasks.filter(
-      (task) => task.taskStatus === "completed"
-    );
-    setCompletedTasks(completedTasks);
-  };
+  const { tasks } = useTasksStore((state) => ({
+    tasks: state.tasks.filter((task) => task.taskStatus === "completed"),
+  }));
 
   const renderItem = ({ item }) => (
     <TouchableHighlight
@@ -35,7 +23,7 @@ export default function CompletedTasks() {
     <View>
       <Header>Completed Tasks</Header>
       <FlatList
-        data={completedTasks}
+        data={tasks}
         keyExtractor={(item, index) => index.toString()}
         renderItem={renderItem}
       />
