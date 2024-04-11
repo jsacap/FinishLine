@@ -19,7 +19,6 @@ import useFindUser from "../hooks/useFindUser";
 
 function WelcomeScreen() {
   const user = useFindUser();
-  console.log(user);
   const navigation = useNavigation();
   return (
     <ImageBackground
