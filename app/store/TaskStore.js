@@ -7,7 +7,25 @@ const useTasksStore = create((set, get) => ({
   currentTaskIndex: 0,
   remainingTime: 0,
   countdownActive: false,
-  setEditTask: (task) => set({ setEditTask: task }),
+  isBottomSheetVisible: false,
+
+  setEditTask: (task, remainingTime = null, isCurrentTask = false) => {
+    set({
+      editTask: { ...task, remainingTime, isCurrentTask },
+      isBottomSheetVisible: true,
+    });
+  },
+
+  toggleBottomSheetVisibility: () => {
+    set((state) => ({ isBottomSheetVisible: !state.isBottomSheetVisible }));
+  },
+
+  clearEditTask: () => {
+    set({
+      editTask: null,
+      isBottomSheetVisible: false,
+    });
+  },
 
   fetchTasks: async () => {
     const tasksString = await AsyncStorage.getItem("tasks");

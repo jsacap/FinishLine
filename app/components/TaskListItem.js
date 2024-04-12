@@ -25,6 +25,8 @@ export default function TaskListItem({ item, index }) {
         const remainingMinutes = editingCurrentTask
           ? Math.floor(remainingTime / 60)
           : item.durationMinutes;
+        console.log(typeof setEditTask, setEditTask); // This should output 'function'
+
         setEditTask({
           ...item,
           remainingMinutes,

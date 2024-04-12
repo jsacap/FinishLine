@@ -37,8 +37,12 @@ function TaskListScreen() {
     tick,
     initializeTimer,
     toggleBottomSheetVisibility,
+
     totalDuration,
+
     endTime,
+    remainingTime,
+    clearEditTask,
     handleStart,
     handleRestart,
     isBottomSheetVisible,
@@ -48,40 +52,20 @@ function TaskListScreen() {
     endTime: state.endTime,
     initializeTimer: state.initializeTimer,
     isBottomSheetVisible: state.isBottomSheetVisible,
+    toggleBottomSheetVisibility: state.toggleBottomSheetVisibility,
   }));
   const [currentTaskIndex, setCurrentTaskIndex] = useState(0);
-  const navigation = useNavigation();
   const [timerStarted, setTimerStarted] = useState(false);
   const [refreshTrigger, setRefreshTrigger] = useState(Date.now());
 
   const fetchTasks = useTasksStore((state) => state.fetchTasks);
   const completeTask = useTasksStore((state) => state.completeTask);
 
-  const handleOpenBottomSheetNewTask = () => {
-    setEditTask(null);
-    setIsBottomSheetVisible(true);
-  };
-
-  const handleOpenBottomSheetEditTask = (
-    task,
-    remainingTime = null,
-    isCurrentTask = false
-  ) => {
-    setEditTask({ ...task, remainingTime, isCurrentTask });
-    setIsBottomSheetVisible(true);
-  };
-
-  const toggleBottomSheet = () => {
-    setIsBottomSheetVisible(!isBottomSheetVisible);
-  };
-
   useFocusEffect(
     React.useCallback(() => {
       fetchTasks();
 
-      return () => {
-        // Optional: Any cleanup actions
-      };
+      return () => {};
     }, [fetchTasks])
   );
 
@@ -192,17 +176,18 @@ function TaskListScreen() {
     toggleBottomSheet();
   };
 
+  const handleCancel = () => {
+    clearEditTask();
+    toggleBottomSheetVisibility;
+  };
+
   return (
     <>
-      <BottomSheet isVisible={isBottomSheetVisible} onClose={toggleBottomSheet}>
+      <BottomSheet
+        isVisible={isBottomSheetVisible}
+        onClose={toggleBottomSheetVisibility}
+      >
         <AddTaskScreen />
-        {/* <AddTaskScreen
-          task={editTask} // Pass the task to edit, if any
-          onTaskCancel={() => {
-            setIsBottomSheetVisible(false);
-          }}
-          setBottomSheetVisibility={setIsBottomSheetVisible} // Function to control visibility
-        /> */}
       </BottomSheet>
 
       <ImageBackground

@@ -18,29 +18,42 @@ import Toast from "react-native-toast-message";
 import TimeButton from "../components/AppText/TimeButton";
 import { handleTaskDelete } from "../components/TaskHelper";
 
-function AddTaskScreen({
-  task = null,
-  onTaskCancel,
-  setBottomSheetVisibility,
-}) {
-  const { addOrUpdateTask } = useTasksStore((state) => ({
+function AddTaskScreen() {
+  const {
+    editTask,
+    addOrUpdateTask,
+    clearEditTask,
+    toggleBottomSheetVisibility,
+  } = useTasksStore((state) => ({
+    editTask: state.editTask,
     addOrUpdateTask: state.addOrUpdateTask,
+    clearEditTask: state.clearEditTask,
+    toggleBottomSheetVisibility: state.toggleBottomSheetVisibility,
   }));
-  const [taskName, setTaskName] = useState(task?.name || "");
+
+  const [taskName, setTaskName] = useState(editTask?.name || "");
   const [hours, setHours] = useState(
-    task ? Math.floor(task.durationMinutes / 60).toString() : ""
+    editTask ? Math.floor(editTask.durationMinutes / 60).toString() : ""
   );
   const [minutes, setMinutes] = useState(
-    task ? (task.durationMinutes % 60).toString() : ""
+    editTask ? (editTask.durationMinutes % 60).toString() : ""
   );
 
+  // Effect to update local state when editTask changes
   useEffect(() => {
-    if (task) {
-      setTaskName(task.name);
-      setHours(Math.floor(task.durationMinutes / 60).toString());
-      setMinutes((task.durationMinutes % 60).toString());
+    if (editTask) {
+      setTaskName(editTask.name);
+      const hrs = Math.floor(editTask.durationMinutes / 60);
+      const mins = editTask.durationMinutes % 60;
+      setHours(hrs.toString());
+      setMinutes(mins.toString());
+    } else {
+      // Reset the state if there's no task to edit
+      setTaskName("");
+      setHours("");
+      setMinutes("");
     }
-  }, [task]);
+  }, [editTask]);
 
   const handleSubmit = () => {
     if (!taskName || (!hours && !minutes)) {
@@ -53,19 +66,24 @@ function AddTaskScreen({
     }
     const durationMinutes = parseInt(hours, 10) * 60 + parseInt(minutes, 10);
     const newTask = {
-      id: task?.id || new Date().getTime().toString(),
+      id: editTask?.id || new Date().getTime().toString(),
       name: taskName,
       durationMinutes,
-      taskStatus: task?.taskStatus || "incomplete",
+      taskStatus: editTask?.taskStatus || "incomplete",
     };
 
     addOrUpdateTask(newTask);
     Toast.show({
       type: "success",
-      text1: task?.id ? "Task Edited Successfully" : "Task Added",
+      text1: editTask?.id ? "Task Edited Successfully" : "Task Added",
       position: "bottom",
     });
-    setBottomSheetVisibility(false);
+    clearEditTask(); // Clear the task being edited after updating
+    toggleBottomSheetVisibility();
+  };
+
+  const handleCancel = () => {
+    toggleBottomSheetVisibility();
   };
 
   return (
@@ -74,7 +92,7 @@ function AddTaskScreen({
         <IconButton
           style={styles.cancelButton}
           iconName="angle-left"
-          onPress={onTaskCancel}
+          onPress={handleCancel}
         />
         <IconButton iconName="check" onPress={handleSubmit} />
       </View>
