@@ -8,7 +8,6 @@ const useTasksStore = create((set, get) => ({
   remainingTime: 0,
   countdownActive: false,
   isBottomSheetVisible: false,
-
   setEditTask: (task, remainingTime = null, isCurrentTask = false) => {
     set({
       editTask: { ...task, remainingTime, isCurrentTask },

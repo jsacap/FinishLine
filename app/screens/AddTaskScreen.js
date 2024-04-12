@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import useTasksStore from "../store/TaskStore";
 import {
   Dimensions,
   Platform,
@@ -18,44 +17,52 @@ import Toast from "react-native-toast-message";
 import TimeButton from "../components/AppText/TimeButton";
 import { handleTaskDelete } from "../components/TaskHelper";
 
-function AddTaskScreen() {
-  const {
-    editTask,
-    addOrUpdateTask,
-    clearEditTask,
-    toggleBottomSheetVisibility,
-  } = useTasksStore((state) => ({
-    editTask: state.editTask,
-    addOrUpdateTask: state.addOrUpdateTask,
-    clearEditTask: state.clearEditTask,
-    toggleBottomSheetVisibility: state.toggleBottomSheetVisibility,
-  }));
-
-  const [taskName, setTaskName] = useState(editTask?.name || "");
+function AddTaskScreen({
+  task = null,
+  onTaskSubmit,
+  onTaskCancel,
+  tasks,
+  setTasks,
+  setBottomSheetVisibility,
+}) {
+  const [taskName, setTaskName] = useState(task?.name || "");
+  const [taskStatus, setTaskStatus] = useState(
+    task?.taskStatus || "incomplete"
+  );
   const [hours, setHours] = useState(
-    editTask ? Math.floor(editTask.durationMinutes / 60).toString() : ""
+    task ? Math.floor(task.durationMinutes / 60).toString() : ""
   );
   const [minutes, setMinutes] = useState(
-    editTask ? (editTask.durationMinutes % 60).toString() : ""
+    task ? (task.durationMinutes % 60).toString() : ""
   );
-
-  // Effect to update local state when editTask changes
+  const fetchExistingTasks = async () => {
+    const tasksString = await AsyncStorage.getItem("tasks");
+    return tasksString ? JSON.parse(tasksString) : [];
+  };
   useEffect(() => {
-    if (editTask) {
-      setTaskName(editTask.name);
-      const hrs = Math.floor(editTask.durationMinutes / 60);
-      const mins = editTask.durationMinutes % 60;
-      setHours(hrs.toString());
-      setMinutes(mins.toString());
+    setTaskName(task?.name || "");
+    if (task?.isCurrentTask && task?.remainingTime != null) {
+      const hours = Math.floor(task.remainingTime / 3600);
+      const minutes = Math.floor((task.remainingTime % 3600) / 60);
+      setHours(hours.toString());
+      setMinutes(minutes.toString());
     } else {
-      // Reset the state if there's no task to edit
-      setTaskName("");
-      setHours("");
-      setMinutes("");
+      setHours(task ? Math.floor(task.durationMinutes / 60).toString() : "");
+      setMinutes(task ? (task.durationMinutes % 60).toString() : "");
     }
-  }, [editTask]);
+  }, [task]);
 
-  const handleSubmit = () => {
+  const handleTimeIncrement = (addedMinutes) => {
+    const totalMinutes = parseInt(minutes || "0", 10) + addedMinutes;
+    const totalHours =
+      parseInt(hours || "0", 10) + Math.floor(totalMinutes / 60);
+    const newMinutes = totalMinutes % 60;
+
+    setHours(totalHours.toString());
+    setMinutes(newMinutes.toString());
+  };
+
+  const handleSubmit = async () => {
     if (!taskName || (!hours && !minutes)) {
       Toast.show({
         type: "error",
@@ -64,26 +71,33 @@ function AddTaskScreen() {
       });
       return;
     }
-    const durationMinutes = parseInt(hours, 10) * 60 + parseInt(minutes, 10);
+    const durationMinutes =
+      parseInt(hours || "0", 10) * 60 + parseInt(minutes || "0", 10);
     const newTask = {
-      id: editTask?.id || new Date().getTime().toString(),
+      id: task?.id || new Date().getTime().toString(),
       name: taskName,
       durationMinutes,
-      taskStatus: editTask?.taskStatus || "incomplete",
+      taskStatus: task?.taskStatus || "incomplete",
     };
 
-    addOrUpdateTask(newTask);
+    onTaskSubmit(newTask);
     Toast.show({
       type: "success",
-      text1: editTask?.id ? "Task Edited Successfully" : "Task Added",
+      text1: task?.id ? "Task Edited Successfully" : "Task Added",
       position: "bottom",
     });
-    clearEditTask(); // Clear the task being edited after updating
-    toggleBottomSheetVisibility();
   };
 
-  const handleCancel = () => {
-    toggleBottomSheetVisibility();
+  const handleDeleteTask = () => {
+    if (task?.id && onTaskDelete) {
+      onTaskDelete(task.id);
+      setBottomSheetVisibility();
+      Toast.show({
+        type: "success",
+        text1: "Task Deleted",
+        position: "bottom",
+      });
+    }
   };
 
   return (
@@ -92,9 +106,23 @@ function AddTaskScreen() {
         <IconButton
           style={styles.cancelButton}
           iconName="angle-left"
-          onPress={handleCancel}
+          onPress={onTaskCancel}
         />
         <IconButton iconName="check" onPress={handleSubmit} />
+        {task && (
+          <IconButton
+            style={styles.deleteButton}
+            iconName="trash-alt"
+            onPress={() =>
+              handleTaskDelete(
+                task.id,
+                tasks,
+                setTasks,
+                setBottomSheetVisibility
+              )
+            }
+          />
+        )}
       </View>
       <TextInput
         style={styles.textInput}
@@ -106,37 +134,26 @@ function AddTaskScreen() {
       <View style={styles.timeInputs}>
         <TextInput
           style={styles.numberLayout}
-          onChangeText={setHours}
+          onChangeText={(text) => setHours(text)}
           value={hours}
           keyboardType="numeric"
           placeholder="HH"
         />
         <Text style={styles.semicolon}>:</Text>
+
         <TextInput
           style={styles.numberLayout}
-          onChangeText={setMinutes}
+          onChangeText={(text) => setMinutes(text)}
           value={minutes}
           keyboardType="numeric"
           placeholder="mm"
         />
       </View>
       <View style={styles.presetTimeButtons}>
-        <TimeButton
-          time={1}
-          onPress={() => setMinutes((prev) => String(+prev + 1))}
-        />
-        <TimeButton
-          time={5}
-          onPress={() => setMinutes((prev) => String(+prev + 5))}
-        />
-        <TimeButton
-          time={15}
-          onPress={() => setMinutes((prev) => String(+prev + 15))}
-        />
-        <TimeButton
-          time={30}
-          onPress={() => setMinutes((prev) => String(+prev + 30))}
-        />
+        <TimeButton time={1} onPress={() => handleTimeIncrement(1)} />
+        <TimeButton time={5} onPress={() => handleTimeIncrement(5)} />
+        <TimeButton time={15} onPress={() => handleTimeIncrement(15)} />
+        <TimeButton time={30} onPress={() => handleTimeIncrement(30)} />
       </View>
     </View>
   );
