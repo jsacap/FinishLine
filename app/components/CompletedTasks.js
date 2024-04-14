@@ -1,29 +1,62 @@
+import { View, Text, StyleSheet } from "react-native";
 import React from "react";
-import { FlatList, TouchableHighlight, View } from "react-native";
-import colors from "../config/colors";
 import useTaskStore from "../store/TaskStore";
-import Header from "./Header";
+import { FlatList, TouchableOpacity } from "react-native-gesture-handler";
 import TaskItem from "./TaskItem";
 
-export default function CompletedTasks() {
+export default function IncompleteTaskList() {
   const completedTasks = useTaskStore((state) => state.getCompletedTasks());
+  console.log(completedTasks);
 
   const renderItem = ({ item }) => (
-    <TouchableHighlight
-      underlayColor={colors.taskItemSecondary}
-      onPress={() => console.log("Task pressed")}
-      style={{ opacity: 0.5 }}
-    >
-      <TaskItem title={item.name} time={item.time} />
-    </TouchableHighlight>
+    <TouchableOpacity style={styles.itemContainer}>
+      <TaskItem
+        title={item.name}
+        time={`${Math.floor(item.durationMinutes / 60)}h:${
+          item.durationMinutes % 60
+        }m`}
+      />
+    </TouchableOpacity>
   );
 
   return (
-    <View>
-      <Header>Completed Tasks</Header>
-      {completedTasks.map((task) => (
-        <Text key={task.id}>{task.name}</Text>
-      ))}
+    <View style={styles.container}>
+      <FlatList
+        data={completedTasks}
+        keyExtractor={(item) => item.id.toString()}
+        renderItem={renderItem}
+      />
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    paddingTop: 20,
+  },
+  itemContainer: {
+    backgroundColor: "#fff",
+    padding: 20,
+    marginVertical: 8,
+    marginHorizontal: 16,
+    borderRadius: 5,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.22,
+    shadowRadius: 2.22,
+    elevation: 3,
+  },
+  title: {
+    fontSize: 18,
+    fontWeight: "bold",
+  },
+  detail: {
+    fontSize: 16,
+    color: "#666",
+  },
+  status: {
+    fontSize: 14,
+    color: "#2f2f2f",
+  },
+});
