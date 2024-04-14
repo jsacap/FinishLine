@@ -1,13 +1,12 @@
-import React, { useState, useEffect } from "react";
-import { View, FlatList, TouchableHighlight, StyleSheet } from "react-native";
-import TaskItem from "./TaskItem";
+import React from "react";
+import { FlatList, TouchableHighlight, View } from "react-native";
 import colors from "../config/colors";
+import useTaskStore from "../store/TaskStore";
 import Header from "./Header";
-import useTasksStore from "../store/TaskStore";
+import TaskItem from "./TaskItem";
+
 export default function CompletedTasks() {
-  const { tasks } = useTasksStore((state) => ({
-    tasks: state.tasks.filter((task) => task.taskStatus === "completed"),
-  }));
+  const completedTasks = useTaskStore((state) => state.getCompletedTasks());
 
   const renderItem = ({ item }) => (
     <TouchableHighlight
@@ -22,11 +21,9 @@ export default function CompletedTasks() {
   return (
     <View>
       <Header>Completed Tasks</Header>
-      <FlatList
-        data={tasks}
-        keyExtractor={(item, index) => index.toString()}
-        renderItem={renderItem}
-      />
+      {completedTasks.map((task) => (
+        <Text key={task.id}>{task.name}</Text>
+      ))}
     </View>
   );
 }

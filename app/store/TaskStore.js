@@ -1,89 +1,47 @@
 import { create } from "zustand";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-// store/useTasksStore.js
+import Toast from "react-native-toast-message";
 
-const useTasksStore = create((set, get) => ({
+const useTaskStore = create((set, get) => ({
   tasks: [],
-  currentTaskIndex: 0,
-  remainingTime: 0,
-  countdownActive: false,
-  isBottomSheetVisible: false,
-  setEditTask: (task, remainingTime = null, isCurrentTask = false) => {
-    set({
-      editTask: { ...task, remainingTime, isCurrentTask },
-      isBottomSheetVisible: true,
-    });
-  },
-
-  toggleBottomSheetVisibility: () => {
-    set((state) => ({ isBottomSheetVisible: !state.isBottomSheetVisible }));
-  },
-
-  clearEditTask: () => {
-    set({
-      editTask: null,
-      isBottomSheetVisible: false,
-    });
-  },
-
-  fetchTasks: async () => {
-    const tasksString = await AsyncStorage.getItem("tasks");
-    const tasks = tasksString ? JSON.parse(tasksString) : [];
-    set({ tasks });
-  },
-  addOrUpdateTask: async (task) => {
-    const tasks = get().tasks;
-    const taskIndex = tasks.findIndex((t) => t.id === task.id);
-    const newTasks =
-      taskIndex === -1
-        ? [...tasks, task]
-        : tasks.map((t) => (t.id === task.id ? { ...t, ...task } : t));
-    await AsyncStorage.setItem("tasks", JSON.stringify(newTasks));
-    set({ tasks: newTasks });
-  },
-
-  initializeTimer: () => {
-    const tasks = get().tasks;
-    if (tasks.length > 0 && tasks[0].taskStatus === "incomplete") {
-      set({
-        remainingTime: tasks[0].durationMinutes * 60,
-        currentTaskIndex: 0,
-        countdownActive: true,
+  loadTasks: async () => {
+    try {
+      const storedTasks = await AsyncStorage.getItem("tasks");
+      if (storedTasks) {
+        set({ tasks: JSON.parse(storedTasks) });
+      }
+    } catch (error) {
+      Toast.show({
+        type: "error",
+        text1: "Error Fetching Tasks...",
       });
     }
   },
 
-  tick: () => {
-    const { remainingTime, tasks, currentTaskIndex } = get();
-    if (remainingTime > 0) {
-      set({ remainingTime: remainingTime - 1 });
-    } else if (tasks[currentTaskIndex].taskStatus === "incomplete") {
-      const updatedTasks = tasks.map((task, index) =>
-        index === currentTaskIndex ? { ...task, taskStatus: "completed" } : task
-      );
-      set({ tasks: updatedTasks });
-      AsyncStorage.setItem("tasks", JSON.stringify(updatedTasks));
-
-      // Move to the next incomplete task
-      const nextTaskIndex = updatedTasks.findIndex(
-        (task, index) =>
-          index > currentTaskIndex && task.taskStatus === "incomplete"
-      );
-      if (nextTaskIndex !== -1) {
-        set({
-          currentTaskIndex: nextTaskIndex,
-          remainingTime: updatedTasks[nextTaskIndex].durationMinutes * 60,
-        });
-      } else {
-        set({ countdownActive: false });
-      }
-    }
+  addTask: (newTask) => {
+    const updatedTasks = [...get().tasks, newTask];
+    set({ tasks: updatedTasks });
+    AsyncStorage.setItem("tasks", JSON.stringify(updatedTasks));
   },
 
-  toggleCountdown: () => {
-    const { countdownActive } = get();
-    set({ countdownActive: !countdownActive });
+  updateTask: (updatedTask) => {
+    const updatedTasks = get().tasks.map((task) =>
+      task.id === updatedTask.id ? updatedTask : task
+    );
+    set({ tasks: updatedTasks });
+    AsyncStorage.setItem("tasks", JSON.stringify(updatedTasks));
   },
+
+  deleteTask: (taskId) => {
+    const updatedTasks = get().tasks.filter((task) => task.id !== taskId);
+    set({ tasks: updatedTasks });
+    AsyncStorage.setItem("tasks", JSON.stringify(updatedTasks));
+  },
+
+  getCompletedTasks: () =>
+    get().tasks.filter((task) => task.taskStatus === "complete"),
+  getIncompleteTasks: () =>
+    get().tasks.filter((task) => task.taskStatus === "incomplete"),
 }));
 
-export default useTasksStore;
+export default useTaskStore;
