@@ -9,7 +9,7 @@ export default function IncompleteTaskList() {
   console.log(incompleteTasks);
 
   const renderItem = ({ item }) => (
-    <TouchableOpacity style={styles.itemContainer}>
+    <TouchableOpacity>
       <TaskItem
         title={item.name}
         time={`${Math.floor(item.durationMinutes / 60)}h:${

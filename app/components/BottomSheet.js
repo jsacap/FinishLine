@@ -1,121 +1,71 @@
-import React, { useEffect, useRef, useState } from "react";
-
-import LinearGradient from "react-native-linear-gradient";
 import {
-  Animated,
-  Dimensions,
-  Keyboard,
-  StyleSheet,
-  TouchableWithoutFeedback,
   View,
+  Text,
+  Animated,
+  StyleSheet,
+  Dimensions,
+  TouchableWithoutFeedback,
 } from "react-native";
+import React, { useEffect, useRef } from "react";
+import { ScreenStackHeaderBackButtonImage } from "react-native-screens";
 import colors from "../config/colors";
 
-const BottomSheet = ({ isVisible, children, onClose }) => {
-  const screenHeight = Dimensions.get("window").height;
-  const [bottomSheetHeight, setBottomSheetHeight] = useState(screenHeight / 2);
-  const translateY = useRef(new Animated.Value(screenHeight)).current;
-  const openHeight = screenHeight / 2;
-  useEffect(() => {
-    const keyboardDidShowListener = Keyboard.addListener(
-      "keyboardDidShow",
-      (e) => {
-        const keyboardHeight = e.endCoordinates.height;
-        const newHeight = screenHeight - keyboardHeight - 20;
-        setBottomSheetHeight(newHeight);
-      }
-    );
-    const keyboardDidHideListener = Keyboard.addListener(
-      "keyboardDidHide",
-      () => {
-        setBottomSheetHeight(screenHeight / 2);
-      }
-    );
-    return () => {
-      keyboardDidShowListener.remove();
-      keyboardDidHideListener.remove();
-    };
-  }, [screenHeight]);
+const screenHeight = Dimensions.get("window").height;
 
-  React.useEffect(() => {
+export default function BottomSheet({ isVisible, children, onClose }) {
+  const animatedValue = useRef(new Animated.Value(0)).current;
+  const translateY = animatedValue.interpolate({
+    inputRange: [0, 1],
+    outputRange: [screenHeight, screenHeight * 0.5],
+  });
+
+  useEffect(() => {
     if (isVisible) {
-      Animated.timing(translateY, {
-        toValue: screenHeight - openHeight,
-        duration: 300,
+      Animated.timing(animatedValue, {
+        toValue: 1,
+        duration: 1000,
         useNativeDriver: true,
       }).start();
     } else {
-      Animated.timing(translateY, {
-        toValue: screenHeight,
-        duration: 300,
+      Animated.timing(animatedValue, {
+        toValue: 0,
+        duration: 1000,
         useNativeDriver: true,
       }).start();
     }
-  }, [isVisible, translateY, screenHeight, openHeight]);
-  if (!isVisible) {
-    return null;
-  }
-
+  }, [isVisible]);
   return (
-    <TouchableWithoutFeedback>
-      <View style={styles.overlay}>
+    <TouchableWithoutFeedback onPress={onClose}>
+      <View style={StyleSheet.overlay}>
         <Animated.View
-          style={[
-            styles.container,
-            {
-              transform: [{ translateY }],
-              height: bottomSheetHeight,
-            },
-          ]}
+          style={[styles.container, { transform: [{ translateY }] }]}
         >
-          <TouchableWithoutFeedback onPress={onClose}>
-            {children}
-          </TouchableWithoutFeedback>
+          {children}
         </Animated.View>
       </View>
     </TouchableWithoutFeedback>
   );
-};
+}
 
 const styles = StyleSheet.create({
   overlay: {
-    position: "absolute",
-    height: "50%",
-    width: "100%",
-    backgroundColor: "rgba(0,0,0,0)",
-    zIndex: 5,
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.5)",
+    justifyContent: "flex-end",
   },
   container: {
-    position: "absolute",
-    left: 0,
-    right: 0,
+    height: screenHeight * 0.5,
     backgroundColor: colors.white,
-    height: "50%",
-    borderTopRightRadius: 20,
     borderTopLeftRadius: 20,
-    overflow: "hidden",
-    zIndex: 10,
-    ...Platform.select({
-      ios: {
-        shadowColor: "#000",
-        shadowOffset: { width: 0, height: -3 },
-        shadowOpacity: 0.1,
-        shadowRadius: 3,
-      },
-      android: {
-        elevation: 20,
-      },
-    }),
-  },
-  handle: {
-    width: 40,
-    height: 5,
-    backgroundColor: "#ccc",
-    borderRadius: 2.5,
-    alignSelf: "center",
-    marginTop: 8,
-    marginBottom: 16,
+    borderTopRightRadius: 20,
+    padding: 16,
+    shadowColor: colors.black,
+    shadowOffset: {
+      width: 0,
+      height: -2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 5,
   },
 });
-
-export default BottomSheet;

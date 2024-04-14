@@ -4,6 +4,9 @@ import Toast from "react-native-toast-message";
 
 const useTaskStore = create((set, get) => ({
   tasks: [],
+  isBottomSheetVisible: false,
+  toggleBottomSheetVisibility: () =>
+    set((state) => ({ isBottomSheetVisible: !state.isBottomSheetVisible })),
   loadTasks: async () => {
     try {
       const storedTasks = await AsyncStorage.getItem("tasks");
