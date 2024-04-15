@@ -28,7 +28,7 @@ export default function TaskListScreen() {
 
       <BottomSheet
         ref={bottomSheetRef}
-        index={1}
+        index={-1}
         snapPoints={snapPoints}
         enablePanDownToClose={true}
         // backgroundStyle={{ backgroundColor: "#1d0f4e" }}
