@@ -4,9 +4,8 @@ import useTaskStore from "../store/TaskStore";
 import { FlatList, TouchableOpacity } from "react-native-gesture-handler";
 import TaskItem from "./TaskItem";
 
-export default function IncompleteTaskList() {
+export default function completedTasks() {
   const completedTasks = useTaskStore((state) => state.getCompletedTasks());
-  console.log(completedTasks);
 
   const renderItem = ({ item }) => (
     <TouchableOpacity style={styles.itemContainer}>

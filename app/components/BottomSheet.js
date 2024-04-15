@@ -1,71 +1,79 @@
+import React, { useCallback, useMemo, useEffect, useRef } from "react";
+import { View, Text, StyleSheet, Button } from "react-native";
 import {
-  View,
-  Text,
-  Animated,
-  StyleSheet,
-  Dimensions,
-  TouchableWithoutFeedback,
-} from "react-native";
-import React, { useEffect, useRef } from "react";
-import { ScreenStackHeaderBackButtonImage } from "react-native-screens";
-import colors from "../config/colors";
+  BottomSheetModal,
+  BottomSheetView,
+  BottomSheetModalProvider,
+} from "@gorhom/bottom-sheet";
+import useTaskStore from "../store/TaskStore";
 
-const screenHeight = Dimensions.get("window").height;
-
-export default function BottomSheet({ isVisible, children, onClose }) {
-  const animatedValue = useRef(new Animated.Value(0)).current;
-  const translateY = animatedValue.interpolate({
-    inputRange: [0, 1],
-    outputRange: [screenHeight, screenHeight * 0.5],
-  });
-
-  useEffect(() => {
-    if (isVisible) {
-      Animated.timing(animatedValue, {
-        toValue: 1,
-        duration: 1000,
-        useNativeDriver: true,
-      }).start();
-    } else {
-      Animated.timing(animatedValue, {
-        toValue: 0,
-        duration: 1000,
-        useNativeDriver: true,
-      }).start();
-    }
-  }, [isVisible]);
-  return (
-    <TouchableWithoutFeedback onPress={onClose}>
-      <View style={StyleSheet.overlay}>
-        <Animated.View
-          style={[styles.container, { transform: [{ translateY }] }]}
-        >
-          {children}
-        </Animated.View>
-      </View>
-    </TouchableWithoutFeedback>
+const TaskListScreen = () => {
+  const { isBottomSheetVisible, toggleBottomSheetVisibility } = useTaskStore(
+    (state) => ({
+      isBottomSheetVisible: state.isBottomSheetVisible,
+      toggleBottomSheetVisibility: state.toggleBottomSheetVisibility,
+    })
   );
-}
+
+  const bottomSheetModalRef = useRef(null);
+
+  const snapPoints = useMemo(() => ["25%", "50%"], []);
+
+  // Effect to auto-present or close bottom sheet based on state
+  useEffect(() => {
+    if (isBottomSheetVisible) {
+      bottomSheetModalRef.current?.present();
+    } else {
+      bottomSheetModalRef.current?.close();
+    }
+  }, [isBottomSheetVisible]);
+
+  const handleSheetChanges = useCallback(
+    (index) => {
+      console.log("handleSheetChanges", index);
+      // Optional: update the visibility state when the bottom sheet is dismissed
+      if (index === -1) {
+        toggleBottomSheetVisibility();
+      }
+    },
+    [toggleBottomSheetVisibility]
+  );
+
+  return (
+    <BottomSheetModalProvider>
+      <View style={styles.container}>
+        <Button
+          onPress={toggleBottomSheetVisibility}
+          title="Toggle Bottom Sheet"
+          color="black"
+        />
+        <BottomSheetModal
+          ref={bottomSheetModalRef}
+          index={1}
+          snapPoints={snapPoints}
+          onChange={handleSheetChanges}
+        >
+          <BottomSheetView style={styles.contentContainer}>
+            <Text>Awesome 🎉</Text>
+            {/* You can place any child component here */}
+          </BottomSheetView>
+        </BottomSheetModal>
+      </View>
+    </BottomSheetModalProvider>
+  );
+};
 
 const styles = StyleSheet.create({
-  overlay: {
-    flex: 1,
-    backgroundColor: "rgba(0,0,0,0.5)",
-    justifyContent: "flex-end",
-  },
   container: {
-    height: screenHeight * 0.5,
-    backgroundColor: colors.white,
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
-    padding: 16,
-    shadowColor: colors.black,
-    shadowOffset: {
-      width: 0,
-      height: -2,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 5,
+    flex: 1,
+    padding: 24,
+    justifyContent: "center",
+    backgroundColor: "grey",
+  },
+  contentContainer: {
+    flex: 1,
+    alignItems: "center",
   },
 });
+
+export default TaskListScreen;

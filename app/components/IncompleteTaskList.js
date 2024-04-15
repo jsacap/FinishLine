@@ -3,6 +3,7 @@ import React from "react";
 import useTaskStore from "../store/TaskStore";
 import { FlatList, TouchableOpacity } from "react-native-gesture-handler";
 import TaskItem from "./TaskItem";
+import Header from "./Header";
 
 export default function IncompleteTaskList() {
   const incompleteTasks = useTaskStore((state) => state.getIncompleteTasks());
@@ -10,6 +11,7 @@ export default function IncompleteTaskList() {
 
   const renderItem = ({ item }) => (
     <TouchableOpacity>
+      <Header>TASKS</Header>
       <TaskItem
         title={item.name}
         time={`${Math.floor(item.durationMinutes / 60)}h:${
