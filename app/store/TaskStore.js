@@ -94,6 +94,11 @@ const useTaskStore = create((set, get) => ({
     const updatedTasks = get().tasks.filter((task) => task.id !== taskId);
     set({ tasks: updatedTasks });
     AsyncStorage.setItem("tasks", JSON.stringify(updatedTasks));
+    get().closeBottomSheet();
+    Toast.show({
+      type: "success",
+      text1: "Task Deleted Successfully",
+    });
   },
 
   getCompletedTasks: () =>

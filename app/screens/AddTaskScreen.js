@@ -15,6 +15,7 @@ export default function AddTaskScreen({ handleClosePress }) {
     setTaskHours,
     setTaskMinutes,
     addTask,
+    deleteTask,
     updateTask,
     selectedTaskId,
   } = useTaskStore((state) => ({
@@ -25,6 +26,7 @@ export default function AddTaskScreen({ handleClosePress }) {
     setTaskHours: state.setTaskHours,
     setTaskMinutes: state.setTaskMinutes,
     addTask: state.addTask,
+    deleteTask: state.deleteTask,
     selectedTaskId: state.selectedTaskId,
     updateTask: state.updateTask,
   }));
@@ -44,9 +46,16 @@ export default function AddTaskScreen({ handleClosePress }) {
 
   return (
     <View style={styles.container}>
-      <TouchableHighlight>
+      <View style={styles.buttons}>
         <IconButton iconName="check" onPress={handleSave} />
-      </TouchableHighlight>
+        {selectedTaskId && (
+          <IconButton
+            iconName="trash-alt"
+            style={styles.deleteButton}
+            onPress={() => deleteTask(selectedTaskId)}
+          />
+        )}
+      </View>
       <TextInput
         style={styles.textInput}
         placeholder="Task"
@@ -80,11 +89,19 @@ export default function AddTaskScreen({ handleClosePress }) {
 }
 
 const styles = StyleSheet.create({
+  buttons: {
+    flexDirection: "row",
+    justifyContent: "space-evenly",
+    width: "90%",
+  },
   container: {
     flex: 1,
     justifyContent: "space-evenly",
     width: "90%",
     alignItems: "center",
+  },
+  deleteButton: {
+    backgroundColor: colors.danger,
   },
   numberLayout: {
     borderWidth: 2,
