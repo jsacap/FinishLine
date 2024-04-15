@@ -1,15 +1,10 @@
-import { View, Text, StyleSheet } from "react-native";
-import colors from "../config/colors";
-import React, { useCallback, useRef } from "react";
-import AppText from "../components/AppText/AppText";
+import { TouchableHighlight } from "@gorhom/bottom-sheet";
+import { StyleSheet, View } from "react-native";
 import { TextInput } from "react-native-gesture-handler";
-import useTaskStore from "../store/TaskStore";
-import {
-  BottomSheetScrollView,
-  TouchableHighlight,
-} from "@gorhom/bottom-sheet";
 import TimeButton from "../components/AppText/TimeButton";
 import IconButton from "../components/IconButton";
+import colors from "../config/colors";
+import useTaskStore from "../store/TaskStore";
 
 export default function AddTaskScreen({ handleClosePress }) {
   const {
@@ -20,6 +15,8 @@ export default function AddTaskScreen({ handleClosePress }) {
     setTaskHours,
     setTaskMinutes,
     addTask,
+    updateTask,
+    selectedTaskId,
   } = useTaskStore((state) => ({
     taskInput: state.taskInput,
     taskHours: state.taskHours,
@@ -28,7 +25,17 @@ export default function AddTaskScreen({ handleClosePress }) {
     setTaskHours: state.setTaskHours,
     setTaskMinutes: state.setTaskMinutes,
     addTask: state.addTask,
+    selectedTaskId: state.selectedTaskId,
+    updateTask: state.updateTask,
   }));
+
+  const handleSave = () => {
+    if (selectedTaskId) {
+      updateTask();
+    } else {
+      addTask();
+    }
+  };
 
   const incrementTime = (minutes) => {
     const totalMinutes = taskMinutes + minutes;
@@ -38,7 +45,7 @@ export default function AddTaskScreen({ handleClosePress }) {
   return (
     <View style={styles.container}>
       <TouchableHighlight>
-        <IconButton iconName="check" onPress={addTask} />
+        <IconButton iconName="check" onPress={handleSave} />
       </TouchableHighlight>
       <TextInput
         style={styles.textInput}

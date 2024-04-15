@@ -1,20 +1,24 @@
-import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  FlatList,
-} from "react-native";
-import React, { useEffect } from "react";
+import { FlatList, StyleSheet, TouchableOpacity, View } from "react-native";
 import useTaskStore from "../store/TaskStore";
-import TaskItem from "./TaskItem";
 import Header from "./Header";
+import TaskItem from "./TaskItem";
 
 export default function IncompleteTaskList() {
-  const incompleteTasks = useTaskStore((state) => state.getIncompleteTasks());
+  const { incompleteTasks, loadTaskForEditing, openBottomSheet } = useTaskStore(
+    (state) => ({
+      incompleteTasks: state.getIncompleteTasks(),
+      loadTaskForEditing: state.loadTaskForEditing,
+      openBottomSheet: state.openBottomSheet,
+    })
+  );
+
+  const handleTaskPress = (taskId) => {
+    loadTaskForEditing(taskId);
+    openBottomSheet();
+  };
 
   const renderItem = ({ item }) => (
-    <TouchableOpacity onPress={() => console.log("Task pressed", item.id)}>
+    <TouchableOpacity onPress={() => handleTaskPress(item.id)}>
       <TaskItem
         title={item.text}
         time={`${Math.floor(item.durationMinutes / 60)}h:${

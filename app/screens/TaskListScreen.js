@@ -1,14 +1,13 @@
-import { View, Text, StyleSheet } from "react-native";
-import BottomSheet, { BottomSheetBackdrop } from "@gorhom/bottom-sheet";
-import colors from "../config/colors";
-import React, { useRef, useMemo, useEffect } from "react";
-import AppButton from "../components/AppButton";
-import AddTaskScreen from "./AddTaskScreen";
-import IncompleteTaskList from "../components/IncompleteTaskList";
+import BottomSheet from "@gorhom/bottom-sheet";
 import Constants from "expo-constants";
+import { useEffect, useMemo, useRef } from "react";
+import { StyleSheet, Text, View } from "react-native";
+import AppButton from "../components/AppButton";
 import IconButton from "../components/IconButton";
-import Clock from "../components/Clock";
+import IncompleteTaskList from "../components/IncompleteTaskList";
+import colors from "../config/colors";
 import useTaskStore from "../store/TaskStore";
+import AddTaskScreen from "./AddTaskScreen";
 
 export default function TaskListScreen() {
   const { loadTasks, isBottomSheetVisible, openBottomSheet, closeBottomSheet } =
