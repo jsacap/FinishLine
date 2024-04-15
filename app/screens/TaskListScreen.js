@@ -17,8 +17,7 @@ export default function TaskListScreen() {
   const handleOpenPress = () => bottomSheetRef.current?.expand();
   const handleCollapsePress = () => bottomSheetRef.current?.collapse();
 
-  const snapToIndex = (index: number) =>
-    bottomSheetRef.current?.snapToIndex(index);
+  const snapToIndex = (index) => bottomSheetRef.current?.snapToIndex(index);
 
   return (
     <View style={styles.container}>

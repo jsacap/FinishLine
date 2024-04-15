@@ -4,9 +4,18 @@ import Toast from "react-native-toast-message";
 
 const useTaskStore = create((set, get) => ({
   tasks: [],
-  isBottomSheetVisible: false,
-  toggleBottomSheetVisibility: () =>
-    set((state) => ({ isBottomSheetVisible: !state.isBottomSheetVisible })),
+  taskInput: "",
+  taskHours: 0,
+  taskMinutes: 0,
+
+  setTaskInput: (input) => set({ taskInput: input }),
+  setTaskHours: (hours) => set({ taskHours: hours }),
+  setTaskMinutes: (minutes) =>
+    set({
+      taskMinutes: minutes % 60,
+      taskHours: get().taskHours + Math.floor(minutes / 60),
+    }),
+  clearTaskInputs: () => set({ taskInput: "", taskHours: 0, taskMinutes: 0 }),
   loadTasks: async () => {
     try {
       const storedTasks = await AsyncStorage.getItem("tasks");
@@ -21,18 +30,18 @@ const useTaskStore = create((set, get) => ({
     }
   },
 
-  addTask: (newTask) => {
+  addTask: () => {
+    const newTask = {
+      id: Date.now(),
+      text: get().taskInput,
+      hours: get().taskHours,
+      minutes: get().taskMinutes,
+      taskStatus: "incomplete",
+    };
     const updatedTasks = [...get().tasks, newTask];
     set({ tasks: updatedTasks });
     AsyncStorage.setItem("tasks", JSON.stringify(updatedTasks));
-  },
-
-  updateTask: (updatedTask) => {
-    const updatedTasks = get().tasks.map((task) =>
-      task.id === updatedTask.id ? updatedTask : task
-    );
-    set({ tasks: updatedTasks });
-    AsyncStorage.setItem("tasks", JSON.stringify(updatedTasks));
+    get().clearTaskInputs();
   },
 
   deleteTask: (taskId) => {

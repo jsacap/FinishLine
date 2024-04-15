@@ -3,38 +3,70 @@ import colors from "../config/colors";
 import React, { useCallback, useRef } from "react";
 import AppText from "../components/AppText/AppText";
 import { TextInput } from "react-native-gesture-handler";
+import useTaskStore from "../store/TaskStore";
 import {
   BottomSheetScrollView,
-  BottomSheetTextInput,
   TouchableHighlight,
 } from "@gorhom/bottom-sheet";
 import TimeButton from "../components/AppText/TimeButton";
 import IconButton from "../components/IconButton";
 
 export default function AddTaskScreen() {
+  const {
+    taskInput,
+    taskHours,
+    taskMinutes,
+    setTaskInput,
+    setTaskHours,
+    setTaskMinutes,
+    addTask,
+  } = useTaskStore((state) => ({
+    taskInput: state.taskInput,
+    taskHours: state.taskHours,
+    taskMinutes: state.taskMinutes,
+    setTaskInput: state.setTaskInput,
+    setTaskHours: state.setTaskHours,
+    setTaskMinutes: state.setTaskMinutes,
+    addTask: state.addTask,
+  }));
+
+  const incrementTime = (minutes) => {
+    const totalMinutes = taskMinutes + minutes;
+    setTaskMinutes(totalMinutes);
+  };
+
   return (
     <View style={styles.container}>
-      <TouchableHighlight onPress={() => console.log("Added")}>
-        <IconButton iconName="check" onPress={() => console.log("pressed")} />
+      <TouchableHighlight>
+        <IconButton iconName="check" onPress={addTask} />
       </TouchableHighlight>
-      <TextInput style={styles.textInput} placeholder="Task" keyb />
+      <TextInput
+        style={styles.textInput}
+        placeholder="Task"
+        value={taskInput}
+        onChangeText={setTaskInput}
+      />
       <View style={styles.timeInputs}>
         <TextInput
           keyboardType="numeric"
           style={styles.numberLayout}
           placeholder="Hours"
+          value={taskHours.toString()}
+          onChangeText={(text) => setTaskHours(Number(text))}
         />
         <TextInput
           keyboardType="numeric"
           style={styles.numberLayout}
           placeholder="Minutes"
+          value={taskMinutes.toString()}
+          onChangeText={(text) => setTaskMinutes(Number(text))}
         />
       </View>
       <View style={styles.presetTimeButtons}>
-        <TimeButton time={1} />
-        <TimeButton time={5} />
-        <TimeButton time={15} />
-        <TimeButton time={30} />
+        <TimeButton time={1} onPress={() => incrementTime(1)} />
+        <TimeButton time={5} onPress={() => incrementTime(5)} />
+        <TimeButton time={15} onPress={() => incrementTime(15)} />
+        <TimeButton time={30} onPress={() => incrementTime(30)} />
       </View>
     </View>
   );
