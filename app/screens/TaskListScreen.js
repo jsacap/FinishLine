@@ -1,6 +1,6 @@
 import { View, Text, StyleSheet } from "react-native";
 import BottomSheet, { BottomSheetBackdrop } from "@gorhom/bottom-sheet";
-
+import colors from "../config/colors";
 import React, { useRef, useMemo } from "react";
 import AppButton from "../components/AppButton";
 import AddTaskScreen from "./AddTaskScreen";
@@ -25,29 +25,37 @@ export default function TaskListScreen() {
       <View style={styles.buttons}>
         <AppButton title="Add Task" onPress={handleOpenPress} />
       </View>
-
+      <View style={styles.incompleteList}>
+        <Text>ASD</Text>
+        <IncompleteTaskList />
+      </View>
       <BottomSheet
         ref={bottomSheetRef}
         index={-1}
+        keyboardBehavior="extend"
         snapPoints={snapPoints}
         enablePanDownToClose={true}
-        // backgroundStyle={{ backgroundColor: "#1d0f4e" }}
       >
         <View style={styles.contentContainer}>
-          <IconButton iconName="arrow-down" onPress={handleClosePress} />
+          <IconButton
+            iconName="arrow-down"
+            style={styles.closeBottomSheet}
+            onPress={handleClosePress}
+            color={colors.black}
+          />
           <AddTaskScreen />
         </View>
       </BottomSheet>
-      <View style={styles.incompleteList}>
-        <IncompleteTaskList />
-      </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  button: {
+  buttons: {
     padding: 20,
+  },
+  closeBottomSheet: {
+    backgroundColor: colors.medium,
   },
   container: {
     flex: 1,
@@ -65,7 +73,10 @@ const styles = StyleSheet.create({
     color: "#fff",
   },
   incompleteList: {
-    flex: 1,
+    justifyContent: "center",
+    height: "auto",
+    alignItems: "center",
+    width: "100%",
     backgroundColor: "blue",
   },
 });

@@ -11,7 +11,6 @@ export default function IncompleteTaskList() {
 
   const renderItem = ({ item }) => (
     <TouchableOpacity>
-      <Header>TASKS</Header>
       <TaskItem
         title={item.name}
         time={`${Math.floor(item.durationMinutes / 60)}h:${
@@ -23,6 +22,8 @@ export default function IncompleteTaskList() {
 
   return (
     <View style={styles.container}>
+      <Header>TASKS</Header>
+
       <FlatList
         data={incompleteTasks}
         keyExtractor={(item) => item.id.toString()}
