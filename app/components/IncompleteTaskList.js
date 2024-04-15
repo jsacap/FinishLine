@@ -1,18 +1,22 @@
-import { View, Text, StyleSheet } from "react-native";
-import React from "react";
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  FlatList,
+} from "react-native";
+import React, { useEffect } from "react";
 import useTaskStore from "../store/TaskStore";
-import { FlatList, TouchableOpacity } from "react-native-gesture-handler";
 import TaskItem from "./TaskItem";
 import Header from "./Header";
 
 export default function IncompleteTaskList() {
   const incompleteTasks = useTaskStore((state) => state.getIncompleteTasks());
-  console.log(incompleteTasks);
 
   const renderItem = ({ item }) => (
-    <TouchableOpacity>
+    <TouchableOpacity onPress={() => console.log("Task pressed", item.id)}>
       <TaskItem
-        title={item.name}
+        title={item.text}
         time={`${Math.floor(item.durationMinutes / 60)}h:${
           item.durationMinutes % 60
         }m`}
@@ -22,8 +26,7 @@ export default function IncompleteTaskList() {
 
   return (
     <View style={styles.container}>
-      <Header>TASKS</Header>
-
+      <Header title="TASKS" />
       <FlatList
         data={incompleteTasks}
         keyExtractor={(item) => item.id.toString()}
@@ -32,11 +35,11 @@ export default function IncompleteTaskList() {
     </View>
   );
 }
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     paddingTop: 20,
+    width: "100%",
   },
   itemContainer: {
     backgroundColor: "#fff",

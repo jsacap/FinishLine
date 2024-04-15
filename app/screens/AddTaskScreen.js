@@ -11,7 +11,7 @@ import {
 import TimeButton from "../components/AppText/TimeButton";
 import IconButton from "../components/IconButton";
 
-export default function AddTaskScreen() {
+export default function AddTaskScreen({ handleClosePress }) {
   const {
     taskInput,
     taskHours,

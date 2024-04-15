@@ -7,6 +7,7 @@ const useTaskStore = create((set, get) => ({
   taskInput: "",
   taskHours: 0,
   taskMinutes: 0,
+  isBottomSheetVisible: false,
 
   setTaskInput: (input) => set({ taskInput: input }),
   setTaskHours: (hours) => set({ taskHours: hours }),
@@ -16,6 +17,7 @@ const useTaskStore = create((set, get) => ({
       taskHours: get().taskHours + Math.floor(minutes / 60),
     }),
   clearTaskInputs: () => set({ taskInput: "", taskHours: 0, taskMinutes: 0 }),
+
   loadTasks: async () => {
     try {
       const storedTasks = await AsyncStorage.getItem("tasks");
@@ -30,12 +32,16 @@ const useTaskStore = create((set, get) => ({
     }
   },
 
+  openBottomSheet: () => set({ isBottomSheetVisible: true }),
+  closeBottomSheet: () => set({ isBottomSheetVisible: false }),
+
   addTask: () => {
     const newTask = {
       id: Date.now(),
       text: get().taskInput,
       hours: get().taskHours,
       minutes: get().taskMinutes,
+      durationMinutes: get().taskHours * 60 + get().taskMinutes,
       taskStatus: "incomplete",
     };
     const updatedTasks = [...get().tasks, newTask];
