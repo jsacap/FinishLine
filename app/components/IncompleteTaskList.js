@@ -2,31 +2,46 @@ import { FlatList, StyleSheet, TouchableOpacity, View } from "react-native";
 import useTaskStore from "../store/TaskStore";
 import Header from "./Header";
 import TaskItem from "./TaskItem";
+import TaskItemSwipeDelete from "./TaskItemSwipeDelete";
+import Swipeable from "react-native-gesture-handler/Swipeable";
+import { useState } from "react/cjs/react.production.min";
 
 export default function IncompleteTaskList() {
-  const { incompleteTasks, loadTaskForEditing, openBottomSheet } = useTaskStore(
-    (state) => ({
+  const { incompleteTasks, loadTaskForEditing, openBottomSheet, deleteTask } =
+    useTaskStore((state) => ({
       incompleteTasks: state.getIncompleteTasks(),
+      deleteTask: state.deleteTask,
       loadTaskForEditing: state.loadTaskForEditing,
       openBottomSheet: state.openBottomSheet,
-    })
-  );
+    }));
 
   const handleTaskPress = (taskId) => {
     loadTaskForEditing(taskId);
     openBottomSheet();
   };
 
-  const renderItem = ({ item }) => (
-    <TouchableOpacity onPress={() => handleTaskPress(item.id)}>
-      <TaskItem
-        title={item.text}
-        time={`${Math.floor(item.durationMinutes / 60)}h:${
-          item.durationMinutes % 60
-        }m`}
+  const renderItem = ({ item }) => {
+    const renderRightActions = () => (
+      <TaskItemSwipeDelete
+        onPress={() => {
+          deleteTask(item.id);
+        }}
       />
-    </TouchableOpacity>
-  );
+    );
+    return (
+      <Swipeable>
+        <TouchableOpacity onPress={() => handleTaskPress(item.id)}>
+          <TaskItem
+            title={item.text}
+            time={`${Math.floor(item.durationMinutes / 60)}h:${
+              item.durationMinutes % 60
+            }m`}
+            renderRightActions={renderRightActions}
+          />
+        </TouchableOpacity>
+      </Swipeable>
+    );
+  };
 
   return (
     <View style={styles.container}>

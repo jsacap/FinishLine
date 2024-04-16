@@ -50,6 +50,7 @@ const useTaskStore = create((set, get) => ({
     Toast.show({
       type: "success",
       text1: "Task Edited!",
+      position: "bottom",
     });
   },
 
@@ -68,7 +69,8 @@ const useTaskStore = create((set, get) => ({
   },
 
   openBottomSheet: () => set({ isBottomSheetVisible: true }),
-  closeBottomSheet: () => set({ isBottomSheetVisible: false }),
+  closeBottomSheet: () =>
+    set({ isBottomSheetVisible: false }, get().clearTaskInputs()),
 
   addTask: () => {
     const newTask = {
@@ -87,6 +89,7 @@ const useTaskStore = create((set, get) => ({
     Toast.show({
       type: "success",
       text1: "Task Added!",
+      position: "bottom",
     });
   },
 
@@ -95,9 +98,11 @@ const useTaskStore = create((set, get) => ({
     set({ tasks: updatedTasks });
     AsyncStorage.setItem("tasks", JSON.stringify(updatedTasks));
     get().closeBottomSheet();
+    get().clearTaskInputs();
     Toast.show({
       type: "success",
       text1: "Task Deleted Successfully",
+      position: "bottom",
     });
   },
 
