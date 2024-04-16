@@ -1,11 +1,11 @@
-import { View, Text, StyleSheet } from "react-native";
+import { View, StyleSheet, TouchableOpacity } from "react-native";
 import colors from "../config/colors";
 import React from "react";
 import useTaskStore from "../store/TaskStore";
 import TaskItem from "./TaskItem";
 import TaskItemSwipeDelete from "./TaskItemSwipeDelete";
 import Header from "./Header";
-import { FlatList } from "react-native-gesture-handler";
+import { FlatList, Swipeable } from "react-native-gesture-handler";
 
 export default function CompletedTasks() {
   const { completedTasks, deleteTask } = useTaskStore((state) => ({
@@ -19,11 +19,15 @@ export default function CompletedTasks() {
     );
 
     return (
-      <TaskItem
-        taskId={item.id}
-        renderRightActions={renderRightActions}
-        style={styles.completedTaskCOntainer}
-      />
+      <Swipeable renderRightActions={renderRightActions}>
+        <TouchableOpacity onPress={() => handleTaskPress(item.id)}>
+          <TaskItem
+            taskId={item.id}
+            renderRightActions={renderRightActions}
+            style={styles.completedTaskCOntainer}
+          />
+        </TouchableOpacity>
+      </Swipeable>
     );
   };
 
