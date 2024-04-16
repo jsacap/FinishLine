@@ -9,6 +9,7 @@ import colors from "../config/colors";
 import useTaskStore from "../store/TaskStore";
 import AddTaskScreen from "./AddTaskScreen";
 import Toast from "react-native-toast-message";
+import CompletedTasks from "../components/CompletedTasks";
 
 export default function TaskListScreen() {
   const {
@@ -66,8 +67,10 @@ export default function TaskListScreen() {
         <AppButton title="START" onPress={handleStartFirstTimer} />
       </View>
       <View style={styles.incompleteList}>
-        <Text>ASD</Text>
         <IncompleteTaskList />
+      </View>
+      <View style={styles.incompleteList}>
+        <CompletedTasks />
       </View>
       <BottomSheet
         ref={bottomSheetRef}

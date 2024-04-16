@@ -9,7 +9,7 @@ import colors from "../config/colors";
 import AppText from "./AppText/AppText";
 import useTaskStore from "../store/TaskStore";
 
-function TaskItem({ taskId, renderRightActions }) {
+function TaskItem({ taskId, renderRightActions, stlye }) {
   const [secondsLeft, setSecondsLeft] = useState(null);
   const intervalRef = useRef(null);
 
@@ -51,7 +51,7 @@ function TaskItem({ taskId, renderRightActions }) {
 
   if (!task) {
     return (
-      <View style={styles.taskContainer}>
+      <View style={[styles.taskContainer, style]}>
         <AppText style={styles.taskText}>Task not found or deleted.</AppText>
       </View>
     );

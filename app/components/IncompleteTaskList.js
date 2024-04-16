@@ -36,7 +36,7 @@ export default function IncompleteTaskList() {
 
   return (
     <View style={styles.container}>
-      <Header title="TASKS" />
+      <Header title="Incomplete" />
       <FlatList
         data={incompleteTasks}
         keyExtractor={(item) => item.id.toString()}
