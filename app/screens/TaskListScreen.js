@@ -10,13 +10,19 @@ import useTaskStore from "../store/TaskStore";
 import AddTaskScreen from "./AddTaskScreen";
 
 export default function TaskListScreen() {
-  const { loadTasks, isBottomSheetVisible, openBottomSheet, closeBottomSheet } =
-    useTaskStore((state) => ({
-      loadTasks: state.loadTasks,
-      isBottomSheetVisible: state.isBottomSheetVisible,
-      openBottomSheet: state.openBottomSheet,
-      closeBottomSheet: state.closeBottomSheet,
-    }));
+  const {
+    loadTasks,
+    isBottomSheetVisible,
+    openBottomSheet,
+    closeBottomSheet,
+    clearTaskInputs,
+  } = useTaskStore((state) => ({
+    loadTasks: state.loadTasks,
+    isBottomSheetVisible: state.isBottomSheetVisible,
+    openBottomSheet: state.openBottomSheet,
+    closeBottomSheet: state.closeBottomSheet,
+    clearTaskInputs: state.clearTaskInputs,
+  }));
 
   const snapPoints = useMemo(() => ["25%", "50%", "70%"]);
   const bottomSheetRef = useRef(null);
