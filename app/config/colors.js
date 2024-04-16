@@ -6,6 +6,6 @@ export default {
   medium: "#6e6969",
   light: "#f8f4f4",
   danger: "#ff5252",
-  taskItemPrimary: "#27a17e",
-  taskItemSecondary: "#62d9b7",
+  taskItemPrimary: "#778899",
+  taskItemSecondary: "#34D399",
 };

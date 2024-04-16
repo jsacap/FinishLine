@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { StyleSheet, View } from "react-native";
 import { Swipeable } from "react-native-gesture-handler";
 
@@ -6,25 +6,28 @@ import { FontAwesome5 } from "@expo/vector-icons";
 
 import colors from "../config/colors";
 import AppText from "./AppText/AppText";
+import useTaskStore from "../store/TaskStore";
 
-function TaskItem({ title, time, remainingTime, renderRightActions }) {
-  const displayTime = `${Math.floor(remainingTime / 3600)}h:${Math.floor(
-    (remainingTime % 3600) / 60
-  )}m`;
+function TaskItem({ taskId, renderRightActions }) {
+  const task = useTaskStore((state) =>
+    state.tasks.find((t) => t.id === taskId)
+  );
+  const formatTime = (seconds) => {
+    const hours = Math.floor(seconds / 3600);
+    const minutes = Math.floor((seconds % 3600) / 60);
+    return `${hours}h:${minutes}m`;
+  };
+  const displayTime = formatTime(task.remainingSeconds);
 
   return (
     <Swipeable renderRightActions={renderRightActions}>
       <View style={styles.taskContainer}>
         <View>
-          <AppText style={styles.taskText}>{title}</AppText>
+          <AppText style={styles.taskText}>{task.text}</AppText>
         </View>
         <View style={styles.time}>
           <FontAwesome5 name="tasks" size={20} color="black" />
-          {remainingTime ? (
-            <AppText style={styles.taskText}>{remainingTime}</AppText>
-          ) : (
-            <AppText>{time}</AppText>
-          )}
+          <AppText style={styles.taskText}>{displayTime}</AppText>
         </View>
       </View>
     </Swipeable>

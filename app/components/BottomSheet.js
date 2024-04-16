@@ -68,11 +68,11 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 24,
     justifyContent: "center",
-    backgroundColor: "grey",
   },
   contentContainer: {
     flex: 1,
     alignItems: "center",
+    backgroundColor: "black",
   },
 });
 

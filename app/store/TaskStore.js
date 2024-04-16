@@ -84,8 +84,12 @@ const useTaskStore = create((set, get) => ({
       hours: get().taskHours,
       minutes: get().taskMinutes,
       durationMinutes: get().taskHours * 60 + get().taskMinutes,
+      durationSeconds: (get().taskHours * 60 + get().taskMinutes) * 60,
+      timerActive: false,
+      remainingSeconds: (get().taskHours * 60 + get().taskMinutes) * 60,
       taskStatus: "incomplete",
     };
+
     const updatedTasks = [...get().tasks, newTask];
     set({ tasks: updatedTasks });
     AsyncStorage.setItem("tasks", JSON.stringify(updatedTasks));
@@ -109,6 +113,44 @@ const useTaskStore = create((set, get) => ({
       text1: "Task Deleted Successfully",
       position: "bottom",
     });
+  },
+
+  startTimer: (taskId) => {
+    const interval = setInterval(() => {
+      const tasks = get().tasks.map((task) => {
+        if (
+          task.id === taskId &&
+          task.timerActive &&
+          task.remainingSeconds > 0
+        ) {
+          return { ...task, remainingSeconds: task.remainingSeconds - 1 };
+        } else if (task.remainingSeconds === 0) {
+          clearInterval(interval);
+          return { ...task, taskStatus: "complete", timerActive: false };
+        }
+        return task;
+      });
+      set({ tasks });
+    }, 1000);
+
+    set((state) => ({
+      tasks: state.tasks.map((task) =>
+        task.id === taskId ? { ...task, timerActive: true } : task
+      ),
+    }));
+  },
+
+  pauseTimer: (taskId) => {
+    set((state) => ({
+      tasks: state.tasks.map((task) =>
+        task.id === taskId ? { ...task, timerActive: false } : task
+      ),
+    }));
+  },
+
+  // Method to resume timer
+  resumeTimer: (taskId) => {
+    get().startTimer(taskId);
   },
 
   getCompletedTasks: () =>

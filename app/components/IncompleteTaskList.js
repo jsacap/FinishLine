@@ -22,22 +22,13 @@ export default function IncompleteTaskList() {
 
   const renderItem = ({ item }) => {
     const renderRightActions = () => (
-      <TaskItemSwipeDelete
-        onPress={() => {
-          deleteTask(item.id);
-        }}
-      />
+      <TaskItemSwipeDelete onPress={() => deleteTask(item.id)} />
     );
+
     return (
-      <Swipeable>
+      <Swipeable renderRightActions={renderRightActions}>
         <TouchableOpacity onPress={() => handleTaskPress(item.id)}>
-          <TaskItem
-            title={item.text}
-            time={`${Math.floor(item.durationMinutes / 60)}h:${
-              item.durationMinutes % 60
-            }m`}
-            renderRightActions={renderRightActions}
-          />
+          <TaskItem taskId={item.id} renderRightActions={renderRightActions} />
         </TouchableOpacity>
       </Swipeable>
     );

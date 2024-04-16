@@ -8,6 +8,7 @@ import IncompleteTaskList from "../components/IncompleteTaskList";
 import colors from "../config/colors";
 import useTaskStore from "../store/TaskStore";
 import AddTaskScreen from "./AddTaskScreen";
+import Toast from "react-native-toast-message";
 
 export default function TaskListScreen() {
   const {
@@ -16,12 +17,16 @@ export default function TaskListScreen() {
     openBottomSheet,
     closeBottomSheet,
     clearTaskInputs,
+    startTimer,
+    getIncompleteTasks,
   } = useTaskStore((state) => ({
     loadTasks: state.loadTasks,
     isBottomSheetVisible: state.isBottomSheetVisible,
     openBottomSheet: state.openBottomSheet,
     closeBottomSheet: state.closeBottomSheet,
     clearTaskInputs: state.clearTaskInputs,
+    startTimer: state.startTimer,
+    getIncompleteTasks: state.getIncompleteTasks,
   }));
 
   const snapPoints = useMemo(() => ["25%", "50%", "70%"]);
@@ -41,10 +46,24 @@ export default function TaskListScreen() {
     }
   }, [isBottomSheetVisible]);
 
+  const handleStartFirstTimer = () => {
+    const tasks = getIncompleteTasks();
+    if (tasks.length > 0) {
+      startTimer(tasks[0].id);
+    } else {
+      Toast.show({
+        type: "error",
+        text1: "There are no tasks set!",
+        position: "bottom",
+      });
+    }
+  };
+
   return (
     <View style={styles.container}>
       <View style={styles.buttons}>
         <AppButton title="Add Task" onPress={openBottomSheet} />
+        <AppButton title="START" onPress={handleStartFirstTimer} />
       </View>
       <View style={styles.incompleteList}>
         <Text>ASD</Text>
@@ -82,6 +101,7 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: "center",
     paddingTop: Constants.statusBarHeight,
+    backgroundColor: "#121212",
   },
   contentContainer: {
     flex: 1,
