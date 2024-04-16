@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { StyleSheet, View } from "react-native";
 import { Swipeable } from "react-native-gesture-handler";
+import { shallow } from "zustand/shallow"; // Import shallow
 
 import { FontAwesome5 } from "@expo/vector-icons";
 
@@ -9,15 +10,55 @@ import AppText from "./AppText/AppText";
 import useTaskStore from "../store/TaskStore";
 
 function TaskItem({ taskId, renderRightActions }) {
+  const [secondsLeft, setSecondsLeft] = useState(null);
+  const intervalRef = useRef(null);
+
   const task = useTaskStore((state) =>
     state.tasks.find((t) => t.id === taskId)
   );
+
+  useEffect(() => {
+    if (task && task.timerActive) {
+      setSecondsLeft(task.remainingSeconds);
+    }
+  }, [task]);
+
+  // Manage countdown
+  useEffect(() => {
+    if (task && task.timerActive && secondsLeft > 0) {
+      intervalRef.current = setInterval(() => {
+        setSecondsLeft((prevSeconds) => prevSeconds - 1);
+      }, 1000);
+    }
+
+    return () => {
+      clearInterval(intervalRef.current);
+    };
+  }, [task, task?.timerActive, secondsLeft]);
+
+  // Handle task completion
+  useEffect(() => {
+    if (secondsLeft === 0) {
+      useTaskStore.getState().updateTaskCompletion(taskId);
+    }
+  }, [secondsLeft, taskId]);
+
   const formatTime = (seconds) => {
-    const hours = Math.floor(seconds / 3600);
-    const minutes = Math.floor((seconds % 3600) / 60);
-    return `${hours}h:${minutes}m`;
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = seconds % 60;
+    return `${minutes}m:${remainingSeconds}s`;
   };
-  const displayTime = formatTime(task.remainingSeconds);
+
+  if (!task) {
+    return (
+      <View style={styles.taskContainer}>
+        <AppText style={styles.taskText}>Task not found or deleted.</AppText>
+      </View>
+    );
+  }
+
+  const displayTime =
+    secondsLeft !== null ? formatTime(secondsLeft) : "Loading...";
 
   return (
     <Swipeable renderRightActions={renderRightActions}>

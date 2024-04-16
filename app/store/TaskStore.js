@@ -153,6 +153,46 @@ const useTaskStore = create((set, get) => ({
     get().startTimer(taskId);
   },
 
+  updateTaskCompletion: async (taskId) => {
+    const currentTask = get().tasks.find((task) => task.id === taskId);
+    if (!currentTask) {
+      Toast.show({
+        type: "error",
+        text1: "Task not found",
+      });
+      return;
+    }
+    set((state) => ({
+      tasks: state.tasks.map((task) => {
+        if (task.id === taskId) {
+          return {
+            ...task,
+            timerActive: false,
+            taskStatus: "complete",
+            remainingSeconds: 0,
+          };
+        }
+        return task;
+      }),
+    }));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    const updatedTasks = get().tasks;
+    try {
+      await AsyncStorage.setItem("tasks", JSON.stringify(updatedTasks));
+      Toast.show({
+        type: "success",
+        text1: `${currentTask.text} Complete!`,
+        position: "bottom",
+      });
+    } catch (error) {
+      Toast.show({
+        type: "error",
+        text1: "Failed to save the tasks",
+        text2: error.message,
+      });
+    }
+  },
+
   getCompletedTasks: () =>
     get().tasks.filter((task) => task.taskStatus === "complete"),
   getIncompleteTasks: () =>
