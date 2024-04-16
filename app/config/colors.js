@@ -8,4 +8,8 @@ export default {
   danger: "#ff5252",
   taskItemPrimary: "#778899",
   taskItemSecondary: "#34D399",
+  platinumWhite: "#E5E5E5",
+  slateGray: "#778899",
+  darkCharcoal: "#121212",
+  gunmetalGray: "#1E1E1E",
 };

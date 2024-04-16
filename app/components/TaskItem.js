@@ -9,7 +9,7 @@ import colors from "../config/colors";
 import AppText from "./AppText/AppText";
 import useTaskStore from "../store/TaskStore";
 
-function TaskItem({ taskId, renderRightActions, stlye }) {
+function TaskItem({ taskId, style }) {
   const [secondsLeft, setSecondsLeft] = useState(null);
   const intervalRef = useRef(null);
 
@@ -51,7 +51,7 @@ function TaskItem({ taskId, renderRightActions, stlye }) {
 
   if (!task) {
     return (
-      <View style={[styles.taskContainer, style]}>
+      <View style={styles.taskContainer}>
         <AppText style={styles.taskText}>Task not found or deleted.</AppText>
       </View>
     );
@@ -61,24 +61,22 @@ function TaskItem({ taskId, renderRightActions, stlye }) {
     secondsLeft !== null ? formatTime(secondsLeft) : "Loading...";
 
   return (
-    <Swipeable renderRightActions={renderRightActions}>
-      <View style={styles.taskContainer}>
-        <View>
-          <AppText style={styles.taskText}>{task.text}</AppText>
-        </View>
-        <View style={styles.time}>
-          <FontAwesome5 name="tasks" size={20} color="black" />
-          <AppText style={styles.taskText}>{displayTime}</AppText>
-        </View>
+    <View style={[styles.taskContainer, style]}>
+      <View>
+        <AppText style={styles.taskText}>{task.text}</AppText>
       </View>
-    </Swipeable>
+      <View style={styles.time}>
+        <FontAwesome5 name="tasks" size={20} color="black" />
+        <AppText style={styles.taskText}>{displayTime}</AppText>
+      </View>
+    </View>
   );
 }
 const styles = StyleSheet.create({
   taskContainer: {
-    padding: 20,
+    paddingLeft: 10,
+
     marginVertical: 8,
-    marginHorizontal: 16,
     borderRadius: 5,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 1 },

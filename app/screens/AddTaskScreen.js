@@ -1,5 +1,5 @@
 import { TouchableHighlight } from "@gorhom/bottom-sheet";
-import { StyleSheet, View } from "react-native";
+import { StyleSheet, View, Keyboard } from "react-native";
 import { TextInput } from "react-native-gesture-handler";
 import TimeButton from "../components/AppText/TimeButton";
 import IconButton from "../components/IconButton";
@@ -18,6 +18,7 @@ export default function AddTaskScreen({ handleClosePress }) {
     deleteTask,
     updateTask,
     selectedTaskId,
+    closeBottomSheet,
   } = useTaskStore((state) => ({
     taskInput: state.taskInput,
     taskHours: state.taskHours,
@@ -29,14 +30,17 @@ export default function AddTaskScreen({ handleClosePress }) {
     deleteTask: state.deleteTask,
     selectedTaskId: state.selectedTaskId,
     updateTask: state.updateTask,
+    closeBottomSheet: state.closeBottomSheet,
   }));
 
   const handleSave = () => {
+    Keyboard.dismiss();
     if (selectedTaskId) {
       updateTask();
     } else {
       addTask();
     }
+    // closeBottomSheet();
   };
 
   const incrementTime = (minutes) => {

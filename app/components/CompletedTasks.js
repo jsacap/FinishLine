@@ -22,14 +22,14 @@ export default function CompletedTasks() {
       <TaskItem
         taskId={item.id}
         renderRightActions={renderRightActions}
-        stlye={styles.taskContainer}
+        style={styles.completedTaskCOntainer}
       />
     );
   };
 
   return (
     <View style={styles.container}>
-      <Header>Completed</Header>
+      <Header style={styles.header}>Completed</Header>
       <FlatList
         data={completedTasks}
         keyExtractor={(item) => item.id.toString()}
@@ -45,19 +45,10 @@ const styles = StyleSheet.create({
     paddingTop: 20,
     width: "100%",
   },
-  itemContainer: {
-    backgroundColor: "#fff",
-    padding: 20,
-    marginVertical: 8,
-    marginHorizontal: 16,
-    borderRadius: 5,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.22,
-    shadowRadius: 2.22,
-    elevation: 3,
-  },
-  taskContainer: {
+  completedTaskCOntainer: {
     backgroundColor: colors.taskItemSecondary,
+  },
+  header: {
+    color: colors.platinumWhite,
   },
 });

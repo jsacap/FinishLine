@@ -19,7 +19,7 @@ function TaskItemSwipeDelete({ onPress }) {
 const styles = StyleSheet.create({
   container: {
     backgroundColor: colors.danger,
-    width: 70,
+    width: "20%",
     justifyContent: "center",
     alignItems: "center",
     borderRadius: 20,
