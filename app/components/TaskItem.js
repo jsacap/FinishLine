@@ -62,12 +62,11 @@ function TaskItem({ taskId, style }) {
     const minutes = totalMinutes % 60;
     let timeString = "";
 
-    // Check if there are any hours to display
     if (hours > 0) {
       timeString += `${hours} hr${hours === 1 ? "" : "s"}`;
     }
     if (minutes > 0) {
-      if (timeString.length > 0) timeString += " and ";
+      if (timeString.length > 0) timeString += " ";
       timeString += `${minutes} min${minutes === 1 ? "" : "s"}`;
     }
 

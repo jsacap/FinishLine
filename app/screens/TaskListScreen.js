@@ -27,6 +27,8 @@ export default function TaskListScreen() {
     closeBottomSheet: state.closeBottomSheet,
     clearTaskInputs: state.clearTaskInputs,
     startTimer: state.startTimer,
+    timerRunning: false,
+    currentTaskId: null,
     getIncompleteTasks: state.getIncompleteTasks,
   }));
 
