@@ -10,6 +10,8 @@ import useTaskStore from "../store/TaskStore";
 import AddTaskScreen from "./AddTaskScreen";
 import Toast from "react-native-toast-message";
 import CompletedTasks from "../components/CompletedTasks";
+import TimeCompletion from "../components/TimeCompletion";
+import TimeButton from "../components/AppText/TimeButton";
 
 export default function TaskListScreen() {
   const {
@@ -19,6 +21,10 @@ export default function TaskListScreen() {
     closeBottomSheet,
     clearTaskInputs,
     startTimer,
+    toggleTimer,
+    pauseTimer,
+    resumeTimer,
+    activeTaskId,
     getIncompleteTasks,
   } = useTaskStore((state) => ({
     loadTasks: state.loadTasks,
@@ -30,6 +36,10 @@ export default function TaskListScreen() {
     timerRunning: false,
     currentTaskId: null,
     getIncompleteTasks: state.getIncompleteTasks,
+    toggleTimer: state.toggleTimer,
+    pauseTimer: state.pauseTimer,
+    resumeTimer: state.resumeTimer,
+    activeTaskId: state.activeTaskId,
   }));
 
   const snapPoints = useMemo(() => ["25%", "50%", "70%"]);
@@ -49,16 +59,23 @@ export default function TaskListScreen() {
     }
   }, [isBottomSheetVisible]);
 
-  const handleStartFirstTimer = () => {
+  const getButtonTitle = () => {
+    if (!activeTaskId) return "Start";
+    const task = getIncompleteTasks().find((task) => task.id === activeTaskId);
+    return task && task.timerActive ? "Pause" : "Resume";
+  };
+  const handleTimerControl = () => {
     const tasks = getIncompleteTasks();
-    if (tasks.length > 0) {
-      startTimer(tasks[0].id);
+    if (!activeTaskId && tasks.length > 0) {
+      toggleTimer(tasks[0].id);
     } else {
-      Toast.show({
-        type: "error",
-        text1: "There are no tasks set!",
-        position: "bottom",
-      });
+      // Check if the currently active task is running and either pause or resume it
+      const activeTask = tasks.find((task) => task.id === activeTaskId);
+      if (activeTask && activeTask.timerActive) {
+        pauseTimer(activeTaskId);
+      } else {
+        resumeTimer(activeTaskId);
+      }
     }
   };
 
@@ -66,7 +83,7 @@ export default function TaskListScreen() {
     <View style={styles.container}>
       <View style={styles.buttons}>
         <AppButton title="Add Task" onPress={openBottomSheet} />
-        <AppButton title="START" onPress={handleStartFirstTimer} />
+        <AppButton title={getButtonTitle()} onPress={handleTimerControl} />
       </View>
       <View style={styles.incompleteList}>
         <IncompleteTaskList />

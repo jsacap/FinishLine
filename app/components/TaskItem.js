@@ -29,16 +29,16 @@ function TaskItem({ taskId, style }) {
       intervalRef.current = setInterval(() => {
         setSecondsLeft((prevSeconds) => prevSeconds - 1);
       }, 1000);
+    } else {
+      clearInterval(intervalRef.current);
     }
 
-    return () => {
-      clearInterval(intervalRef.current);
-    };
-  }, [task, task?.timerActive, secondsLeft]);
+    return () => clearInterval(intervalRef.current);
+  }, [task?.timerActive, secondsLeft]);
 
-  // Handle task completion
   useEffect(() => {
     if (secondsLeft === 0) {
+      clearInterval(intervalRef.current);
       useTaskStore.getState().updateTaskCompletion(taskId);
     }
   }, [secondsLeft, taskId]);
@@ -73,7 +73,6 @@ function TaskItem({ taskId, style }) {
     return timeString;
   };
 
-  // Example usage inside your component logic
   const displayTime = task.timerActive
     ? formatTime(secondsLeft)
     : formatDuration(task.durationMinutes);

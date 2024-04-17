@@ -8,6 +8,7 @@ const useTaskStore = create((set, get) => ({
   taskHours: 0,
   taskMinutes: 0,
   selectedTaskId: null,
+  activeTaskId: null,
   isBottomSheetVisible: false,
 
   setTaskInput: (input) => set({ taskInput: input }),
@@ -115,6 +116,42 @@ const useTaskStore = create((set, get) => ({
     });
   },
 
+  toggleTimer: (taskId) => {
+    const tasks = get().tasks.map((task) => {
+      if (task.id === taskId) {
+        return {
+          ...task,
+          timerActive: !task.timerActive,
+          remainingSeconds: task.durationMinutes * 60,
+        };
+      }
+      return task;
+    });
+    set({ tasks, activeTaskId: taskId });
+  },
+
+  pauseTimer: (taskId) => {
+    set((state) => ({
+      tasks: state.tasks.map((task) =>
+        task.id === taskId
+          ? {
+              ...task,
+              timerActive: false,
+              remainingSeconds: task.currentSeconds,
+            }
+          : task
+      ),
+    }));
+  },
+
+  resumeTimer: (taskId) => {
+    set((state) => ({
+      tasks: state.tasks.map((task) =>
+        task.id === taskId ? { ...task, timerActive: true } : task
+      ),
+    }));
+  },
+
   startTimer: (taskId) => {
     const interval = setInterval(() => {
       const tasks = get().tasks.map((task) => {
@@ -138,19 +175,6 @@ const useTaskStore = create((set, get) => ({
         task.id === taskId ? { ...task, timerActive: true } : task
       ),
     }));
-  },
-
-  pauseTimer: (taskId) => {
-    set((state) => ({
-      tasks: state.tasks.map((task) =>
-        task.id === taskId ? { ...task, timerActive: false } : task
-      ),
-    }));
-  },
-
-  // Method to resume timer
-  resumeTimer: (taskId) => {
-    get().startTimer(taskId);
   },
 
   updateTaskCompletion: async (taskId) => {

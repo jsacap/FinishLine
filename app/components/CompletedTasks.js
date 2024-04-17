@@ -20,13 +20,11 @@ export default function CompletedTasks() {
 
     return (
       <Swipeable renderRightActions={renderRightActions}>
-        <TouchableOpacity onPress={() => handleTaskPress(item.id)}>
-          <TaskItem
-            taskId={item.id}
-            renderRightActions={renderRightActions}
-            style={styles.completedTaskCOntainer}
-          />
-        </TouchableOpacity>
+        <TaskItem
+          taskId={item.id}
+          renderRightActions={renderRightActions}
+          style={styles.completedTaskCOntainer}
+        />
       </Swipeable>
     );
   };
