@@ -1,7 +1,7 @@
 import BottomSheet from "@gorhom/bottom-sheet";
 import Constants from "expo-constants";
 import { useEffect, useMemo, useRef } from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, View, Button } from "react-native";
 import AppButton from "../components/AppButton";
 import IconButton from "../components/IconButton";
 import IncompleteTaskList from "../components/IncompleteTaskList";
@@ -10,8 +10,10 @@ import useTaskStore from "../store/TaskStore";
 import AddTaskScreen from "./AddTaskScreen";
 import Toast from "react-native-toast-message";
 import CompletedTasks from "../components/CompletedTasks";
+import { useState } from "react";
 
 export default function TaskListScreen() {
+  const [isPaused, setIsPaused] = useState(true);
   const {
     loadTasks,
     isBottomSheetVisible,
@@ -19,14 +21,22 @@ export default function TaskListScreen() {
     closeBottomSheet,
     clearTaskInputs,
     startTimer,
+    tasks,
+    resumeTimer,
+    pauseTimer,
+    activeTaskId,
     getIncompleteTasks,
   } = useTaskStore((state) => ({
     loadTasks: state.loadTasks,
+    tasks: state.tasks.filter((task) => task.taskStatus === "incomplete"),
     isBottomSheetVisible: state.isBottomSheetVisible,
     openBottomSheet: state.openBottomSheet,
     closeBottomSheet: state.closeBottomSheet,
     clearTaskInputs: state.clearTaskInputs,
     startTimer: state.startTimer,
+    pauseTimer: state.pauseTimer,
+    resumeTimer: state.resumeTimer,
+    activeTaskId: state.activeTaskId,
     timerRunning: false,
     currentTaskId: null,
     getIncompleteTasks: state.getIncompleteTasks,
@@ -49,8 +59,13 @@ export default function TaskListScreen() {
     }
   }, [isBottomSheetVisible]);
 
+  // useEffect(() => {
+  //   if (tasks.length === 0) {
+  //     setIsPaused(true);
+  //   }
+  // }, [tasks]);
+
   const handleStartFirstTimer = () => {
-    const tasks = getIncompleteTasks();
     if (tasks.length > 0) {
       startTimer(tasks[0].id);
     } else {
@@ -62,11 +77,31 @@ export default function TaskListScreen() {
     }
   };
 
+  const handleToggleTimer = () => {
+    if (tasks.length > 0) {
+      if (isPaused) {
+        startTimer(tasks[0].id);
+        setIsPaused(false);
+      } else {
+        pauseTimer();
+        setIsPaused(true);
+      }
+    } else {
+      Toast.show({
+        type: "error",
+        text1: "There are no tasks set!",
+        position: "bottom",
+      });
+    }
+  };
   return (
     <View style={styles.container}>
       <View style={styles.buttons}>
         <AppButton title="Add Task" onPress={openBottomSheet} />
-        <AppButton title="START" onPress={handleStartFirstTimer} />
+        <IconButton
+          iconName={isPaused ? "play" : "pause"}
+          onPress={handleToggleTimer}
+        />
       </View>
       <View style={styles.incompleteList}>
         <IncompleteTaskList />
