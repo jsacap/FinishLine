@@ -57,8 +57,27 @@ function TaskItem({ taskId, style }) {
     );
   }
 
-  const displayTime =
-    secondsLeft !== null ? formatTime(secondsLeft) : "Loading...";
+  const formatDuration = (totalMinutes) => {
+    const hours = Math.floor(totalMinutes / 60);
+    const minutes = totalMinutes % 60;
+    let timeString = "";
+
+    // Check if there are any hours to display
+    if (hours > 0) {
+      timeString += `${hours} hr${hours === 1 ? "" : "s"}`;
+    }
+    if (minutes > 0) {
+      if (timeString.length > 0) timeString += " and ";
+      timeString += `${minutes} min${minutes === 1 ? "" : "s"}`;
+    }
+
+    return timeString;
+  };
+
+  // Example usage inside your component logic
+  const displayTime = task.timerActive
+    ? formatTime(secondsLeft)
+    : formatDuration(task.durationMinutes);
 
   return (
     <View style={[styles.taskContainer, style]}>
@@ -75,6 +94,7 @@ function TaskItem({ taskId, style }) {
 const styles = StyleSheet.create({
   taskContainer: {
     paddingLeft: 10,
+    paddingRight: 10,
 
     marginVertical: 8,
     borderRadius: 5,
