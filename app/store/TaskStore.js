@@ -96,6 +96,7 @@ const useTaskStore = create((set, get) => ({
     AsyncStorage.setItem("tasks", JSON.stringify(updatedTasks));
     get().clearTaskInputs();
     get().closeBottomSheet();
+    console.log(updatedTasks);
     Toast.show({
       type: "success",
       text1: "Task Added!",

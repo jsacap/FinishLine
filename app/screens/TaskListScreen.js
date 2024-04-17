@@ -1,37 +1,46 @@
 import BottomSheet from "@gorhom/bottom-sheet";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import Constants from "expo-constants";
-import { useEffect, useMemo, useRef, useState } from "react";
-import { StyleSheet, View } from "react-native";
-import Toast from "react-native-toast-message";
+import { useEffect, useMemo, useRef } from "react";
+import { StyleSheet, Text, View } from "react-native";
 import AppButton from "../components/AppButton";
-import CompletedTasks from "../components/CompletedTasks";
 import IconButton from "../components/IconButton";
 import IncompleteTaskList from "../components/IncompleteTaskList";
 import colors from "../config/colors";
 import useTaskStore from "../store/TaskStore";
 import AddTaskScreen from "./AddTaskScreen";
+import Toast from "react-native-toast-message";
+import CompletedTasks from "../components/CompletedTasks";
 
 export default function TaskListScreen() {
-  const [tasks, setTasks] = useState([]);
-  const [activeTaskId, setActiveTaskId] = useState(null);
-  const [timerRunning, setTimerRunning] = useState(false);
   const {
+    loadTasks,
     isBottomSheetVisible,
     openBottomSheet,
     closeBottomSheet,
     clearTaskInputs,
+    startTimer,
+    getIncompleteTasks,
   } = useTaskStore((state) => ({
+    loadTasks: state.loadTasks,
     isBottomSheetVisible: state.isBottomSheetVisible,
     openBottomSheet: state.openBottomSheet,
     closeBottomSheet: state.closeBottomSheet,
     clearTaskInputs: state.clearTaskInputs,
+    startTimer: state.startTimer,
+    timerRunning: false,
+    currentTaskId: null,
+    getIncompleteTasks: state.getIncompleteTasks,
   }));
-  // bottomsheet logic
+
   const snapPoints = useMemo(() => ["25%", "50%", "70%"]);
   const bottomSheetRef = useRef(null);
 
-  // const snapToIndex = (index) => bottomSheetRef.current?.snapToIndex(index);
+  const snapToIndex = (index) => bottomSheetRef.current?.snapToIndex(index);
+
+  useEffect(() => {
+    loadTasks();
+  }, []);
+
   useEffect(() => {
     if (isBottomSheetVisible) {
       bottomSheetRef.current?.expand();
@@ -40,89 +49,30 @@ export default function TaskListScreen() {
     }
   }, [isBottomSheetVisible]);
 
-  // fetching tasks
-  useEffect(() => {
-    loadTasks();
-  }, []);
-
-  const loadTasks = async () => {
-    try {
-      const storedTasks = await AsyncStorage.getItem("tasks");
-      if (storedTasks) {
-        setTasks(JSON.parse(storedTasks));
-      }
-    } catch (error) {
+  const handleStartFirstTimer = () => {
+    const tasks = getIncompleteTasks();
+    if (tasks.length > 0) {
+      startTimer(tasks[0].id);
+    } else {
       Toast.show({
         type: "error",
-        text1: "Failed Loading Tasks",
+        text1: "There are no tasks set!",
+        position: "bottom",
       });
     }
   };
-
-  const updateTaskCompletion = async (taskId) => {
-    const updatedTasks = tasks.map((task) => {
-      if (task.id === taskId) {
-        return { ...task, status: "complete" };
-      }
-      return task;
-    });
-
-    setTasks(updatedTasks);
-    await AsyncStorage.setItem("tasks", JSON.stringify(updatedTasks));
-  };
-
-  // timer logic
-  const handleTimer = (taskId) => {
-    setActiveTaskId(taskId);
-    setTimerRunning(true);
-    const timerInterval = setInterval(() => {
-      setTasks((currentTasks) => {
-        return currentTasks.map((task) => {
-          if (task.id === taskId) {
-            if (task.remainingSeconds > 0) {
-              return {
-                ...task,
-                remainingSeconds: TaskListScreen.remainingSeconds - 1,
-              };
-            } else {
-              clearInterval(timerInterval);
-              updateTaskCompletion(taskId);
-              setActiveTaskId(null); // change this to go down the list??
-              setTimerRunning(false); // Only false if there are no more tasks in the list?
-              return { ...task, status: "complete" };
-            }
-          }
-          return task;
-        });
-      });
-    }, 1000);
-  };
-
-  const handlePauseResume = () => {
-    setTimerRunning(!timerRunning);
-  };
-
-  // Dynamically rendering title for AppButton Start
-  const getButtonTitle = () => {
-    if (!activeTaskId) return "START";
-    return timerRunning ? "Pause" : "Resume";
-  };
-
-  // filtering for incomplete tasks
-  const incompleteTasks = tasks.filter((task) => task.status !== "complete");
-  const completedTasks = tasks.filter((task) => task.status === "complete");
 
   return (
     <View style={styles.container}>
       <View style={styles.buttons}>
         <AppButton title="Add Task" onPress={openBottomSheet} />
-        <AppButton title={getButtonTitle()} onPress={handlePauseResume} />
+        <AppButton title="START" onPress={handleStartFirstTimer} />
       </View>
       <View style={styles.incompleteList}>
-        <IncompleteTaskList tasks={incompleteTasks} />
+        <IncompleteTaskList />
       </View>
       <View style={styles.incompleteList}>
-        <CompletedTasks tasks={completedTasks} />
+        <CompletedTasks />
       </View>
       <BottomSheet
         ref={bottomSheetRef}

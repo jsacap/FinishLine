@@ -106,17 +106,6 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     backgroundColor: colors.taskItemPrimary,
   },
-  // taskContainer: {
-  //   borderRadius: 40,
-  //   backgroundColor: colors.taskItemPrimary,
-  //   justifyContent: "space-between",
-  //   alignItems: "center",
-  //   padding: 15,
-  //   width: "100%",
-  //   height: "auto",
-  //   flexDirection: "row",
-  //   marginTop: 10,
-  // },
   taskText: {
     color: colors.black,
     fontSize: 24,
