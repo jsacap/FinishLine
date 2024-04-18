@@ -12,7 +12,6 @@ function Header({ children, style }) {
 }
 const styles = StyleSheet.create({
   headerContainer: {
-    padding: 10,
     alignItems: "center",
     justifyContent: "center",
   },

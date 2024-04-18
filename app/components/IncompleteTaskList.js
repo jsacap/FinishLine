@@ -5,6 +5,7 @@ import TaskItem from "./TaskItem";
 import TaskItemSwipeDelete from "./TaskItemSwipeDelete";
 import Swipeable from "react-native-gesture-handler/Swipeable";
 import { useState } from "react/cjs/react.production.min";
+import TotalTaskTime from "./TotalTaskTime";
 
 export default function IncompleteTaskList() {
   const { incompleteTasks, loadTaskForEditing, openBottomSheet, deleteTask } =
@@ -36,7 +37,7 @@ export default function IncompleteTaskList() {
 
   return (
     <View style={styles.container}>
-      <Header title="Incomplete" />
+      <TotalTaskTime tasks={incompleteTasks} />
       <FlatList
         data={incompleteTasks}
         keyExtractor={(item) => item.id.toString()}
@@ -48,14 +49,13 @@ export default function IncompleteTaskList() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingTop: 20,
     width: "100%",
   },
   itemContainer: {
     backgroundColor: "#fff",
-    padding: 20,
-    marginVertical: 8,
-    marginHorizontal: 16,
+    padding: 5,
+    marginVertical: 4,
+    marginHorizontal: 8,
     borderRadius: 5,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 1 },

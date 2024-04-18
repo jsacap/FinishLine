@@ -89,13 +89,15 @@ export default function TaskListScreen() {
         />
       </View>
       <View style={styles.incompleteList}>
-        <AppButton title="Add Task" onPress={openBottomSheet} />
+        <View>
+          <AppButton title="Add Task" onPress={openBottomSheet} />
+          {/* <TotalTaskTime tasks={tasks} /> */}
+        </View>
 
         <IncompleteTaskList />
       </View>
 
       <View style={styles.incompleteList}>
-        <TotalTaskTime tasks={tasks} />
         <CompletedTasks />
       </View>
       <BottomSheet
@@ -131,7 +133,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingTop: Constants.statusBarHeight,
     backgroundColor: "#121212",
-    justifyContent: "space-evenly",
+    justifyContent: "center",
   },
   contentContainer: {
     flex: 1,

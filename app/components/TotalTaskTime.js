@@ -19,24 +19,23 @@ export default function TotalTaskTime({ tasks }) {
 
   const totalTime = calculateTotalTime();
 
-  // Calculate future time when tasks will be completed
   const calculateFutureTime = () => {
-    const totalSeconds = calculateTotalSeconds(); // Reuse the total seconds calculation
+    const totalSeconds = calculateTotalSeconds();
     const currentTime = new Date();
     const futureTime = new Date(currentTime.getTime() + totalSeconds * 1000);
-    return futureTime.toLocaleTimeString(); // Make sure to call the function here
+    return futureTime.toLocaleTimeString();
   };
 
   const futureTime = calculateFutureTime();
 
   return (
     <View style={styles.container}>
-      <View>
-        <Header style={styles.header}>Total Time</Header>
+      <View style={styles.detail}>
+        <Header style={styles.header}>Total: </Header>
         <AppText style={styles.text}>{totalTime}</AppText>
       </View>
-      <View>
-        <Header style={styles.header}>Estimated Completion Time</Header>
+      <View style={styles.detail}>
+        <Header style={styles.header}>Finish Time: </Header>
         <AppText style={styles.text}>{futureTime}</AppText>
       </View>
     </View>
@@ -45,15 +44,21 @@ export default function TotalTaskTime({ tasks }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: "center",
+    justifyContent: "space-between",
+    alignItems: "center",
+    flexDirection: "row",
+  },
+  detail: {
+    flexDirection: "row",
     alignItems: "center",
   },
   header: {
-    color: "gold",
+    color: colors.gold,
+    fontSize: 12,
   },
   text: {
     color: colors.platinumWhite,
-
+    fontSize: 10,
     textAlign: "center",
   },
 });
