@@ -1,13 +1,14 @@
-import React, { useEffect, useState } from "react";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useEffect, useState } from "react";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
+import Toast from "react-native-toast-message";
+import ActiveTaskScreen from "./app/screens/ActiveTaskScreen";
+import AddTaskScreen from "./app/screens/AddTaskScreen";
 import NameInputScreen from "./app/screens/NameInputScreen";
 import TaskListScreen from "./app/screens/TaskListScreen";
 import WelcomeScreen from "./app/screens/WelcomeScreen";
-import AddTaskScreen from "./app/screens/AddTaskScreen";
-import Toast from "react-native-toast-message";
-import { GestureHandlerRootView } from "react-native-gesture-handler";
 
 const Stack = createStackNavigator();
 
@@ -38,6 +39,7 @@ export default function App() {
               <Stack.Screen name="Welcome" component={WelcomeScreen} />
               <Stack.Screen name="TaskList" component={TaskListScreen} />
               <Stack.Screen name="AddTask" component={AddTaskScreen} />
+              <Stack.Screen name="ActiveTask" component={ActiveTaskScreen} />
             </Stack.Navigator>
             <Toast />
           </GestureHandlerRootView>
