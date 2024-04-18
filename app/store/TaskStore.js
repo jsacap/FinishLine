@@ -81,6 +81,24 @@ const useTaskStore = create((set, get) => ({
 
   // CRUD
   addTask: () => {
+    // validation
+    const taskInput = get().taskInput;
+    const taskHours = get().taskHours;
+    const taskMinutes = get().taskMinutes;
+    if (!taskInput.trim()) {
+      Toast.show({
+        type: "error",
+        text1: "Task Name Cannot Be Empty",
+      });
+      return;
+    }
+    if (taskHours === 0 && taskMinutes === 0) {
+      Toast.show({
+        type: "error",
+        text1: "Must Set an Estimated Time",
+      });
+      return;
+    }
     const newTask = {
       id: Date.now(),
       text: get().taskInput,

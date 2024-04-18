@@ -75,7 +75,7 @@ const styles = StyleSheet.create({
   },
   taskText: {
     color: colors.black,
-    fontSize: 24,
+    fontSize: 14,
   },
   time: {
     alignItems: "center",

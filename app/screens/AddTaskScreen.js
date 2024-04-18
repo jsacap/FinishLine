@@ -1,10 +1,17 @@
 import { TouchableHighlight } from "@gorhom/bottom-sheet";
-import { StyleSheet, View, Keyboard } from "react-native";
-import { TextInput } from "react-native-gesture-handler";
+import {
+  StyleSheet,
+  View,
+  Keyboard,
+  TextInput,
+  Dimensions,
+} from "react-native";
 import TimeButton from "../components/AppText/TimeButton";
 import IconButton from "../components/IconButton";
 import colors from "../config/colors";
 import useTaskStore from "../store/TaskStore";
+
+const { width } = Dimensions.get("window");
 
 export default function AddTaskScreen({ handleClosePress }) {
   const {
@@ -101,6 +108,7 @@ const styles = StyleSheet.create({
   },
   container: {
     flex: 1,
+    backgroundColor: colors.light,
     justifyContent: "space-evenly",
     width: "90%",
     alignItems: "center",
@@ -109,25 +117,25 @@ const styles = StyleSheet.create({
     backgroundColor: colors.danger,
   },
   numberLayout: {
-    borderWidth: 2,
+    borderWidth: 1,
     textAlign: "center",
-    borderColor: colors.primary,
-    width: 60,
-    height: 60,
+    borderColor: colors.black,
+    width: width * 0.12,
+    height: width * 0.12,
     borderRadius: 10,
     fontSize: 14,
     marginRight: 20,
-    marginBottom: 10,
+    marginBottom: 5,
   },
   presetTimeButtons: {
     flexDirection: "row",
   },
   textInput: {
-    borderWidth: 2,
+    borderWidth: 1,
     borderColor: colors.black,
     textAlign: "center",
     width: "90%",
-    height: 50,
+    height: width * 0.1,
     borderRadius: 10,
     alignItems: "center",
     fontSize: 20,
