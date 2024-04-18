@@ -6,6 +6,7 @@ import TaskItem from "./TaskItem";
 import TaskItemSwipeDelete from "./TaskItemSwipeDelete";
 import Header from "./Header";
 import { FlatList, Swipeable } from "react-native-gesture-handler";
+import Toast from "react-native-toast-message";
 
 export default function CompletedTasks() {
   const { completedTasks, deleteTask } = useTaskStore((state) => ({
@@ -14,6 +15,14 @@ export default function CompletedTasks() {
   }));
 
   const renderItem = ({ item }) => {
+    const handleTaskPress = () => {
+      Toast.show({
+        type: "error",
+        text1: "Cannot edit Completed Tasks",
+        text2:
+          "Swipe from left to right to mark it incomplete and edit from there",
+      });
+    };
     const renderRightActions = () => (
       <TaskItemSwipeDelete onPress={() => deleteTask(item.id)} />
     );

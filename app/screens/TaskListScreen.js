@@ -11,6 +11,7 @@ import AddTaskScreen from "./AddTaskScreen";
 import Toast from "react-native-toast-message";
 import CompletedTasks from "../components/CompletedTasks";
 import { useState } from "react";
+import TotalTaskTime from "../components/TotalTaskTime";
 
 export default function TaskListScreen() {
   const [isPaused, setIsPaused] = useState(true);
@@ -22,7 +23,6 @@ export default function TaskListScreen() {
     clearTaskInputs,
     startTimer,
     tasks,
-    resumeTimer,
     pauseTimer,
     activeTaskId,
     getIncompleteTasks,
@@ -49,6 +49,7 @@ export default function TaskListScreen() {
 
   useEffect(() => {
     loadTasks();
+    console.log(tasks);
   }, []);
 
   useEffect(() => {
@@ -58,12 +59,6 @@ export default function TaskListScreen() {
       bottomSheetRef.current?.close();
     }
   }, [isBottomSheetVisible]);
-
-  // useEffect(() => {
-  //   if (tasks.length === 0) {
-  //     setIsPaused(true);
-  //   }
-  // }, [tasks]);
 
   const handleStartFirstTimer = () => {
     if (tasks.length > 0) {
@@ -97,16 +92,19 @@ export default function TaskListScreen() {
   return (
     <View style={styles.container}>
       <View style={styles.buttons}>
-        <AppButton title="Add Task" onPress={openBottomSheet} />
         <IconButton
           iconName={isPaused ? "play" : "pause"}
           onPress={handleToggleTimer}
         />
       </View>
       <View style={styles.incompleteList}>
+        <AppButton title="Add Task" onPress={openBottomSheet} />
+
         <IncompleteTaskList />
       </View>
+
       <View style={styles.incompleteList}>
+        <TotalTaskTime tasks={tasks} />
         <CompletedTasks />
       </View>
       <BottomSheet
