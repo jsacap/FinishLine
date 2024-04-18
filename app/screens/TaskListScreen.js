@@ -91,7 +91,6 @@ export default function TaskListScreen() {
       <View style={styles.incompleteList}>
         <View>
           <AppButton title="Add Task" onPress={openBottomSheet} />
-          {/* <TotalTaskTime tasks={tasks} /> */}
         </View>
 
         <IncompleteTaskList />

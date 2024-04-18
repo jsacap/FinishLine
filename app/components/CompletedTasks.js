@@ -39,17 +39,20 @@ export default function CompletedTasks() {
       </Swipeable>
     );
   };
-
-  return (
-    <View style={styles.container}>
-      <Header style={styles.header}>Completed</Header>
-      <FlatList
-        data={completedTasks}
-        keyExtractor={(item) => item.id.toString()}
-        renderItem={renderItem}
-      />
-    </View>
-  );
+  if (completedTasks && completedTasks.length > 0) {
+    return (
+      <View style={styles.container}>
+        <Header style={styles.header}>Completed</Header>
+        <FlatList
+          data={completedTasks}
+          keyExtractor={(item) => item.id.toString()}
+          renderItem={renderItem}
+        />
+      </View>
+    );
+  } else {
+    return null;
+  }
 }
 
 const styles = StyleSheet.create({
