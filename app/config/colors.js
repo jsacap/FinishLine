@@ -7,7 +7,7 @@ export default {
   light: "#f8f4f4",
   danger: "#ff5252",
   taskItemPrimary: "#778899",
-  taskItemSecondary: "#34D399",
+  taskItemSecondary: "#66BB6A",
   platinumWhite: "#E5E5E5",
   slateGray: "#778899",
   darkCharcoal: "#121212",

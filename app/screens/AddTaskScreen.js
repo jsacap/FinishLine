@@ -44,6 +44,7 @@ export default function AddTaskScreen({ handleClosePress }) {
   };
 
   const incrementTime = (minutes) => {
+    Keyboard.dismiss();
     const totalMinutes = taskMinutes + minutes;
     setTaskMinutes(totalMinutes);
   };

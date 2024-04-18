@@ -1,32 +1,32 @@
+import { AntDesign } from "@expo/vector-icons";
 import BottomSheet from "@gorhom/bottom-sheet";
 import Constants from "expo-constants";
-import { useEffect, useMemo, useRef } from "react";
-import { StyleSheet, Text, View, Button } from "react-native";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { Dimensions, StyleSheet, View } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import Toast from "react-native-toast-message";
 import AppButton from "../components/AppButton";
+import CompletedTasks from "../components/CompletedTasks";
 import IconButton from "../components/IconButton";
 import IncompleteTaskList from "../components/IncompleteTaskList";
+import TotalTaskTime from "../components/TotalTaskTime";
 import colors from "../config/colors";
 import useTaskStore from "../store/TaskStore";
 import AddTaskScreen from "./AddTaskScreen";
-import Toast from "react-native-toast-message";
-import CompletedTasks from "../components/CompletedTasks";
-import { useState } from "react";
-import TotalTaskTime from "../components/TotalTaskTime";
-import { AntDesign } from "@expo/vector-icons";
+
+const { width } = Dimensions.get("window");
 
 export default function TaskListScreen() {
-  const [isPaused, setIsPaused] = useState(true);
   const {
     loadTasks,
     isBottomSheetVisible,
     openBottomSheet,
     closeBottomSheet,
-    clearTaskInputs,
     startTimer,
     tasks,
     pauseTimer,
-    activeTaskId,
-    getIncompleteTasks,
+    isPaused,
+    togglePause,
   } = useTaskStore((state) => ({
     loadTasks: state.loadTasks,
     tasks: state.tasks.filter((task) => task.taskStatus === "incomplete"),
@@ -41,12 +41,12 @@ export default function TaskListScreen() {
     timerRunning: false,
     currentTaskId: null,
     getIncompleteTasks: state.getIncompleteTasks,
+    isPaused: state.isPaused,
+    togglePause: state.togglePause,
   }));
 
   const snapPoints = useMemo(() => ["25%", "50%", "70%"]);
   const bottomSheetRef = useRef(null);
-
-  const snapToIndex = (index) => bottomSheetRef.current?.snapToIndex(index);
 
   useEffect(() => {
     loadTasks();
@@ -61,26 +61,14 @@ export default function TaskListScreen() {
     }
   }, [isBottomSheetVisible]);
 
-  const handleStartFirstTimer = () => {
-    if (tasks.length > 0) {
-      startTimer(tasks[0].id);
-    } else {
-      Toast.show({
-        type: "error",
-        text1: "There are no tasks set!",
-        position: "bottom",
-      });
-    }
-  };
-
   const handleToggleTimer = () => {
     if (tasks.length > 0) {
       if (isPaused) {
         startTimer(tasks[0].id);
-        setIsPaused(false);
+        togglePause();
       } else {
         pauseTimer();
-        setIsPaused(true);
+        togglePause();
       }
     } else {
       Toast.show({
@@ -91,11 +79,11 @@ export default function TaskListScreen() {
     }
   };
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <View style={styles.buttons}>
         <AntDesign
           name={isPaused ? "play" : "pause"}
-          size={100}
+          size={50}
           color={colors.gold}
           onPress={handleToggleTimer}
         />
@@ -127,7 +115,7 @@ export default function TaskListScreen() {
           <AddTaskScreen />
         </View>
       </BottomSheet>
-    </View>
+    </SafeAreaView>
   );
 }
 
@@ -143,6 +131,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingTop: Constants.statusBarHeight,
     backgroundColor: "#121212",
+    justifyContent: "space-evenly",
   },
   contentContainer: {
     flex: 1,
@@ -161,10 +150,10 @@ const styles = StyleSheet.create({
     width: "90%",
   },
   play: {
-    width: 100,
-    height: 100,
-    alignItems: "center", // This ensures content inside the button is aligned center horizontally
-    justifyContent: "center", // This ensures content is centered vertically inside the button
+    width: width * 0.25,
+    height: width * 0.25,
+    alignItems: "center",
+    justifyContent: "center",
     backgroundColor: colors.gold,
   },
 });
