@@ -12,6 +12,7 @@ import Toast from "react-native-toast-message";
 import CompletedTasks from "../components/CompletedTasks";
 import { useState } from "react";
 import TotalTaskTime from "../components/TotalTaskTime";
+import { AntDesign } from "@expo/vector-icons";
 
 export default function TaskListScreen() {
   const [isPaused, setIsPaused] = useState(true);
@@ -92,8 +93,10 @@ export default function TaskListScreen() {
   return (
     <View style={styles.container}>
       <View style={styles.buttons}>
-        <IconButton
-          iconName={isPaused ? "play" : "pause"}
+        <AntDesign
+          name={isPaused ? "play" : "pause"}
+          size={100}
+          color={colors.gold}
           onPress={handleToggleTimer}
         />
       </View>
@@ -154,8 +157,14 @@ const styles = StyleSheet.create({
   incompleteList: {
     flex: 1,
     justifyContent: "center",
-
     alignItems: "center",
     width: "90%",
+  },
+  play: {
+    width: 100,
+    height: 100,
+    alignItems: "center", // This ensures content inside the button is aligned center horizontally
+    justifyContent: "center", // This ensures content is centered vertically inside the button
+    backgroundColor: colors.gold,
   },
 });
