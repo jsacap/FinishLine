@@ -168,7 +168,8 @@ const useTaskStore = create((set, get) => ({
           text1: `${currentTask.text} Complete!`,
           position: "bottom",
         },
-        get().togglePause()
+        get().togglePause(),
+        set({ activeTaskId: nulll })
       );
     } catch (error) {
       Toast.show({
@@ -182,6 +183,7 @@ const useTaskStore = create((set, get) => ({
   // timer logic
   startTimer: (taskId) => {
     set((state) => ({
+      activeTaskId: taskId,
       tasks: state.tasks.map((task) =>
         task.id === taskId ? { ...task, timerActive: true } : task
       ),

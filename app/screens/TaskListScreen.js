@@ -2,6 +2,7 @@ import { AntDesign } from "@expo/vector-icons";
 import BottomSheet from "@gorhom/bottom-sheet";
 import Constants from "expo-constants";
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useNavigation } from "@react-navigation/native";
 import { Dimensions, StyleSheet, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Toast from "react-native-toast-message";
@@ -17,6 +18,7 @@ import AddTaskScreen from "./AddTaskScreen";
 const { width } = Dimensions.get("window");
 
 export default function TaskListScreen() {
+  const navigation = useNavigation();
   const {
     loadTasks,
     isBottomSheetVisible,
@@ -66,6 +68,7 @@ export default function TaskListScreen() {
       if (isPaused) {
         startTimer(tasks[0].id);
         togglePause();
+        navigation.navigate("ActiveTask");
       } else {
         pauseTimer();
         togglePause();
