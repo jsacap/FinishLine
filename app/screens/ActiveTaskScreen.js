@@ -5,6 +5,7 @@ import PlayButton from "../components/PlayButton";
 import IconButton from "../components/IconButton";
 import { useNavigation } from "@react-navigation/native";
 import TimeCompletion from "../components/TimeCompletion";
+import TimeButton from "../components/AppText/TimeButton";
 
 export default function ActiveTaskScreen() {
   const navigation = useNavigation();
@@ -16,6 +17,7 @@ export default function ActiveTaskScreen() {
     startTimer,
     pauseTimer,
     completionTime,
+    incrementTaskTime,
   } = useTaskStore((state) => ({
     tasks: state.tasks,
     activeTaskId: state.activeTaskId,
@@ -25,6 +27,7 @@ export default function ActiveTaskScreen() {
     completionTime: state.completionTime,
     puaseTimer: state.pauseTimer,
     startTimer: state.startTimer,
+    incrementTaskTime: state.incrementTaskTime,
   }));
 
   const task = tasks.find((t) => t.id === activeTaskId);
@@ -75,6 +78,8 @@ export default function ActiveTaskScreen() {
     ? new Date(completionTime).toLocaleTimeString()
     : "";
 
+  const incrementTimes = [1, 5, 15, 30];
+
   return (
     <View style={styles.container}>
       <View style={styles.backButton}>
@@ -86,6 +91,16 @@ export default function ActiveTaskScreen() {
       <Text style={styles.timer}>
         Completion Time: {completionTimeFormatted}
       </Text>
+
+      <View style={styles.buttonContainer}>
+        {incrementTimes.map((time) => (
+          <TimeButton
+            key={time}
+            time={`${time}`}
+            onPress={() => incrementTaskTime(time)}
+          />
+        ))}
+      </View>
     </View>
   );
 }
@@ -93,6 +108,12 @@ export default function ActiveTaskScreen() {
 const styles = StyleSheet.create({
   backButton: {
     justifyContent: "flex-start",
+  },
+  buttonContainer: {
+    flexDirection: "row",
+    justifyContent: "space-around",
+    width: "100%",
+    padding: 10,
   },
   container: {
     flex: 1,

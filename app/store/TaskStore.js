@@ -239,6 +239,22 @@ const useTaskStore = create((set, get) => ({
     get().tasks.filter((task) => task.taskStatus === "incomplete"),
 
   togglePause: () => set((state) => ({ isPaused: !state.isPaused })),
+
+  incrementTaskTime: (incrementMinutes) => {
+    const { activeTaskId, tasks } = get();
+    set({
+      tasks: tasks.map((task) => {
+        if (task.id === activeTaskId && task.timerActive) {
+          const additionalSeconds = incrementMinutes * 60;
+          return {
+            ...task,
+            remainingSeconds: task.remainingSeconds + additionalSeconds,
+          };
+        }
+        return task;
+      }),
+    });
+  },
 }));
 
 export default useTaskStore;
