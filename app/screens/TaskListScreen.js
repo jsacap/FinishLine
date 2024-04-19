@@ -87,7 +87,7 @@ export default function TaskListScreen() {
         <AntDesign
           name={isPaused ? "play" : "pause"}
           size={50}
-          color={colors.gold}
+          color={colors.taskItemSecondary}
           onPress={handleToggleTimer}
         />
       </View>
@@ -105,17 +105,11 @@ export default function TaskListScreen() {
       <BottomSheet
         ref={bottomSheetRef}
         index={-1}
-        keyboardBehavior="extend"
+        keyboardBehavior="interactive"
         snapPoints={snapPoints}
         enablePanDownToClose={true}
       >
         <View style={styles.contentContainer}>
-          <IconButton
-            iconName="arrow-down"
-            style={styles.closeBottomSheet}
-            onPress={closeBottomSheet}
-            color={colors.black}
-          />
           <AddTaskScreen />
         </View>
       </BottomSheet>
@@ -128,18 +122,19 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   closeBottomSheet: {
-    backgroundColor: colors.medium,
+    backgroundColor: colors.black,
   },
   container: {
     flex: 1,
     alignItems: "center",
     paddingTop: Constants.statusBarHeight,
-    backgroundColor: "#121212",
+    backgroundColor: colors.darkCharcoal,
     justifyContent: "center",
   },
   contentContainer: {
     flex: 1,
     alignItems: "center",
+    backgroundColor: colors.black,
   },
   containerHeadline: {
     fontSize: 24,
@@ -158,6 +153,6 @@ const styles = StyleSheet.create({
     height: width * 0.25,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: colors.gold,
+    backgroundColor: colors.darkCharcoal,
   },
 });

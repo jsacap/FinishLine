@@ -10,6 +10,7 @@ const useTaskStore = create((set, get) => ({
   selectedTaskId: null,
   intervalId: null,
   activeTaskId: null,
+  completionTime: null,
   isBottomSheetVisible: false,
   isPaused: true,
   setTaskInput: (input) => set({ taskInput: input }),
@@ -200,10 +201,13 @@ const useTaskStore = create((set, get) => ({
               ? { ...t, remainingSeconds: t.remainingSeconds - 1 }
               : t
           ),
+          completionTime: new Date(
+            new Date().getTime() + task.remainingSeconds * 1000
+          ),
         }));
       } else {
         clearInterval(intervalId);
-        set({ intervalId: null });
+        set({ intervalId: null, completionTime: null });
         if (task && task.remainingSeconds === 0) {
           get().updateTaskCompletion(taskId);
         }

@@ -2,27 +2,37 @@ import { View, Text, StyleSheet, Button } from "react-native";
 import React, { useEffect } from "react";
 import useTaskStore from "../store/TaskStore";
 import PlayButton from "../components/PlayButton";
+import IconButton from "../components/IconButton";
+import { useNavigation } from "@react-navigation/native";
+import TimeCompletion from "../components/TimeCompletion";
 
 export default function ActiveTaskScreen() {
-  const { tasks, activeTaskId, intervalId, isPaused, startTimer, pauseTimer } =
-    useTaskStore((state) => ({
-      tasks: state.tasks,
-      activeTaskId: state.activeTaskId,
-      intervalId: state.intervalId,
-      isPaused: state.isPaused,
-      togglePause: state.togglePause,
-      puaseTimer: state.pauseTimer,
-      startTimer: state.startTimer,
-    }));
+  const navigation = useNavigation();
+  const {
+    tasks,
+    activeTaskId,
+    intervalId,
+    isPaused,
+    startTimer,
+    pauseTimer,
+    completionTime,
+  } = useTaskStore((state) => ({
+    tasks: state.tasks,
+    activeTaskId: state.activeTaskId,
+    intervalId: state.intervalId,
+    isPaused: state.isPaused,
+    togglePause: state.togglePause,
+    completionTime: state.completionTime,
+    puaseTimer: state.pauseTimer,
+    startTimer: state.startTimer,
+  }));
 
   const task = tasks.find((t) => t.id === activeTaskId);
 
   useEffect(() => {
-    // This effect ensures the component updates every second if the task's timer is active
     if (task && task.timerActive && intervalId) {
       const interval = setInterval(() => {
-        // Force update component every second to reflect the countdown
-        useTaskStore.getState().pauseTimer(); // Temporarily trigger a state change
+        useTaskStore.getState().pauseTimer();
         useTaskStore.getState().resumeTimer(task.id);
       }, 1000);
       return () => clearInterval(interval);
@@ -61,16 +71,29 @@ export default function ActiveTaskScreen() {
     ? formatTime(task.remainingSeconds)
     : formatDuration(task.durationMinutes);
 
+  const completionTimeFormatted = completionTime
+    ? new Date(completionTime).toLocaleTimeString()
+    : "";
+
   return (
     <View style={styles.container}>
+      <View style={styles.backButton}>
+        <IconButton iconName="arrow-left" onPress={() => navigation.goBack()} />
+      </View>
       <Text style={styles.header}>{task.text}</Text>
       <PlayButton taskId={task.id} />
       <Text style={styles.timer}>{displayTime}</Text>
+      <Text style={styles.timer}>
+        Completion Time: {completionTimeFormatted}
+      </Text>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
+  backButton: {
+    justifyContent: "flex-start",
+  },
   container: {
     flex: 1,
     justifyContent: "center",

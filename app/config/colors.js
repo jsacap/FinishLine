@@ -13,4 +13,5 @@ export default {
   darkCharcoal: "#121212",
   gunmetalGray: "#1E1E1E",
   gold: "#BFA76F",
+  darkGrayBlue: "#2C3E50",
 };

@@ -37,7 +37,10 @@ export default function IncompleteTaskList() {
 
   return (
     <View style={styles.container}>
-      <TotalTaskTime tasks={incompleteTasks} />
+      {incompleteTasks && incompleteTasks.length > 0 ? (
+        <TotalTaskTime tasks={incompleteTasks} />
+      ) : null}
+
       <FlatList
         data={incompleteTasks}
         keyExtractor={(item) => item.id.toString()}

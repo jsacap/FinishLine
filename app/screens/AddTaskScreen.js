@@ -59,6 +59,7 @@ export default function AddTaskScreen({ handleClosePress }) {
   return (
     <View style={styles.container}>
       <View style={styles.buttons}>
+        <IconButton iconName="arrow-left" onPress={closeBottomSheet} />
         <IconButton iconName="check" onPress={handleSave} />
         {selectedTaskId && (
           <IconButton
@@ -108,7 +109,7 @@ const styles = StyleSheet.create({
   },
   container: {
     flex: 1,
-    backgroundColor: colors.light,
+    backgroundColor: colors.platinumWhite,
     justifyContent: "space-evenly",
     width: "90%",
     alignItems: "center",
@@ -119,7 +120,7 @@ const styles = StyleSheet.create({
   numberLayout: {
     borderWidth: 1,
     textAlign: "center",
-    borderColor: colors.black,
+    borderColor: colors.primary,
     width: width * 0.12,
     height: width * 0.12,
     borderRadius: 10,
@@ -132,7 +133,7 @@ const styles = StyleSheet.create({
   },
   textInput: {
     borderWidth: 1,
-    borderColor: colors.black,
+    borderColor: colors.primary,
     textAlign: "center",
     width: "90%",
     height: width * 0.1,
