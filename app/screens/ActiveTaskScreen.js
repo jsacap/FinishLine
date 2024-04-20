@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, Button } from "react-native";
+import { View, Text, StyleSheet, Dimensions } from "react-native";
 import React, { useEffect } from "react";
 import useTaskStore from "../store/TaskStore";
 import PlayButton from "../components/PlayButton";
@@ -6,9 +6,12 @@ import IconButton from "../components/IconButton";
 import { useNavigation } from "@react-navigation/native";
 import TimeCompletion from "../components/TimeCompletion";
 import TimeButton from "../components/AppText/TimeButton";
+import Header from "../components/Header";
+import AppText from "../components/AppText/AppText";
 
 export default function ActiveTaskScreen() {
   const navigation = useNavigation();
+
   const {
     tasks,
     activeTaskId,
@@ -85,12 +88,12 @@ export default function ActiveTaskScreen() {
       <View style={styles.backButton}>
         <IconButton iconName="arrow-left" onPress={() => navigation.goBack()} />
       </View>
-      <Text style={styles.header}>{task.text}</Text>
+      <Header style={styles.header}>{task.text}</Header>
       <PlayButton taskId={task.id} />
-      <Text style={styles.timer}>{displayTime}</Text>
-      <Text style={styles.timer}>
+      <AppText style={styles.timer}>{displayTime}</AppText>
+      <AppText style={styles.timer}>
         Completion Time: {completionTimeFormatted}
-      </Text>
+      </AppText>
 
       <View style={styles.buttonContainer}>
         {incrementTimes.map((time) => (
@@ -104,7 +107,8 @@ export default function ActiveTaskScreen() {
     </View>
   );
 }
-
+const window = Dimensions.get("window");
+const circleDiameter = Math.min(window.width, window.height * 0.3);
 const styles = StyleSheet.create({
   backButton: {
     justifyContent: "flex-start",
@@ -123,7 +127,6 @@ const styles = StyleSheet.create({
   header: {
     fontSize: 24,
     fontWeight: "bold",
-    marginBottom: 20,
   },
   timer: {
     fontSize: 20,
@@ -138,5 +141,14 @@ const styles = StyleSheet.create({
   taskText: {
     fontSize: 16,
     color: "red",
+  },
+  taskDetail: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    // borderWidth: 1,
+    // width: circleDiameter,
+    // height: circleDiameter,
+    // borderRadius: circleDiameter / 2,
   },
 });

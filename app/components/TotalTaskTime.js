@@ -1,42 +1,41 @@
 import { View, Text, StyleSheet } from "react-native";
-import React from "react";
+import React, { useState, useEffect } from "react";
 import Header from "./Header";
 import AppText from "./AppText/AppText";
 import colors from "../config/colors";
+import useTaskStore from "../store/TaskStore";
 
 export default function TotalTaskTime({ tasks }) {
-  const calculateTotalSeconds = () => {
-    return tasks.reduce((acc, task) => acc + task.durationSeconds, 0);
-  };
+  const totalCompletionTime = useTaskStore(
+    (state) => state.totalCompletionTime
+  );
 
-  // Format total time for display
-  const calculateTotalTime = () => {
-    const totalSeconds = calculateTotalSeconds();
+  const [totalTime, setTotalTime] = useState("");
+
+  useEffect(() => {
+    const totalSeconds = tasks.reduce(
+      (acc, task) => acc + task.durationSeconds,
+      0
+    );
+
+    // Calculate total time
     const hours = Math.floor(totalSeconds / 3600);
     const minutes = Math.floor((totalSeconds % 3600) / 60);
-    return `${hours}h ${minutes}m`;
-  };
+    setTotalTime(`${hours}h ${minutes}m`);
 
-  const totalTime = calculateTotalTime();
-
-  const calculateFutureTime = () => {
-    const totalSeconds = calculateTotalSeconds();
+    // Calculate future time
     const currentTime = new Date();
-    const futureTime = new Date(currentTime.getTime() + totalSeconds * 1000);
-    return futureTime.toLocaleTimeString();
-  };
-
-  const futureTime = calculateFutureTime();
+  }, [tasks]);
 
   return (
     <View style={styles.container}>
       <View style={styles.detail}>
-        <Header style={styles.header}>Total: </Header>
-        <AppText style={styles.text}>{totalTime}</AppText>
+        <Text style={styles.header}>Total: {totalTime}</Text>
       </View>
       <View style={styles.detail}>
-        <Header style={styles.header}>Finish Time: </Header>
-        <AppText style={styles.text}>{futureTime}</AppText>
+        <Text style={styles.header}>
+          Finish Time: {totalCompletionTime?.toLocaleTimeString()}
+        </Text>
       </View>
     </View>
   );

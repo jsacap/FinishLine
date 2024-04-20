@@ -3,7 +3,7 @@ import BottomSheet from "@gorhom/bottom-sheet";
 import Constants from "expo-constants";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigation } from "@react-navigation/native";
-import { Dimensions, StyleSheet, View } from "react-native";
+import { Dimensions, StyleSheet, View, Text } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Toast from "react-native-toast-message";
 import AppButton from "../components/AppButton";
@@ -14,6 +14,8 @@ import TotalTaskTime from "../components/TotalTaskTime";
 import colors from "../config/colors";
 import useTaskStore from "../store/TaskStore";
 import AddTaskScreen from "./AddTaskScreen";
+import AppText from "../components/AppText/AppText";
+// import calculateTotalTime from "../components/calculateTotalTime";
 
 const { width } = Dimensions.get("window");
 
@@ -62,6 +64,28 @@ export default function TaskListScreen() {
       bottomSheetRef.current?.close();
     }
   }, [isBottomSheetVisible]);
+  const calculateFutureCompletionTime = () => {
+    const totalSeconds = tasks.reduce(
+      (total, task) => total + task.remainingSeconds,
+      0
+    );
+    // time totals
+    const futureTime = new Date(new Date().getTime() + totalSeconds * 1000);
+    return futureTime.toLocaleTimeString();
+  };
+
+  const calculateTotalTime = () => {
+    const totalSeconds = tasks.reduce(
+      (acc, task) => acc + task.remainingSeconds,
+      0
+    );
+    const hours = Math.floor(totalSeconds / 3600);
+    const minutes = Math.floor((totalSeconds % 3600) / 60);
+    return `${hours}h ${minutes}m`;
+  };
+
+  const futureCompletionTime = calculateFutureCompletionTime();
+  const totalTime = useMemo(calculateTotalTime, [tasks]);
 
   const handleToggleTimer = () => {
     if (tasks.length > 0) {
@@ -91,9 +115,16 @@ export default function TaskListScreen() {
           onPress={handleToggleTimer}
         />
       </View>
+
       <View style={styles.incompleteList}>
         <View>
           <AppButton title="Add Task" onPress={openBottomSheet} />
+        </View>
+        <View style={styles.times}>
+          <AppText style={styles.totalTime}>Total: {totalTime}</AppText>
+          <AppText style={styles.totalTime}>
+            Finish Time: {futureCompletionTime}
+          </AppText>
         </View>
 
         <IncompleteTaskList />
@@ -154,5 +185,14 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     backgroundColor: colors.darkCharcoal,
+  },
+  times: {
+    width: "100%",
+    flexDirection: "row",
+    justifyContent: "space-between",
+  },
+  totalTime: {
+    color: colors.gold,
+    fontSize: 12,
   },
 });
