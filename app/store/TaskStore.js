@@ -1,4 +1,5 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import BackgroundTimer from "react-native-background-timer";
 import Toast from "react-native-toast-message";
 import { create } from "zustand";
 
@@ -190,9 +191,9 @@ const useTaskStore = create((set, get) => ({
       ),
     }));
     if (get().intervalId !== null) {
-      clearInterval(get().intervalId);
+      BackgroundTimer.clearInterval(get().intervalId);
     }
-    const intervalId = setInterval(() => {
+    const intervalId = BackgroundTimer.setInterval(() => {
       const task = get().tasks.find((t) => t.id === taskId);
       if (task && task.timerActive && task.remainingSeconds > 0) {
         set((state) => ({
@@ -206,7 +207,7 @@ const useTaskStore = create((set, get) => ({
           ),
         }));
       } else {
-        clearInterval(intervalId);
+        BackgroundTimer.clearInterval(intervalId);
         set({ intervalId: null, completionTime: null });
         if (task && task.remainingSeconds === 0) {
           get().updateTaskCompletion(taskId);
@@ -231,7 +232,7 @@ const useTaskStore = create((set, get) => ({
     set({ totalCompletionTime: totalFutureTime });
   },
   pauseTimer: (taskId) => {
-    clearInterval(get().intervalId);
+    BackgroundTimer.clearInterval(intervalId);
     set({ intervalId: null });
     set((state) => ({
       tasks: state.tasks.map((task) =>
