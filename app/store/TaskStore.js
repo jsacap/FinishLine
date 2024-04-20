@@ -42,6 +42,7 @@ const useTaskStore = create((set, get) => ({
           ...t,
           text: get().taskInput,
           durationMinutes: get().taskHours * 60 + get().taskMinutes,
+          remainingSeconds: (get().taskHours * 60 + get().taskMinutes) * 60,
         };
       }
       return t;
@@ -117,7 +118,6 @@ const useTaskStore = create((set, get) => ({
     AsyncStorage.setItem("tasks", JSON.stringify(updatedTasks));
     get().clearTaskInputs();
     get().closeBottomSheet();
-    console.log(updatedTasks);
     Toast.show({
       type: "success",
       text1: "Task Added!",

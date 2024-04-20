@@ -31,9 +31,9 @@ export default function PlayButton({ navigation, taskId }) {
   return (
     <TouchableOpacity onPress={handleToggleTimer} style={styles.button}>
       <AntDesign
-        name={isPaused ? "play" : "pause"}
+        name={isPaused ? "play" : "pausecircleo"}
         size={50}
-        color={colors.gold}
+        color={colors.taskItemSecondary}
       />
     </TouchableOpacity>
   );

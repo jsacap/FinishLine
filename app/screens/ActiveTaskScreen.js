@@ -8,6 +8,7 @@ import TimeCompletion from "../components/TimeCompletion";
 import TimeButton from "../components/AppText/TimeButton";
 import Header from "../components/Header";
 import AppText from "../components/AppText/AppText";
+import colors from "../config/colors";
 
 export default function ActiveTaskScreen() {
   const navigation = useNavigation();
@@ -89,11 +90,9 @@ export default function ActiveTaskScreen() {
         <IconButton iconName="arrow-left" onPress={() => navigation.goBack()} />
       </View>
       <Header style={styles.header}>{task.text}</Header>
+      <AppText>Finish Time: {completionTimeFormatted}</AppText>
       <PlayButton taskId={task.id} />
       <AppText style={styles.timer}>{displayTime}</AppText>
-      <AppText style={styles.timer}>
-        Completion Time: {completionTimeFormatted}
-      </AppText>
 
       <View style={styles.buttonContainer}>
         {incrementTimes.map((time) => (
@@ -111,11 +110,16 @@ const window = Dimensions.get("window");
 const circleDiameter = Math.min(window.width, window.height * 0.3);
 const styles = StyleSheet.create({
   backButton: {
-    justifyContent: "flex-start",
+    position: "absolute",
+    top: 0,
+    left: 0,
+    padding: 10,
   },
   buttonContainer: {
+    position: "absolute",
+    bottom: 0,
     flexDirection: "row",
-    justifyContent: "space-around",
+    justifyContent: "space-evenly",
     width: "100%",
     padding: 10,
   },
@@ -124,13 +128,14 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
+
   header: {
     fontSize: 24,
     fontWeight: "bold",
   },
   timer: {
-    fontSize: 20,
-    color: "blue",
+    fontSize: 26,
+    color: "navy",
   },
   taskContainer: {
     flex: 1,
@@ -141,14 +146,5 @@ const styles = StyleSheet.create({
   taskText: {
     fontSize: 16,
     color: "red",
-  },
-  taskDetail: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    // borderWidth: 1,
-    // width: circleDiameter,
-    // height: circleDiameter,
-    // borderRadius: circleDiameter / 2,
   },
 });

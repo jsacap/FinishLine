@@ -69,7 +69,6 @@ export default function TaskListScreen() {
       (total, task) => total + task.remainingSeconds,
       0
     );
-    // time totals
     const futureTime = new Date(new Date().getTime() + totalSeconds * 1000);
     return futureTime.toLocaleTimeString();
   };
@@ -120,12 +119,14 @@ export default function TaskListScreen() {
         <View>
           <AppButton title="Add Task" onPress={openBottomSheet} />
         </View>
-        <View style={styles.times}>
-          <AppText style={styles.totalTime}>Total: {totalTime}</AppText>
-          <AppText style={styles.totalTime}>
-            Finish Time: {futureCompletionTime}
-          </AppText>
-        </View>
+        {tasks.length > 0 && (
+          <View style={styles.times}>
+            <AppText style={styles.totalTime}>Total: {totalTime}</AppText>
+            <AppText style={styles.totalTime}>
+              Finish Time: {futureCompletionTime}
+            </AppText>
+          </View>
+        )}
 
         <IncompleteTaskList />
       </View>
