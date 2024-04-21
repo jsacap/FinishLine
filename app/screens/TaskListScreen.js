@@ -1,9 +1,9 @@
 import { AntDesign } from "@expo/vector-icons";
 import BottomSheet from "@gorhom/bottom-sheet";
 import Constants from "expo-constants";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { useNavigation } from "@react-navigation/native";
-import { Dimensions, StyleSheet, View, Text } from "react-native";
+import { Dimensions, StyleSheet, View, AppState, Button } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Toast from "react-native-toast-message";
 import AppButton from "../components/AppButton";
@@ -15,7 +15,6 @@ import colors from "../config/colors";
 import useTaskStore from "../store/TaskStore";
 import AddTaskScreen from "./AddTaskScreen";
 import AppText from "../components/AppText/AppText";
-// import calculateTotalTime from "../components/calculateTotalTime";
 
 const { width } = Dimensions.get("window");
 
@@ -27,7 +26,9 @@ export default function TaskListScreen() {
     openBottomSheet,
     closeBottomSheet,
     startTimer,
+    updateTimersOnForeground,
     tasks,
+    startTime,
     pauseTimer,
     isPaused,
     togglePause,
@@ -38,9 +39,10 @@ export default function TaskListScreen() {
     openBottomSheet: state.openBottomSheet,
     closeBottomSheet: state.closeBottomSheet,
     clearTaskInputs: state.clearTaskInputs,
+    updateTimersOnForeground: state.updateTimersOnForeground,
+    startTime: state.startTime,
     startTimer: state.startTimer,
     pauseTimer: state.pauseTimer,
-    resumeTimer: state.resumeTimer,
     activeTaskId: state.activeTaskId,
     timerRunning: false,
     currentTaskId: null,
@@ -55,6 +57,25 @@ export default function TaskListScreen() {
   useEffect(() => {
     loadTasks();
     console.log(tasks);
+  }, []);
+  useEffect(() => {
+    const handleAppStateChange = (nextAppState) => {
+      if (nextAppState === "active") {
+        // App has come to the foreground
+        // Check if any timer should be adjusted
+        const { startTime, tasks, updateTimersOnForeground } =
+          useTaskStore.getState();
+        if (startTime && tasks.some((task) => task.timerActive)) {
+          updateTimersOnForeground(new Date() - startTime);
+        }
+      }
+    };
+
+    AppState.addEventListener("change", handleAppStateChange);
+
+    return () => {
+      AppState.removeEventListener("change", handleAppStateChange);
+    };
   }, []);
 
   useEffect(() => {
@@ -127,6 +148,10 @@ export default function TaskListScreen() {
             </AppText>
           </View>
         )}
+        {/* <Button
+          title="SANDBOX"
+          onPress={() => navigation.navigate("SandBox")}
+        /> */}
 
         <IncompleteTaskList />
       </View>

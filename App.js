@@ -8,6 +8,7 @@ import ActiveTaskScreen from "./app/screens/ActiveTaskScreen";
 import AddTaskScreen from "./app/screens/AddTaskScreen";
 import NameInputScreen from "./app/screens/NameInputScreen";
 import TaskListScreen from "./app/screens/TaskListScreen";
+import SandBox from "./app/screens/SandBox";
 import WelcomeScreen from "./app/screens/WelcomeScreen";
 
 const Stack = createStackNavigator();
@@ -40,6 +41,7 @@ export default function App() {
               <Stack.Screen name="TaskList" component={TaskListScreen} />
               <Stack.Screen name="AddTask" component={AddTaskScreen} />
               <Stack.Screen name="ActiveTask" component={ActiveTaskScreen} />
+              <Stack.Screen name="SandBox" component={SandBox} />
             </Stack.Navigator>
             <Toast />
           </GestureHandlerRootView>

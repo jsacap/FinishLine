@@ -1,5 +1,4 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import BackgroundTimer from "react-native-background-timer";
 import Toast from "react-native-toast-message";
 import { create } from "zustand";
 
@@ -14,6 +13,7 @@ const useTaskStore = create((set, get) => ({
   completionTime: null,
   isBottomSheetVisible: false,
   isPaused: true,
+  startTime: null,
   setTaskInput: (input) => set({ taskInput: input }),
   setTaskHours: (hours) => set({ taskHours: hours }),
   setTaskMinutes: (minutes) =>
@@ -183,17 +183,35 @@ const useTaskStore = create((set, get) => ({
   },
 
   // timer logic
-  startTimer: (taskId) => {
+  updateTimersOnForeground: (elapsedTime) => {
     set((state) => ({
+      tasks: state.tasks.map((task) => {
+        if (task.timerActive) {
+          const newRemaining =
+            task.remainingSeconds - Math.floor(elapsedTime / 1000);
+          return {
+            ...task,
+            remainingSeconds: Math.max(newRemaining, 0), // Ensure it doesn't go negative
+          };
+        }
+        return task;
+      }),
+    }));
+  },
+
+  startTimer: (taskId) => {
+    const now = new Date();
+    set((state) => ({
+      startTime: now,
       activeTaskId: taskId,
       tasks: state.tasks.map((task) =>
         task.id === taskId ? { ...task, timerActive: true } : task
       ),
     }));
     if (get().intervalId !== null) {
-      BackgroundTimer.clearInterval(get().intervalId);
+      clearInterval(get().intervalId);
     }
-    const intervalId = BackgroundTimer.setInterval(() => {
+    const intervalId = setInterval(() => {
       const task = get().tasks.find((t) => t.id === taskId);
       if (task && task.timerActive && task.remainingSeconds > 0) {
         set((state) => ({
@@ -207,7 +225,7 @@ const useTaskStore = create((set, get) => ({
           ),
         }));
       } else {
-        BackgroundTimer.clearInterval(intervalId);
+        clearInterval(intervalId);
         set({ intervalId: null, completionTime: null });
         if (task && task.remainingSeconds === 0) {
           get().updateTaskCompletion(taskId);
@@ -232,12 +250,25 @@ const useTaskStore = create((set, get) => ({
     set({ totalCompletionTime: totalFutureTime });
   },
   pauseTimer: (taskId) => {
-    BackgroundTimer.clearInterval(intervalId);
+    const now = new Date();
+    const { startTime } = get();
+    const elapsedTime = now - startTime;
+    clearInterval(get().intervalId);
     set({ intervalId: null });
     set((state) => ({
-      tasks: state.tasks.map((task) =>
-        task.id === taskId ? { ...task, timerActive: false } : task
-      ),
+      tasks: state.tasks.map((task) => {
+        if (task.id === taskId) {
+          const newRemaining =
+            task.remainingSeconds - Math.floor(elapsedTime / 1000);
+          return {
+            ...task,
+            timerActive: false,
+            remainingSeconds: Math.max(newRemaining, 0),
+          };
+        }
+        return task;
+      }),
+      intervalId: null,
     }));
   },
 
