@@ -1,8 +1,11 @@
-import React, { useState, useEffect } from 'react';
-import { Text, View, StyleSheet } from 'react-native';
+import React, { useState, useEffect } from "react";
+import colors from "../config/colors";
+import { Text, View, StyleSheet } from "react-native";
 
 const Clock = () => {
-  const [currentTime, setCurrentTime] = useState(new Date().toLocaleTimeString());
+  const [currentTime, setCurrentTime] = useState(
+    new Date().toLocaleTimeString()
+  );
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -22,12 +25,15 @@ const Clock = () => {
 
 const styles = StyleSheet.create({
   container: {
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: colors.darkTransparent,
+    borderRadius: 20,
   },
   timeText: {
-    fontSize: 50,
-    fontWeight: 'bold',
+    fontSize: 40,
+    fontWeight: "bold",
+    color: colors.platinumWhite,
   },
 });
 

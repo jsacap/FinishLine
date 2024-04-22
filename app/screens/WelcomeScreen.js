@@ -62,8 +62,10 @@ const styles = StyleSheet.create({
   },
   tagLine: {
     fontSize: 25,
+    color: colors.black,
     fontWeight: "600",
-    paddingVertical: 20,
+    backgroundColor: colors.lightTransparent,
+    borderRadius: 12,
   },
   clock: {
     justifyContent: "flex-end",

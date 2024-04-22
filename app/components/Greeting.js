@@ -20,7 +20,9 @@ function Greeting({ user }) {
 }
 const styles = StyleSheet.create({
   greeting: {
-    color: colors.darkCharcoal,
+    backgroundColor: colors.lightTransparent,
+    color: colors.black,
+    fontWeight: "bold",
     fontSize: 20,
   },
 });

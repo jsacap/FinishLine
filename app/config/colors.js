@@ -14,4 +14,6 @@ export default {
   gunmetalGray: "#1E1E1E",
   gold: "#BFA76F",
   darkGrayBlue: "#2C3E50",
+  darkTransparent: "rgba(50, 50, 50, 0.2)",
+  lightTransparent: "rgba(245, 245, 245, 0.3)",
 };
