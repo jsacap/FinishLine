@@ -49,7 +49,7 @@ export default function ActiveTaskScreen() {
   if (!task) {
     return (
       <View style={styles.taskContainer}>
-        <Text style={styles.taskText}>Task not found or deleted.</Text>
+        <Text style={styles.taskText}>No Active Task</Text>
       </View>
     );
   }
@@ -132,6 +132,8 @@ const styles = StyleSheet.create({
   header: {
     fontSize: 24,
     fontWeight: "bold",
+    justifyContent: "center",
+    alignItems: "center",
   },
   timer: {
     fontSize: 26,
