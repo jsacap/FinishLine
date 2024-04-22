@@ -25,6 +25,7 @@ export default function TaskListScreen() {
     isBottomSheetVisible,
     openBottomSheet,
     closeBottomSheet,
+    initializeSound,
     startTimer,
     updateTimersOnForeground,
     tasks,
@@ -40,6 +41,7 @@ export default function TaskListScreen() {
     closeBottomSheet: state.closeBottomSheet,
     clearTaskInputs: state.clearTaskInputs,
     updateTimersOnForeground: state.updateTimersOnForeground,
+    initializeSound: state.initializeSound,
     startTime: state.startTime,
     startTimer: state.startTimer,
     pauseTimer: state.pauseTimer,
@@ -55,7 +57,7 @@ export default function TaskListScreen() {
   const bottomSheetRef = useRef(null);
 
   useEffect(() => {
-    loadTasks();
+    loadTasks(), initializeSound();
     console.log(tasks);
   }, []);
   useEffect(() => {

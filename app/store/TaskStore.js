@@ -1,6 +1,7 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import Toast from "react-native-toast-message";
 import { create } from "zustand";
+import { Audio } from "expo-av";
 
 const useTaskStore = create((set, get) => ({
   tasks: [],
@@ -12,6 +13,7 @@ const useTaskStore = create((set, get) => ({
   activeTaskId: null,
   completionTime: null,
   isBottomSheetVisible: false,
+  sound: null,
   isPaused: true,
   startTime: null,
   setTaskInput: (input) => set({ taskInput: input }),
@@ -35,7 +37,18 @@ const useTaskStore = create((set, get) => ({
       });
     }
   },
-
+  initializeSound: async () => {
+    const { sound } = await Audio.Sound.createAsync(
+      require("../assets/sounds/achievement-bell.wav")
+    );
+    set({ sound });
+  },
+  playCompleteSound: async () => {
+    const { sound } = get();
+    if (sound) {
+      await sound.replayAsync();
+    }
+  },
   updateTask: () => {
     const updatedTasks = get().tasks.map((t) => {
       if (t.id === get().selectedTaskId) {
@@ -164,6 +177,8 @@ const useTaskStore = create((set, get) => ({
     const updatedTasks = get().tasks;
     try {
       await AsyncStorage.setItem("tasks", JSON.stringify(updatedTasks));
+      get().playCompleteSound();
+
       Toast.show(
         {
           type: "success",
@@ -171,7 +186,7 @@ const useTaskStore = create((set, get) => ({
           position: "bottom",
         },
         get().togglePause(),
-        set({ activeTaskId: nulll })
+        set({ activeTaskId: null })
       );
     } catch (error) {
       Toast.show({
