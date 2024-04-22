@@ -241,55 +241,53 @@ const useTaskStore = create((set, get) => ({
     set({ startTime: null });
   },
 
-  // Start the timer for a task
   startTimer: (taskId) => {
     const now = new Date();
-    get().setStartTime(now); // Ensures startTime is set and stored correctly
-
-    set((state) => ({
-      activeTaskId: taskId,
-      startTime: now,
-      tasks: state.tasks.map((task) =>
-        task.id === taskId
-          ? { ...task, timerActive: true, startTime: now }
-          : task
-      ),
-    }));
+    get().setStartTime(now);
 
     if (get().intervalId !== null) {
       clearInterval(get().intervalId);
     }
 
+    set((state) => {
+      const task = state.tasks.find((t) => t.id === taskId);
+      if (!task) {
+        console.error("Task not found");
+        return {};
+      }
+      const remainingSeconds =
+        task.timerActive && task.remainingSeconds !== undefined
+          ? task.remainingSeconds
+          : task.durationSeconds;
+
+      return {
+        activeTaskId: taskId,
+        startTime: now,
+        tasks: state.tasks.map((t) =>
+          t.id === taskId ? { ...t, timerActive: true, remainingSeconds } : t
+        ),
+      };
+    });
+
     const intervalId = setInterval(() => {
       const task = get().tasks.find((t) => t.id === taskId);
       if (task && task.timerActive) {
-        const currentTime = new Date();
-        const elapsedSeconds = Math.floor(
-          (currentTime - new Date(task.startTime)) / 1000
-        );
-        const remainingSeconds = task.durationSeconds - elapsedSeconds;
-
-        if (remainingSeconds <= 0) {
+        const newRemainingSeconds = task.remainingSeconds - 1;
+        if (newRemainingSeconds <= 0) {
           clearInterval(intervalId);
-          set((state) => ({
-            intervalId: null,
-            completionTime: null,
-            tasks: state.tasks.map((t) =>
-              t.id === taskId
-                ? { ...t, remainingSeconds: 0, timerActive: false }
-                : t
-            ),
-          }));
+          set({ intervalId: null, completionTime: null });
           get().clearStartTime();
           get().updateTaskCompletion(taskId);
           get().calculateTotalCompletionTime();
         } else {
           set((state) => ({
             tasks: state.tasks.map((t) =>
-              t.id === taskId ? { ...t, remainingSeconds: remainingSeconds } : t
+              t.id === taskId
+                ? { ...t, remainingSeconds: newRemainingSeconds }
+                : t
             ),
             completionTime: new Date(
-              new Date().getTime() + remainingSeconds * 1000
+              new Date().getTime() + newRemainingSeconds * 1000
             ),
           }));
         }
@@ -297,6 +295,36 @@ const useTaskStore = create((set, get) => ({
     }, 1000);
     set({ intervalId });
   },
+
+  pauseTimer: (taskId) => {
+    const now = new Date();
+    const { startTime } = get();
+    if (!startTime) {
+      console.error("No start time set");
+      return;
+    }
+    const elapsedMs = now.getTime() - new Date(startTime).getTime();
+    clearInterval(get().intervalId);
+    set({ intervalId: null });
+    set((state) => ({
+      tasks: state.tasks.map((task) => {
+        if (task.id === taskId && task.timerActive) {
+          const elapsedSeconds = Math.floor(elapsedMs / 1000);
+          const newRemaining = Math.max(
+            task.remainingSeconds - elapsedSeconds,
+            0
+          );
+          return {
+            ...task,
+            timerActive: false,
+            remainingSeconds: newRemaining,
+          };
+        }
+        return task;
+      }),
+    }));
+  },
+
   calculateRemainingTime: (task) => {
     const now = new Date();
     const startTime = new Date(task.startTime);
@@ -319,38 +347,7 @@ const useTaskStore = create((set, get) => ({
     );
     set({ totalCompletionTime: totalFutureTime });
   },
-  pauseTimer: (taskId) => {
-    const now = new Date();
-    const { startTime } = get();
 
-    if (!startTime) {
-      console.error("No start time set");
-      return;
-    }
-
-    const elapsedMs = now.getTime() - new Date(startTime).getTime();
-    clearInterval(get().intervalId);
-    set({ intervalId: null });
-
-    set((state) => ({
-      tasks: state.tasks.map((task) => {
-        if (task.id === taskId && task.timerActive) {
-          const elapsedSeconds = Math.floor(elapsedMs / 1000);
-          const newRemaining = Math.max(
-            task.remainingSeconds - elapsedSeconds,
-            0
-          );
-
-          return {
-            ...task,
-            timerActive: false,
-            remainingSeconds: newRemaining,
-          };
-        }
-        return task;
-      }),
-    }));
-  },
   resumeTimer: (taskId) => {
     const task = get().tasks.find((t) => t.id === taskId);
     if (task && !task.timerActive && task.remainingSeconds > 0) {
