@@ -1,31 +1,26 @@
-import React, { useState, useEffect } from "react";
-import { View, Text, Button } from "react-native";
-import BackgroundTimer from "react-native-background-timer";
+import { View, Text, StyleSheet, Button } from "react-native";
+import React, { useEffect, useState } from "react";
 
 export default function SandBox() {
-  const [seconds, setSeconds] = useState(60);
-
-  useEffect(() => {
-    // Start a background timer
-    const timerId = BackgroundTimer.runBackgroundTimer(() => {
-      setSeconds((secs) => {
-        if (secs > 0) return secs - 1;
-        BackgroundTimer.stopBackgroundTimer();
-        return 0;
-      });
-    }, 1000);
-
-    return () => {
-      // Cleanup the timer on component unmount
-      BackgroundTimer.stopBackgroundTimer();
-      BackgroundTimer.clearInterval(timerId);
-    };
-  }, []);
+  const [secondsLeft, setSecondsLeft] = useState(3600);
+  const [timerOn, setTimerOn] = useState(false);
 
   return (
-    <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-      <Text>Sandbox - Timer</Text>
-      <Text>{seconds} seconds remaining</Text>
+    <View style={styles.container}>
+      <Text style={styles.text}>SandBox</Text>
+      <Button title="Start" />
     </View>
   );
 }
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#000",
+  },
+  text: {
+    color: "#ccc",
+    fontSize: 40,
+  },
+});

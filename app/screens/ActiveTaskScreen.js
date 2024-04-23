@@ -36,16 +36,6 @@ export default function ActiveTaskScreen() {
 
   const task = tasks.find((t) => t.id === activeTaskId);
 
-  useEffect(() => {
-    if (task && task.timerActive && intervalId) {
-      const interval = setInterval(() => {
-        useTaskStore.getState().pauseTimer();
-        useTaskStore.getState().resumeTimer(task.id);
-      }, 1000);
-      return () => clearInterval(interval);
-    }
-  }, [task, intervalId]);
-
   if (!task) {
     return (
       <View style={styles.taskContainer}>

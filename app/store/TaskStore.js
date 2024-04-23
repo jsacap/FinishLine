@@ -240,31 +240,28 @@ const useTaskStore = create((set, get) => ({
     await AsyncStorage.removeItem("startTime");
     set({ startTime: null });
   },
-
+  // TIMER LOGIC
   startTimer: (taskId) => {
     const now = new Date();
     get().setStartTime(now);
-
     if (get().intervalId !== null) {
       clearInterval(get().intervalId);
     }
-
     set((state) => {
       const task = state.tasks.find((t) => t.id === taskId);
-      if (!task) {
-        console.error("Task not found");
-        return {};
-      }
-      const remainingSeconds =
-        task.timerActive && task.remainingSeconds !== undefined
-          ? task.remainingSeconds
-          : task.durationSeconds;
-
+      const startTime = now;
       return {
         activeTaskId: taskId,
-        startTime: now,
+        startTime,
         tasks: state.tasks.map((t) =>
-          t.id === taskId ? { ...t, timerActive: true, remainingSeconds } : t
+          t.id === taskId
+            ? {
+                ...t,
+                timerActive: true,
+                startTime,
+                remainingSeconds: task.remainingSeconds,
+              }
+            : t
         ),
       };
     });
@@ -272,10 +269,23 @@ const useTaskStore = create((set, get) => ({
     const intervalId = setInterval(() => {
       const task = get().tasks.find((t) => t.id === taskId);
       if (task && task.timerActive) {
-        const newRemainingSeconds = task.remainingSeconds - 1;
+        const currentTime = new Date();
+        const elapsedSeconds = Math.floor(
+          (currentTime - new Date(task.startTime)) / 1000
+        );
+        const newRemainingSeconds = task.durationSeconds - elapsedSeconds;
+
         if (newRemainingSeconds <= 0) {
           clearInterval(intervalId);
-          set({ intervalId: null, completionTime: null });
+          set((state) => ({
+            intervalId: null,
+            completionTime: null,
+            tasks: state.tasks.map((t) =>
+              t.id === taskId
+                ? { ...t, remainingSeconds: 0, timerActive: false }
+                : t
+            ),
+          }));
           get().clearStartTime();
           get().updateTaskCompletion(taskId);
           get().calculateTotalCompletionTime();
@@ -303,15 +313,18 @@ const useTaskStore = create((set, get) => ({
       console.error("No start time set");
       return;
     }
-    const elapsedMs = now.getTime() - new Date(startTime).getTime();
+
     clearInterval(get().intervalId);
     set({ intervalId: null });
+
+    const elapsedMs = now - new Date(startTime);
+    const elapsedSeconds = Math.floor(elapsedMs / 1000);
+
     set((state) => ({
       tasks: state.tasks.map((task) => {
         if (task.id === taskId && task.timerActive) {
-          const elapsedSeconds = Math.floor(elapsedMs / 1000);
           const newRemaining = Math.max(
-            task.remainingSeconds - elapsedSeconds,
+            task.reaminingSeconds - elapsedSeconds,
             0
           );
           return {
@@ -370,6 +383,7 @@ const useTaskStore = create((set, get) => ({
         return {
           ...task,
           remainingSeconds: task.remainingSeconds + additionalSeconds,
+          durationSeconds: task.durationSeconds + additionalSeconds,
         };
       }
       return task;

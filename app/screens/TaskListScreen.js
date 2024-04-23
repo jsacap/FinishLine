@@ -137,6 +137,7 @@ export default function TaskListScreen() {
           onPress={handleToggleTimer}
         />
       </View>
+      <Button title="SandbOx" onPress={() => navigation.navigate("SandBox")} />
 
       <View style={styles.incompleteList}>
         <View>
