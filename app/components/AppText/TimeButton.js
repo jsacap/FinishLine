@@ -1,12 +1,17 @@
-import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
+import { StyleSheet, TouchableOpacity, Keyboard } from "react-native";
 import colors from "../../config/colors";
-import React from "react";
-import LinearGradient from "react-native-linear-gradient";
 import AppText from "./AppText";
 
 export default function TimeButton({ time, onPress }) {
+  const handlePress = () => {
+    if (onPress) {
+      onPress();
+    }
+    Keyboard.dismiss();
+  };
+
   return (
-    <TouchableOpacity style={styles.container} onPress={onPress}>
+    <TouchableOpacity style={styles.container} onPress={handlePress}>
       <AppText style={styles.plus}>+</AppText>
       <AppText style={styles.time}>{time}</AppText>
     </TouchableOpacity>

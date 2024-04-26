@@ -106,7 +106,7 @@ export default function AddTaskScreen({ handleClosePress }) {
         }}
         onClose={() => setIconPickerVisible(false)}
       />
-      <View style={styles.presetTimeButtons} onPress={Keyboard.dismiss()}>
+      <View style={styles.presetTimeButtons}>
         <TimeButton time={1} onPress={() => setTaskMinutes(taskMinutes + 1)} />
         <TimeButton time={5} onPress={() => setTaskMinutes(taskMinutes + 5)} />
         <TimeButton
