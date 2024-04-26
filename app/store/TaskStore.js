@@ -191,7 +191,51 @@ const useTaskStore = create((set, get) => ({
           text1: `${currentTask.text} Complete!`,
           position: "bottom",
         },
-        get().togglePause(),
+        set({ activeTaskId: null })
+      );
+    } catch (error) {
+      Toast.show({
+        type: "error",
+        text1: "Failed to save the tasks",
+        text2: error.message,
+      });
+    }
+  },
+
+  updateTaskIncomplete: async (taskId) => {
+    const currentTask = get().tasks.find((task) => task.id === taskId);
+    if (!currentTask) {
+      Toast.show({
+        type: "error",
+        text1: "Task not found",
+      });
+      return;
+    }
+    set((state) => ({
+      tasks: state.tasks.map((task) => {
+        if (task.id === taskId) {
+          return {
+            ...task,
+            timerActive: false,
+            taskStatus: "incomplete",
+            remainingSeconds: 0,
+          };
+        }
+        return task;
+      }),
+    }));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    const updatedTasks = get().tasks;
+    try {
+      await AsyncStorage.setItem("tasks", JSON.stringify(updatedTasks));
+      get().playCompleteSound();
+
+      Toast.show(
+        {
+          type: "success",
+          text1: `${currentTask.text} Marked Incomplete!`,
+          position: "bottom",
+        },
         set({ activeTaskId: null })
       );
     } catch (error) {
@@ -261,7 +305,7 @@ const useTaskStore = create((set, get) => ({
         const newRemainingSeconds = task.remainingSeconds - elapsedSeconds;
 
         if (newRemainingSeconds <= 0) {
-          clearInterval(intervalId);
+          get().togglePause(), clearInterval(intervalId);
           set((state) => ({
             intervalId: null,
             tasks: state.tasks.map((t) =>

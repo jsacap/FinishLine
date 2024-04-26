@@ -7,12 +7,16 @@ import TaskItemSwipeDelete from "./TaskItemSwipeDelete";
 import Header from "./Header";
 import { FlatList, Swipeable } from "react-native-gesture-handler";
 import Toast from "react-native-toast-message";
+import TaskItemSwipeStatus from "./TaskItemSwipeStatus";
 
 export default function CompletedTasks() {
-  const { completedTasks, deleteTask } = useTaskStore((state) => ({
-    completedTasks: state.getCompletedTasks(),
-    deleteTask: state.deleteTask,
-  }));
+  const { completedTasks, deleteTask, updateTaskIncomplete } = useTaskStore(
+    (state) => ({
+      completedTasks: state.getCompletedTasks(),
+      deleteTask: state.deleteTask,
+      updateTaskIncomplete: state.updateTaskIncomplete,
+    })
+  );
 
   const renderItem = ({ item }) => {
     const handleTaskPress = () => {
@@ -26,9 +30,15 @@ export default function CompletedTasks() {
     const renderRightActions = () => (
       <TaskItemSwipeDelete onPress={() => deleteTask(item.id)} />
     );
+    const renderLeftActions = () => (
+      <TaskItemSwipeStatus onPress={() => updateTaskIncomplete(item.id)} />
+    );
 
     return (
-      <Swipeable renderRightActions={renderRightActions}>
+      <Swipeable
+        renderRightActions={renderRightActions}
+        renderLeftActions={renderLeftActions}
+      >
         <TouchableOpacity onPress={() => handleTaskPress(item.id)}>
           <TaskItem
             taskId={item.id}

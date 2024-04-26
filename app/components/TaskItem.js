@@ -1,12 +1,16 @@
 import React, { useEffect, useRef, useState } from "react";
 import { StyleSheet, View } from "react-native";
-import { Swipeable } from "react-native-gesture-handler";
+import Swipeable from "react-native-gesture-handler/Swipeable";
 import { FontAwesome5 } from "@expo/vector-icons";
 import colors from "../config/colors";
 import AppText from "./AppText/AppText";
 import useTaskStore from "../store/TaskStore";
 
 function TaskItem({ taskId, style }) {
+  const { updateTaskCompletion } = useTaskStore((state) => ({
+    updateTaskCompletion: state.updateTaskCompletion,
+  }));
+
   const task = useTaskStore((state) =>
     state.tasks.find((t) => t.id === taskId)
   );
@@ -39,7 +43,6 @@ function TaskItem({ taskId, style }) {
     );
   }
 
-  // Determine the display based on whether the timer is active
   const displayTime = task.timerActive
     ? formatTime(task.remainingSeconds)
     : formatDuration(task.durationMinutes);

@@ -42,7 +42,7 @@ export default function ActiveTaskScreen() {
         <Text style={styles.taskText}>No Active Task</Text>
         <Button
           title="Go Back"
-          onPress={() => navigation.navigate("TaskListScreen")}
+          onPress={() => navigation.navigate("TaskList")}
         />
       </View>
     );
