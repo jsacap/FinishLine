@@ -3,6 +3,8 @@ import { StyleSheet, View } from "react-native";
 import Swipeable from "react-native-gesture-handler/Swipeable";
 import { FontAwesome5 } from "@expo/vector-icons";
 import colors from "../config/colors";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
+
 import AppText from "./AppText/AppText";
 import useTaskStore from "../store/TaskStore";
 
@@ -53,7 +55,11 @@ function TaskItem({ taskId, style }) {
         <AppText style={styles.taskText}>{task.text}</AppText>
       </View>
       <View style={styles.time}>
-        <FontAwesome5 name="tasks" size={20} color="black" />
+        <MaterialCommunityIcons
+          name={task.iconName || "check"}
+          size={24}
+          color="black" // Set the icon color
+        />
         <AppText style={styles.taskText}>{displayTime}</AppText>
       </View>
     </View>

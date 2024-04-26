@@ -1,4 +1,7 @@
 import { TouchableHighlight } from "@gorhom/bottom-sheet";
+import IconPicker from "../components/IconPicker";
+import { useState, useEffect } from "react";
+
 import {
   StyleSheet,
   View,
@@ -26,6 +29,8 @@ export default function AddTaskScreen({ handleClosePress }) {
     updateTask,
     selectedTaskId,
     closeBottomSheet,
+    iconName,
+    setIconName,
   } = useTaskStore((state) => ({
     taskInput: state.taskInput,
     taskHours: state.taskHours,
@@ -38,7 +43,11 @@ export default function AddTaskScreen({ handleClosePress }) {
     selectedTaskId: state.selectedTaskId,
     updateTask: state.updateTask,
     closeBottomSheet: state.closeBottomSheet,
+    iconName: state.iconName,
+    setIconName: state.setIconName,
   }));
+
+  const [iconPickerVisible, setIconPickerVisible] = useState(false);
 
   const handleSave = () => {
     Keyboard.dismiss();
@@ -47,13 +56,7 @@ export default function AddTaskScreen({ handleClosePress }) {
     } else {
       addTask();
     }
-    // closeBottomSheet();
-  };
-
-  const incrementTime = (minutes) => {
-    Keyboard.dismiss();
-    const totalMinutes = taskMinutes + minutes;
-    setTaskMinutes(totalMinutes);
+    closeBottomSheet();
   };
 
   return (
@@ -91,11 +94,29 @@ export default function AddTaskScreen({ handleClosePress }) {
           onChangeText={(text) => setTaskMinutes(Number(text))}
         />
       </View>
+      <IconButton
+        iconName={iconName || "plus"}
+        onPress={() => setIconPickerVisible(true)}
+      />
+      <IconPicker
+        visible={iconPickerVisible}
+        onSelect={(selectedIcon) => {
+          setIconName(selectedIcon);
+          setIconPickerVisible(false);
+        }}
+        onClose={() => setIconPickerVisible(false)}
+      />
       <View style={styles.presetTimeButtons}>
-        <TimeButton time={1} onPress={() => incrementTime(1)} />
-        <TimeButton time={5} onPress={() => incrementTime(5)} />
-        <TimeButton time={15} onPress={() => incrementTime(15)} />
-        <TimeButton time={30} onPress={() => incrementTime(30)} />
+        <TimeButton time={1} onPress={() => setTaskMinutes(taskMinutes + 1)} />
+        <TimeButton time={5} onPress={() => setTaskMinutes(taskMinutes + 5)} />
+        <TimeButton
+          time={15}
+          onPress={() => setTaskMinutes(taskMinutes + 15)}
+        />
+        <TimeButton
+          time={30}
+          onPress={() => setTaskMinutes(taskMinutes + 30)}
+        />
       </View>
     </View>
   );

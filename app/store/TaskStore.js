@@ -16,6 +16,8 @@ const useTaskStore = create((set, get) => ({
   sound: null,
   isPaused: true,
   startTime: null,
+  iconName: "",
+  setIconName: (iconName) => set({ iconName }),
   setTaskInput: (input) => set({ taskInput: input }),
   setTaskHours: (hours) => set({ taskHours: hours }),
   setTaskMinutes: (minutes) =>
@@ -103,10 +105,9 @@ const useTaskStore = create((set, get) => ({
 
   // CRUD
   addTask: () => {
-    // validation
-    const taskInput = get().taskInput;
-    const taskHours = get().taskHours;
-    const taskMinutes = get().taskMinutes;
+    // Validation
+    const { taskInput, taskHours, taskMinutes, iconName, tasks } = get(); // Destructure tasks here as well
+
     if (!taskInput.trim()) {
       Toast.show({
         type: "error",
@@ -123,18 +124,19 @@ const useTaskStore = create((set, get) => ({
     }
     const newTask = {
       id: Date.now(),
-      text: get().taskInput,
-      hours: get().taskHours,
-      minutes: get().taskMinutes,
-      durationMinutes: get().taskHours * 60 + get().taskMinutes,
-      durationSeconds: (get().taskHours * 60 + get().taskMinutes) * 60,
+      text: taskInput, // Use destructured taskInput
+      hours: taskHours, // Use destructured taskHours
+      minutes: taskMinutes, // Use destructured taskMinutes
+      durationMinutes: taskHours * 60 + taskMinutes,
+      durationSeconds: (taskHours * 60 + taskMinutes) * 60,
       timerActive: false,
-      remainingSeconds: (get().taskHours * 60 + get().taskMinutes) * 60,
+      remainingSeconds: (taskHours * 60 + taskMinutes) * 60,
       taskStatus: "incomplete",
+      iconName: iconName, // Use destructured iconName
     };
 
-    const updatedTasks = [...get().tasks, newTask];
-    set({ tasks: updatedTasks });
+    const updatedTasks = [...tasks, newTask]; // Use destructured tasks
+    set({ tasks: updatedTasks, iconName: "" }); // Reset iconName after adding task
     AsyncStorage.setItem("tasks", JSON.stringify(updatedTasks));
     get().clearTaskInputs();
     get().closeBottomSheet();
