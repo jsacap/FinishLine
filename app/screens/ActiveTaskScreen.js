@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, Dimensions } from "react-native";
+import { View, Text, StyleSheet, Dimensions, Button } from "react-native";
 import React, { useEffect } from "react";
 import useTaskStore from "../store/TaskStore";
 import PlayButton from "../components/PlayButton";
@@ -40,6 +40,10 @@ export default function ActiveTaskScreen() {
     return (
       <View style={styles.taskContainer}>
         <Text style={styles.taskText}>No Active Task</Text>
+        <Button
+          title="Go Back"
+          onPress={() => navigation.navigate("TaskListScreen")}
+        />
       </View>
     );
   }
