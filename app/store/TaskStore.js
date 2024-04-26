@@ -269,9 +269,6 @@ const useTaskStore = create((set, get) => ({
                 ? { ...t, remainingSeconds: 0, timerActive: false }
                 : t
             ),
-            completionTime: new Date(
-              new Date().getTime() + newRemainingSeconds * 1000
-            ),
           }));
           get().clearStartTime();
           get().updateTaskCompletion(taskId);
@@ -294,6 +291,7 @@ const useTaskStore = create((set, get) => ({
         tasks: state.tasks.map((t) =>
           t.id === taskId ? { ...t, timerActive: true, startTime } : t
         ),
+        completionTime: new Date(now.getTime() + task.remainingSeconds * 1000),
       };
     });
   },
