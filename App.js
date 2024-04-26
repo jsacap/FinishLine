@@ -7,8 +7,8 @@ import Toast from "react-native-toast-message";
 import ActiveTaskScreen from "./app/screens/ActiveTaskScreen";
 import AddTaskScreen from "./app/screens/AddTaskScreen";
 import NameInputScreen from "./app/screens/NameInputScreen";
-import TaskListScreen from "./app/screens/TaskListScreen";
 import SandBox from "./app/screens/SandBox";
+import TaskListScreen from "./app/screens/TaskListScreen";
 import WelcomeScreen from "./app/screens/WelcomeScreen";
 
 const Stack = createStackNavigator();

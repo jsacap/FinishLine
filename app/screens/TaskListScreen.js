@@ -1,20 +1,19 @@
 import { AntDesign } from "@expo/vector-icons";
 import BottomSheet from "@gorhom/bottom-sheet";
+import { useNavigation } from "@react-navigation/native";
 import Constants from "expo-constants";
 import { useEffect, useMemo, useRef } from "react";
-import { useNavigation } from "@react-navigation/native";
-import { Dimensions, StyleSheet, View, AppState, Button } from "react-native";
+import { AppState, Dimensions, StyleSheet, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Toast from "react-native-toast-message";
 import AppButton from "../components/AppButton";
+import AppText from "../components/AppText/AppText";
 import CompletedTasks from "../components/CompletedTasks";
-import IconButton from "../components/IconButton";
 import IncompleteTaskList from "../components/IncompleteTaskList";
-import TotalTaskTime from "../components/TotalTaskTime";
 import colors from "../config/colors";
 import useTaskStore from "../store/TaskStore";
 import AddTaskScreen from "./AddTaskScreen";
-import AppText from "../components/AppText/AppText";
+import { Notifications } from "expo";
 
 const { width } = Dimensions.get("window");
 
@@ -24,12 +23,9 @@ export default function TaskListScreen() {
     loadTasks,
     isBottomSheetVisible,
     openBottomSheet,
-    closeBottomSheet,
     initializeSound,
     startTimer,
-    updateTimersOnForeground,
     tasks,
-    startTime,
     pauseTimer,
     isPaused,
     togglePause,

@@ -28,17 +28,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     margin: 5,
     backgroundColor: colors.white,
-    ...Platform.select({
-      ios: {
-        shadowColor: "#000",
-        shadowOffset: { width: 5, height: 5 },
-        shadowOpacity: 0.3,
-        shadowRadius: 5,
-      },
-      android: {
-        elevation: 10,
-      },
-    }),
   },
   innerContainer: {
     flexDirection: "row",

@@ -7,7 +7,6 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import {
   FlatList,
   ImageBackground,
-  Platform,
   SafeAreaView,
   StatusBar,
   StyleSheet,
@@ -317,7 +316,6 @@ const styles = StyleSheet.create({
     flex: 1,
     width: "100%",
     alignItems: "center",
-    paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 0,
     justifyContent: "space-between",
   },
   name: {
