@@ -58,7 +58,6 @@ export default function TaskListScreen() {
 
   useEffect(() => {
     loadTasks(), initializeSound();
-    console.log(tasks);
   }, []);
 
   useEffect(() => {
