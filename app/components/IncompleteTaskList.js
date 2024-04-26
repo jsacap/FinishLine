@@ -33,7 +33,10 @@ export default function IncompleteTaskList() {
       <TaskItemSwipeDelete onPress={() => deleteTask(item.id)} />
     );
     const renderLeftActions = () => (
-      <TaskItemSwipeStatus onPress={() => updateTaskCompletion(item.id)} />
+      <TaskItemSwipeStatus
+        status={item.taskStatus}
+        onPress={() => updateTaskCompletion(item.id)}
+      />
     );
 
     return (
