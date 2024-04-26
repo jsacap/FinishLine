@@ -1,4 +1,6 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import * as Notifications from "expo-notifications";
+
 import Toast from "react-native-toast-message";
 import { create } from "zustand";
 import { Audio } from "expo-av";
@@ -186,6 +188,10 @@ const useTaskStore = create((set, get) => ({
     try {
       await AsyncStorage.setItem("tasks", JSON.stringify(updatedTasks));
       get().playCompleteSound();
+      // Notification scheduling
+      if (currentTask.taskStatus !== "complete") {
+        await get().scheduleNotification(currentTask);
+      }
 
       Toast.show(
         {
@@ -431,6 +437,18 @@ const useTaskStore = create((set, get) => ({
         text1: "Unable to add time",
       });
     }
+  },
+
+  // Notifications
+  async scheduleNotification(task) {
+    await Notifications.scheduleNotificationAsync({
+      content: {
+        title: "TimeStack",
+        body: `${task.text} is now complete. Great job! 🎉`,
+        data: { taskId: task.id },
+      },
+      trigger: null,
+    });
   },
 }));
 

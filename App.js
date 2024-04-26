@@ -10,7 +10,7 @@ import NameInputScreen from "./app/screens/NameInputScreen";
 import SandBox from "./app/screens/SandBox";
 import TaskListScreen from "./app/screens/TaskListScreen";
 import WelcomeScreen from "./app/screens/WelcomeScreen";
-
+import * as Notifications from "expo-notifications";
 const Stack = createStackNavigator();
 
 export default function App() {
@@ -24,13 +24,26 @@ export default function App() {
   };
 
   useEffect(() => {
+    // Notification handler setup
+    Notifications.setNotificationHandler({
+      handleNotification: async () => ({
+        shouldShowAlert: true,
+        shouldPlaySound: false,
+        shouldSetBadge: false,
+      }),
+    });
+
+    // Load user data from storage
+    const findUser = async () => {
+      const result = await AsyncStorage.getItem("user");
+      if (result !== null) {
+        setUser(JSON.parse(result));
+      }
+    };
+
     findUser();
-    // AsyncStorage.clear();
   }, []);
 
-  // if (!user.name) {
-  //   return <NameInputScreen onFinish={findUser} />;
-  // }
   if (user.name) {
     return (
       <>
