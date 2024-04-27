@@ -1,4 +1,5 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { scheduleNotification } from "../notificationUtils";
 import * as Notifications from "expo-notifications";
 
 import Toast from "react-native-toast-message";
@@ -292,6 +293,7 @@ const useTaskStore = create((set, get) => ({
     await AsyncStorage.removeItem("startTime");
     set({ startTime: null });
   },
+
   // TIMER LOGIC
   startTimer: (taskId) => {
     const now = new Date();
@@ -306,19 +308,45 @@ const useTaskStore = create((set, get) => ({
         clearInterval(get().intervalId);
       }
 
+      if (task.notificationId) {
+        Notifications.cancelScheduledNotificationAsync(task.notificationId);
+      }
+
+      scheduleNotification(task, task.remainingSeconds).then(
+        (notificationId) => {
+          set((state) => ({
+            tasks: state.tasks.map((t) =>
+              t.id === taskId ? { ...t, notificationId } : t
+            ),
+          }));
+        }
+      );
       const startTime = now;
       const intervalId = setInterval(() => {
         const currentTime = new Date();
         const elapsedSeconds = Math.floor((currentTime - startTime) / 1000);
-        const newRemainingSeconds = task.remainingSeconds - elapsedSeconds;
 
+        const newRemainingSeconds = task.remainingSeconds - elapsedSeconds;
         if (newRemainingSeconds <= 0) {
           get().togglePause(), clearInterval(intervalId);
+          if (task.notificationId) {
+            Notifications.cancelScheduledNotificationAsync(
+              task.notificationId
+            ).catch((error) => {
+              console.error("Failed to cancel notification", error);
+            });
+          }
+
           set((state) => ({
             intervalId: null,
             tasks: state.tasks.map((t) =>
               t.id === taskId
-                ? { ...t, remainingSeconds: 0, timerActive: false }
+                ? {
+                    ...t,
+                    remainingSeconds: 0,
+                    timerActive: false,
+                    notificationId: undefined,
+                  }
                 : t
             ),
           }));
@@ -437,18 +465,6 @@ const useTaskStore = create((set, get) => ({
         text1: "Unable to add time",
       });
     }
-  },
-
-  // Notifications
-  async scheduleNotification(task) {
-    await Notifications.scheduleNotificationAsync({
-      content: {
-        title: "TimeStack",
-        body: `${task.text} is now complete. Great job! 🎉`,
-        data: { taskId: task.id },
-      },
-      trigger: null,
-    });
   },
 }));
 

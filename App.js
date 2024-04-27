@@ -1,6 +1,7 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
+import { Text, View, ActivityIndicator } from "react-native";
 import { useEffect, useState } from "react";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import Toast from "react-native-toast-message";
@@ -15,6 +16,7 @@ const Stack = createStackNavigator();
 
 export default function App() {
   const [user, setUser] = useState({});
+  const [loading, setLoading] = useState(true);
 
   const findUser = async () => {
     const result = await AsyncStorage.getItem("user");
@@ -34,17 +36,34 @@ export default function App() {
     });
 
     // Load user data from storage
-    const findUser = async () => {
-      const result = await AsyncStorage.getItem("user");
-      if (result !== null) {
-        setUser(JSON.parse(result));
+    const loadUserData = async () => {
+      try {
+        const result = await AsyncStorage.getItem("user");
+        if (result !== null) {
+          setUser(JSON.parse(result));
+        }
+      } catch (error) {
+        Toast.show({
+          type: "error",
+          text1: "Error loading user data",
+        });
+      } finally {
+        setLoading(false);
       }
     };
 
-    findUser();
+    loadUserData();
   }, []);
 
-  if (user.name) {
+  if (loading) {
+    return (
+      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+        <ActivityIndicator size="large" />
+      </View>
+    );
+  }
+
+  if (user?.name) {
     return (
       <>
         <NavigationContainer>
@@ -62,5 +81,5 @@ export default function App() {
       </>
     );
   }
-  return <NameInputScreen onFinish={findUser} />;
+  return <NameInputScreen onFinish={() => setLoading(true) && findUser()} />;
 }
