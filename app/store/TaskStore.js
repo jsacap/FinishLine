@@ -42,22 +42,46 @@ const useTaskStore = create((set, get) => ({
       });
     }
   },
+  // Load and prepare the sound
   initializeSound: async () => {
-    const { sound } = await Audio.Sound.createAsync(
-      require("../assets/sounds/achievement-bell.wav")
-    );
-    set({ sound });
+    try {
+      const { sound } = await Audio.Sound.createAsync(
+        require("../assets/sounds/achievement-bell.wav"),
+        { shouldPlay: false }
+      );
+      set({ sound });
+    } catch (error) {
+      console.error("Failed to load sound", error);
+    }
   },
+
+  // Play the complete sound
   playCompleteSound: async () => {
     const { sound } = get();
-    if (sound) {
-      await sound.replayAsync();
-      await sound.setOnPlaybackStatusUpdate(async (status) => {
-        if (status.didJustFinish) {
-          await sound.unloadAsync();
-          set({ sound: null });
-        }
-      });
+    if (!sound) {
+      console.log("Sound not loaded or already unloaded");
+      return;
+    }
+
+    try {
+      const status = await sound.getStatusAsync();
+      if (status.isLoaded && !status.isPlaying) {
+        await sound.playAsync();
+        sound.setOnPlaybackStatusUpdate(async (status) => {
+          if (status.didJustFinish) {
+            await sound.unloadAsync();
+            set({ sound: null });
+          }
+        });
+      }
+    } catch (error) {
+      console.error("Failed to play or manage sound", error);
+      try {
+        await sound.unloadAsync();
+      } catch (e) {
+        console.error("Failed to unload sound", e);
+      }
+      set({ sound: null });
     }
   },
   updateTask: () => {
@@ -189,19 +213,17 @@ const useTaskStore = create((set, get) => ({
     try {
       await AsyncStorage.setItem("tasks", JSON.stringify(updatedTasks));
       get().playCompleteSound();
-      // Notification scheduling
+      // Notification scheduling directly using imported function
       if (currentTask.taskStatus !== "complete") {
-        await get().scheduleNotification(currentTask);
+        await scheduleNotification(currentTask, currentTask.remainingSeconds);
       }
 
-      Toast.show(
-        {
-          type: "success",
-          text1: `${currentTask.text} Complete!`,
-          position: "bottom",
-        },
-        set({ activeTaskId: null })
-      );
+      Toast.show({
+        type: "success",
+        text1: `${currentTask.text} Complete!`,
+        position: "bottom",
+      });
+      set({ activeTaskId: null });
     } catch (error) {
       Toast.show({
         type: "error",
@@ -210,7 +232,6 @@ const useTaskStore = create((set, get) => ({
       });
     }
   },
-
   updateTaskIncomplete: async (taskId) => {
     const currentTask = get().tasks.find((task) => task.id === taskId);
     if (!currentTask) {
