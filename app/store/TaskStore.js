@@ -202,7 +202,7 @@ const useTaskStore = create((set, get) => ({
             ...task,
             timerActive: false,
             taskStatus: "complete",
-            remainingSeconds: 0,
+            remainingSeconds: task.durationSeconds,
           };
         }
         return task;
@@ -248,7 +248,7 @@ const useTaskStore = create((set, get) => ({
             ...task,
             timerActive: false,
             taskStatus: "incomplete",
-            remainingSeconds: 0,
+            // remainingSeconds: 0,
           };
         }
         return task;

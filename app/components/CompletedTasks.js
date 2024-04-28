@@ -21,10 +21,9 @@ export default function CompletedTasks() {
   const renderItem = ({ item }) => {
     const handleTaskPress = () => {
       Toast.show({
-        type: "error",
+        type: "info",
         text1: "Cannot edit Completed Tasks",
-        text2:
-          "Swipe from left to right to mark it incomplete and edit from there",
+        text2: "Make task incomplete first (Swipe Right)",
       });
     };
     const renderRightActions = () => (
