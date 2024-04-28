@@ -224,6 +224,7 @@ const useTaskStore = create((set, get) => ({
         position: "bottom",
       });
       set({ activeTaskId: null });
+      get().togglePause();
     } catch (error) {
       Toast.show({
         type: "error",
