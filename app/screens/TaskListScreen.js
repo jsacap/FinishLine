@@ -2,7 +2,7 @@ import { AntDesign } from "@expo/vector-icons";
 import BottomSheet from "@gorhom/bottom-sheet";
 import { useNavigation } from "@react-navigation/native";
 import Constants from "expo-constants";
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useState, useMemo, useRef } from "react";
 import { AppState, Dimensions, StyleSheet, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Toast from "react-native-toast-message";
@@ -19,6 +19,8 @@ const { width } = Dimensions.get("window");
 
 export default function TaskListScreen() {
   const navigation = useNavigation();
+  const [displayedFinishTime, setDisplayedFinishTime] = useState("");
+
   const {
     loadTasks,
     isBottomSheetVisible,
@@ -54,6 +56,12 @@ export default function TaskListScreen() {
 
   useEffect(() => {
     loadTasks(), initializeSound();
+    setDisplayedFinishTime(calculateFutureCompletionTime());
+    const interval = setInterval(() => {
+      setDisplayedFinishTime(calculateFutureCompletionTime());
+    }, 60000);
+
+    return () => clearInterval(interval);
   }, []);
 
   useEffect(() => {
@@ -83,6 +91,7 @@ export default function TaskListScreen() {
       bottomSheetRef.current?.close();
     }
   }, [isBottomSheetVisible]);
+
   const calculateFutureCompletionTime = () => {
     const totalSeconds = tasks.reduce(
       (total, task) => total + task.remainingSeconds,
