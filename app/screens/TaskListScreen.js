@@ -3,7 +3,14 @@ import BottomSheet from "@gorhom/bottom-sheet";
 import { useNavigation } from "@react-navigation/native";
 import Constants from "expo-constants";
 import { useEffect, useState, useMemo, useRef } from "react";
-import { AppState, Dimensions, StyleSheet, View } from "react-native";
+import {
+  AppState,
+  Dimensions,
+  StyleSheet,
+  View,
+  Text,
+  Button,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Toast from "react-native-toast-message";
 import AppButton from "../components/AppButton";
@@ -141,6 +148,14 @@ export default function TaskListScreen() {
           color={colors.taskItemSecondary}
           onPress={handleToggleTimer}
         />
+        {!isPaused && (
+          <Text
+            style={styles.activeTask}
+            onPress={() => navigation.navigate("ActiveTask")}
+          >
+            Go to active task...
+          </Text>
+        )}
       </View>
       {/* <Button title="SandbOx" onPress={() => navigation.navigate("SandBox")} /> */}
 
@@ -183,7 +198,12 @@ export default function TaskListScreen() {
 }
 
 const styles = StyleSheet.create({
+  activeTask: {
+    color: colors.white,
+  },
   buttons: {
+    alignItems: "center",
+    justiofycContent: "center",
     padding: 20,
   },
   closeBottomSheet: {

@@ -7,6 +7,7 @@ import { useNavigation } from "@react-navigation/native";
 import TimeCompletion from "../components/TimeCompletion";
 import TimeButton from "../components/AppText/TimeButton";
 import Header from "../components/Header";
+import Constants from "expo-constants";
 import AppText from "../components/AppText/AppText";
 import colors from "../config/colors";
 
@@ -107,7 +108,7 @@ const styles = StyleSheet.create({
     position: "absolute",
     top: 0,
     left: 0,
-    padding: 10,
+    paddingTop: Constants.statusBarHeight,
   },
   buttonContainer: {
     position: "absolute",
@@ -121,6 +122,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
+    paddingTop: Constants.statusBarHeight,
   },
 
   header: {
