@@ -128,6 +128,7 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     justifyContent: "center",
     alignItems: "center",
+    textAlign: "center",
   },
   timer: {
     fontSize: 26,

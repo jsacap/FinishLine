@@ -50,13 +50,13 @@ export default function AddTaskScreen({ handleClosePress }) {
   const [iconPickerVisible, setIconPickerVisible] = useState(false);
 
   const handleSave = () => {
-    Keyboard.dismiss();
     if (selectedTaskId) {
       updateTask();
     } else {
       addTask();
     }
     closeBottomSheet();
+    Keyboard.dismiss();
   };
 
   return (
@@ -66,7 +66,7 @@ export default function AddTaskScreen({ handleClosePress }) {
         <IconButton iconName="check" onPress={handleSave} />
         {selectedTaskId && (
           <IconButton
-            iconName="trash-alt"
+            iconName="trash-can"
             style={styles.deleteButton}
             onPress={() => deleteTask(selectedTaskId)}
           />
@@ -74,9 +74,10 @@ export default function AddTaskScreen({ handleClosePress }) {
       </View>
       <TextInput
         style={styles.textInput}
-        placeholder="Task"
+        placeholder="Task (50 characters max)"
         value={taskInput}
         onChangeText={setTaskInput}
+        maxLength={50}
       />
       <View style={styles.timeInputs}>
         <TextInput
@@ -95,7 +96,7 @@ export default function AddTaskScreen({ handleClosePress }) {
         />
       </View>
       <IconButton
-        iconName={iconName || "plus"}
+        iconName={iconName || "emoticon"}
         onPress={() => setIconPickerVisible(true)}
       />
       <IconPicker
@@ -160,7 +161,7 @@ const styles = StyleSheet.create({
     height: width * 0.1,
     borderRadius: 10,
     alignItems: "center",
-    fontSize: 20,
+    fontSize: 12,
   },
   timeInputs: {
     flexDirection: "row",

@@ -1,7 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { StyleSheet, View } from "react-native";
 import Swipeable from "react-native-gesture-handler/Swipeable";
-import { FontAwesome5 } from "@expo/vector-icons";
 import colors from "../config/colors";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 
@@ -51,25 +50,24 @@ function TaskItem({ taskId, style }) {
 
   return (
     <View style={[styles.taskContainer, style]}>
-      <View>
+      <View style={styles.taskTextContainer}>
         <AppText style={styles.taskText}>{task.text}</AppText>
       </View>
-      <View style={styles.time}>
+      <View style={styles.timeContainer}>
         <MaterialCommunityIcons
           name={task.iconName || "check"}
           size={24}
-          color="black" // Set the icon color
+          color="black"
         />
-        <AppText style={styles.taskText}>{displayTime}</AppText>
+        <AppText style={styles.timeText}>{displayTime}</AppText>
       </View>
     </View>
   );
 }
+
 const styles = StyleSheet.create({
   taskContainer: {
-    paddingLeft: 10,
-    paddingRight: 10,
-
+    padding: 10,
     marginVertical: 2,
     borderRadius: 5,
     shadowColor: "#000",
@@ -77,18 +75,27 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.22,
     shadowRadius: 2.22,
     elevation: 3,
-    justifyContent: "space-between",
-    alignItems: "center",
     flexDirection: "row",
+    alignItems: "center",
     backgroundColor: colors.taskItemPrimary,
+  },
+  taskTextContainer: {
+    flex: 1, // Allow this container to expand
+    marginRight: 10, // Ensure some space between text and time/icon
   },
   taskText: {
     color: colors.black,
-    fontSize: 14,
+    fontSize: 16,
   },
-  time: {
+  timeContainer: {
     alignItems: "center",
     justifyContent: "center",
+    minWidth: 80, // Ensure enough space for the icon and time
+  },
+  timeText: {
+    color: colors.black,
+    fontSize: 16,
+    marginLeft: 5, // Space between icon and text
   },
 });
 
