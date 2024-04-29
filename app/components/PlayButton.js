@@ -1,7 +1,7 @@
-import { View, TouchableOpacity, StyleSheet } from "react-native";
 import React from "react";
-import useTaskStore from "../store/TaskStore";
+import { TouchableOpacity, StyleSheet } from "react-native";
 import { AntDesign } from "@expo/vector-icons";
+import useTaskStore from "../store/TaskStore";
 import colors from "../config/colors";
 
 export default function PlayButton({ navigation, taskId }) {
@@ -28,6 +28,7 @@ export default function PlayButton({ navigation, taskId }) {
       }
     }
   };
+
   return (
     <TouchableOpacity onPress={handleToggleTimer} style={styles.button}>
       <AntDesign

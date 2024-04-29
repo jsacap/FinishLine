@@ -163,7 +163,7 @@ const useTaskStore = create((set, get) => ({
       taskInput,
       cancelNotification,
     } = get();
-    const selectedTask = tasksr.find((t) => t.id === selectedTaskId);
+    const selectedTask = tasks.find((t) => t.id === selectedTaskId);
     const newDurationSeconds = (taskHours * 60 + taskMinutes) * 60;
 
     if (!selectedTask) return; // Exit if no task is found
@@ -536,6 +536,9 @@ const useTaskStore = create((set, get) => ({
 
   incrementTaskTime: async (incrementMinutes) => {
     const { activeTaskId, tasks } = get();
+    get().togglePause();
+    get().pauseTimer(activeTaskId);
+
     const updatedTasks = tasks.map((task) => {
       if (task.id === activeTaskId && task.timerActive) {
         const additionalSeconds = incrementMinutes * 60;
