@@ -1,5 +1,8 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { scheduleNotification } from "../notificationUtils";
+import {
+  scheduleTaskProgressNotifications,
+  scheduleNotification,
+} from "../notificationUtils";
 import * as Notifications from "expo-notifications";
 
 import Toast from "react-native-toast-message";
@@ -84,28 +87,6 @@ const useTaskStore = create((set, get) => ({
       set({ sound: null });
     }
   },
-  updateTask: () => {
-    const updatedTasks = get().tasks.map((t) => {
-      if (t.id === get().selectedTaskId) {
-        return {
-          ...t,
-          text: get().taskInput,
-          durationMinutes: get().taskHours * 60 + get().taskMinutes,
-          remainingSeconds: (get().taskHours * 60 + get().taskMinutes) * 60,
-        };
-      }
-      return t;
-    });
-    set({ tasks: updatedTasks, selectedTaskId: null });
-    AsyncStorage.setItem("tasks", JSON.stringify(updatedTasks));
-    get().clearTaskInputs();
-    get().closeBottomSheet();
-    Toast.show({
-      type: "success",
-      text1: "Task Edited!",
-      position: "bottom",
-    });
-  },
 
   loadTasks: async () => {
     try {
@@ -132,8 +113,7 @@ const useTaskStore = create((set, get) => ({
 
   // CRUD
   addTask: () => {
-    // Validation
-    const { taskInput, taskHours, taskMinutes, iconName, tasks } = get(); // Destructure tasks here as well
+    const { taskInput, taskHours, taskMinutes, iconName, tasks } = get();
 
     if (!taskInput.trim()) {
       Toast.show({
@@ -151,9 +131,9 @@ const useTaskStore = create((set, get) => ({
     }
     const newTask = {
       id: Date.now(),
-      text: taskInput, // Use destructured taskInput
-      hours: taskHours, // Use destructured taskHours
-      minutes: taskMinutes, // Use destructured taskMinutes
+      text: taskInput,
+      hours: taskHours,
+      minutes: taskMinutes,
       durationMinutes: taskHours * 60 + taskMinutes,
       durationSeconds: (taskHours * 60 + taskMinutes) * 60,
       timerActive: false,
@@ -162,14 +142,77 @@ const useTaskStore = create((set, get) => ({
       iconName: iconName, // Use destructured iconName
     };
 
-    const updatedTasks = [...tasks, newTask]; // Use destructured tasks
-    set({ tasks: updatedTasks, iconName: "" }); // Reset iconName after adding task
+    const updatedTasks = [...tasks, newTask];
+    set({ tasks: updatedTasks, iconName: "" });
     AsyncStorage.setItem("tasks", JSON.stringify(updatedTasks));
     get().clearTaskInputs();
     get().closeBottomSheet();
     Toast.show({
       type: "success",
       text1: "Task Added!",
+      position: "bottom",
+    });
+  },
+
+  updateTask: () => {
+    const {
+      tasks,
+      selectedTaskId,
+      taskHours,
+      taskMinutes,
+      taskInput,
+      cancelNotification,
+    } = get();
+    const selectedTask = tasksr.find((t) => t.id === selectedTaskId);
+    const newDurationSeconds = (taskHours * 60 + taskMinutes) * 60;
+
+    if (!selectedTask) return; // Exit if no task is found
+
+    let taskUpdated = false;
+    const updatedTasks = tasks.map((t) => {
+      if (t.id === selectedTaskId) {
+        // Always update these properties
+        const updatedTask = {
+          ...t,
+          text: taskInput,
+          durationMinutes: taskHours * 60 + taskMinutes,
+          remainingSeconds: newDurationSeconds,
+        };
+
+        // Check if the duration has changed to decide on notification handling
+        if (t.remainingSeconds !== newDurationSeconds) {
+          if (t.halfwayNotificationId && t.ninetyPercentNotificationId) {
+            cancelNotification(t.halfwayNotificationId);
+            cancelNotification(t.ninetyPercentNotificationId);
+          }
+
+          // Reschedule notifications
+          scheduleTaskProgressNotifications(updatedTask)
+            .then((notificationIds) => {
+              // Integrate new notification IDs
+              Object.assign(updatedTask, notificationIds);
+            })
+            .catch((error) => {
+              console.error("Error scheduling new notifications:", error);
+            });
+        }
+
+        taskUpdated = true; // Flag to know that task was updated
+        return updatedTask;
+      }
+      return t;
+    });
+
+    if (taskUpdated) {
+      set({ tasks: updatedTasks });
+      AsyncStorage.setItem("tasks", JSON.stringify(updatedTasks));
+    }
+
+    get().clearTaskInputs();
+    get().closeBottomSheet();
+    Toast.show({
+      type: "success",
+      text1: "Task Edited!",
       position: "bottom",
     });
   },
@@ -186,6 +229,25 @@ const useTaskStore = create((set, get) => ({
       position: "bottom",
     });
   },
+  cancelNotification: async (notificationId) => {
+    if (typeof notificationId === "string" && notificationId.trim() !== "") {
+      await Notifications.cancelScheduledNotificationAsync(
+        notificationId
+      ).catch((error) => {
+        console.error(
+          "Failed to cancel notification with ID:",
+          notificationId,
+          error
+        );
+      });
+    } else {
+      console.warn(
+        "Attempted to cancel a notification with an invalid ID:",
+        notificationId
+      );
+    }
+  },
+
   updateTaskCompletion: async (taskId) => {
     const currentTask = get().tasks.find((task) => task.id === taskId);
     if (!currentTask) {
@@ -213,10 +275,7 @@ const useTaskStore = create((set, get) => ({
     try {
       await AsyncStorage.setItem("tasks", JSON.stringify(updatedTasks));
       get().playCompleteSound();
-      // Notification scheduling directly using imported function
-      if (currentTask.taskStatus !== "complete") {
-        await scheduleNotification(currentTask, currentTask.remainingSeconds);
-      }
+      get().togglePause();
 
       Toast.show({
         type: "success",
@@ -343,6 +402,16 @@ const useTaskStore = create((set, get) => ({
           }));
         }
       );
+
+      // Schedule notifications for 50% and 90% task completion
+      scheduleTaskProgressNotifications(task).then((notificationIds) => {
+        set((state) => ({
+          tasks: state.tasks.map((t) =>
+            t.id === taskId ? { ...t, ...notificationIds } : t
+          ),
+        }));
+      });
+
       const startTime = now;
       const intervalId = setInterval(() => {
         const currentTime = new Date();

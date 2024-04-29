@@ -103,6 +103,8 @@ const IconPicker = ({ visible, onSelect, onClose }) => {
     "emoticon-sad-outline",
     "dna",
     "dog",
+    "av-timer",
+    "test-tube",
     "weight-lifter",
     "dumbbell",
     "earth",

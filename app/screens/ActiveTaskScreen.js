@@ -109,6 +109,7 @@ const styles = StyleSheet.create({
     top: 0,
     left: 0,
     paddingTop: Constants.statusBarHeight,
+    paddingLeft: 10,
   },
   buttonContainer: {
     position: "absolute",
