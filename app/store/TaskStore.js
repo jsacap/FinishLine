@@ -155,59 +155,19 @@ const useTaskStore = create((set, get) => ({
   },
 
   updateTask: () => {
-    const {
-      tasks,
-      selectedTaskId,
-      taskHours,
-      taskMinutes,
-      taskInput,
-      cancelNotification,
-    } = get();
-    const selectedTask = tasks.find((t) => t.id === selectedTaskId);
-    const newDurationSeconds = (taskHours * 60 + taskMinutes) * 60;
-
-    if (!selectedTask) return; // Exit if no task is found
-
-    let taskUpdated = false;
-    const updatedTasks = tasks.map((t) => {
-      if (t.id === selectedTaskId) {
-        // Always update these properties
-        const updatedTask = {
+    const updatedTasks = get().tasks.map((t) => {
+      if (t.id === get().selectedTaskId) {
+        return {
           ...t,
-          text: taskInput,
-          durationMinutes: taskHours * 60 + taskMinutes,
-          remainingSeconds: newDurationSeconds,
+          text: get().taskInput,
+          durationMinutes: get().taskHours * 60 + get().taskMinutes,
+          remainingSeconds: (get().taskHours * 60 + get().taskMinutes) * 60,
         };
-
-        // Check if the duration has changed to decide on notification handling
-        if (t.remainingSeconds !== newDurationSeconds) {
-          if (t.halfwayNotificationId && t.ninetyPercentNotificationId) {
-            cancelNotification(t.halfwayNotificationId);
-            cancelNotification(t.ninetyPercentNotificationId);
-          }
-
-          // Reschedule notifications
-          scheduleTaskProgressNotifications(updatedTask)
-            .then((notificationIds) => {
-              // Integrate new notification IDs
-              Object.assign(updatedTask, notificationIds);
-            })
-            .catch((error) => {
-              console.error("Error scheduling new notifications:", error);
-            });
-        }
-
-        taskUpdated = true; // Flag to know that task was updated
-        return updatedTask;
       }
       return t;
     });
-
-    if (taskUpdated) {
-      set({ tasks: updatedTasks });
-      AsyncStorage.setItem("tasks", JSON.stringify(updatedTasks));
-    }
-
+    set({ tasks: updatedTasks, selectedTaskId: null });
+    AsyncStorage.setItem("tasks", JSON.stringify(updatedTasks));
     get().clearTaskInputs();
     get().closeBottomSheet();
     Toast.show({
@@ -484,11 +444,29 @@ const useTaskStore = create((set, get) => ({
               task.remainingSeconds - elapsedSeconds,
               0
             );
+            if (task.notificationId) {
+              Notifications.cancelScheduledNotificationAsync(
+                task.notificationId
+              );
+            }
+            if (task.halfwayNotificationId) {
+              Notifications.cancelScheduledNotificationAsync(
+                task.halfwayNotificationId
+              );
+            }
+            if (task.ninetyPercentNotificationId) {
+              Notifications.cancelScheduledNotificationAsync(
+                task.ninetyPercentNotificationId
+              );
+            }
             return {
               ...task,
               timerActive: false,
               remainingSeconds: newRemaining,
-              startTime: now, // Update startTime to the current pause time
+              startTime: now,
+              notificationId: undefined,
+              halfwayNotificationId: undefined,
+              ninetyPercentNotificationId: undefined,
             };
           }
           return task;
@@ -558,6 +536,49 @@ const useTaskStore = create((set, get) => ({
         type: "error",
         text1: "Unable to add time",
       });
+    }
+  },
+  handleTaskNotifications: async (taskId) => {
+    const task = get().tasks.find((t) => t.id === taskId);
+    if (!task) {
+      console.error("Task not found");
+      return;
+    }
+    if (task.notificationId) {
+      await Notifications.cancelScheduledNotificationAsync(task.notificationId);
+    }
+    if (task.halfwayNotificationId) {
+      await Notifications.cancelScheduledNotificationAsync(
+        task.halfwayNotificationId
+      );
+    }
+    if (task.ninetyPercentNotificationId) {
+      await Notifications.cancelScheduledNotificationAsync(
+        task.ninetyPercentNotificationId
+      );
+    }
+    if (get().activeTaskId === taskId) {
+      const notificationId = await scheduleNotification(
+        task,
+        task.remainingSeconds
+      );
+      const notificationIds = await scheduleTaskProgressNotifications(task);
+      set((state) => ({
+        tasks: state.tasks.map((t) =>
+          t.id === taskId
+            ? {
+                ...t,
+                notificationId,
+                halfwayNotificationId: notificationIds
+                  ? notificationIds.halfwayNotificationId
+                  : undefined,
+                ninetyPercentNotificationId: notificationIds
+                  ? notificationIds.ninetyPercentNotificationId
+                  : undefined,
+              }
+            : t
+        ),
+      }));
     }
   },
 }));
