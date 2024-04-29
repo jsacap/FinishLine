@@ -1,4 +1,10 @@
-import { FlatList, StyleSheet, TouchableOpacity, View } from "react-native";
+import {
+  FlatList,
+  StyleSheet,
+  TouchableOpacity,
+  View,
+  Button,
+} from "react-native";
 import useTaskStore from "../store/TaskStore";
 import Header from "./Header";
 import TaskItem from "./TaskItem";
@@ -15,12 +21,18 @@ export default function IncompleteTaskList() {
     openBottomSheet,
     deleteTask,
     updateTaskCompletion,
+    activeTaskId,
+    tasks,
+    moveTaskUp,
   } = useTaskStore((state) => ({
     incompleteTasks: state.getIncompleteTasks(),
     deleteTask: state.deleteTask,
     loadTaskForEditing: state.loadTaskForEditing,
     openBottomSheet: state.openBottomSheet,
     updateTaskCompletion: state.updateTaskCompletion,
+    activeTaskId: state.activeTaskId,
+    tasks: state.tasks,
+    moveTaskUp: state.moveTaskUp,
   }));
 
   const handleTaskPress = (taskId) => {
@@ -28,7 +40,7 @@ export default function IncompleteTaskList() {
     openBottomSheet();
   };
 
-  const renderItem = ({ item }) => {
+  const renderItem = ({ item, index }) => {
     const renderRightActions = () => (
       <TaskItemSwipeDelete onPress={() => deleteTask(item.id)} />
     );
@@ -38,15 +50,33 @@ export default function IncompleteTaskList() {
         onPress={() => updateTaskCompletion(item.id)}
       />
     );
+    const isTimerActiveOnFirstTask =
+      tasks[0]?.timerActive && activeTaskId === tasks[0].id;
 
     return (
       <Swipeable
         renderRightActions={renderRightActions}
         renderLeftActions={renderLeftActions}
       >
-        <TouchableOpacity onPress={() => handleTaskPress(item.id)}>
-          <TaskItem taskId={item.id} renderRightActions={renderRightActions} />
-        </TouchableOpacity>
+        <View style={styles.taskItemRow}>
+          <TouchableOpacity
+            style={styles.taskItemContainer}
+            onPress={() => handleTaskPress(item.id)}
+          >
+            <TaskItem taskId={item.id} />
+          </TouchableOpacity>
+          {incompleteTasks.length > 1 && (
+            <View style={styles.buttonContainer}>
+              <Button
+                title="Up"
+                onPress={() => moveTaskUp(item.id)}
+                disabled={
+                  index === 0 || (isTimerActiveOnFirstTask && index === 1)
+                }
+              />
+            </View>
+          )}
+        </View>
       </Swipeable>
     );
   };
@@ -99,4 +129,12 @@ const styles = StyleSheet.create({
     flex: 1,
     top: 0,
   },
+  taskItemRow: {
+    flexDirection: "row",
+    alignItems: "center", // Vertically centers the items
+  },
+  taskItemContainer: {
+    flex: 1, // Takes up all available space except what the button needs
+  },
+  buttonContainer: {},
 });

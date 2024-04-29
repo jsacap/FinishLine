@@ -11,6 +11,7 @@ import { Audio } from "expo-av";
 
 const useTaskStore = create((set, get) => ({
   tasks: [],
+  incompleteTasks: [],
   taskInput: "",
   taskHours: 0,
   taskMinutes: 0,
@@ -268,7 +269,6 @@ const useTaskStore = create((set, get) => ({
             ...task,
             timerActive: false,
             taskStatus: "incomplete",
-            // remainingSeconds: 0,
           };
         }
         return task;
@@ -428,50 +428,47 @@ const useTaskStore = create((set, get) => ({
   },
 
   // Pausing the timer
-  pauseTimer: (taskId) => {
+  pauseTimer: async (taskId) => {
     const now = new Date();
     clearInterval(get().intervalId);
     set({ intervalId: null });
 
-    set((state) => {
-      return {
-        tasks: state.tasks.map((task) => {
-          if (task.id === taskId && task.timerActive) {
-            const elapsedSeconds = Math.floor(
-              (now - new Date(task.startTime)) / 1000
-            );
-            const newRemaining = Math.max(
-              task.remainingSeconds - elapsedSeconds,
-              0
-            );
-            if (task.notificationId) {
-              Notifications.cancelScheduledNotificationAsync(
-                task.notificationId
-              );
-            }
-            if (task.halfwayNotificationId) {
-              Notifications.cancelScheduledNotificationAsync(
-                task.halfwayNotificationId
-              );
-            }
-            if (task.ninetyPercentNotificationId) {
-              Notifications.cancelScheduledNotificationAsync(
-                task.ninetyPercentNotificationId
-              );
-            }
-            return {
-              ...task,
-              timerActive: false,
-              remainingSeconds: newRemaining,
-              startTime: now,
-              notificationId: undefined,
-              halfwayNotificationId: undefined,
-              ninetyPercentNotificationId: undefined,
-            };
-          }
-          return task;
-        }),
-      };
+    try {
+      await Notifications.cancelAllScheduledNotificationsAsync(); // Cancel all notifications
+      console.log("All notifications have been cancelled");
+    } catch (error) {
+      console.error("Failed to cancel all notifications", error);
+    }
+
+    set(async (state) => {
+      const updatedTasks = state.tasks.map((task) => {
+        if (task.id === taskId && task.timerActive) {
+          const elapsedSeconds = Math.floor(
+            (now - new Date(task.startTime)) / 1000
+          );
+          const newRemaining = Math.max(
+            task.remainingSeconds - elapsedSeconds,
+            0
+          );
+
+          return {
+            ...task,
+            timerActive: false,
+            remainingSeconds: newRemaining,
+            startTime: now,
+            notificationId: undefined,
+            halfwayNotificationId: undefined,
+            ninetyPercentNotificationId: undefined,
+          };
+        }
+        return task;
+      });
+
+      // Update AsyncStorage with the new tasks array
+      await AsyncStorage.setItem("tasks", JSON.stringify(updatedTasks));
+      console.log("Tasks updated in AsyncStorage");
+
+      return { tasks: updatedTasks };
     });
   },
 
@@ -507,6 +504,8 @@ const useTaskStore = create((set, get) => ({
 
   getCompletedTasks: () =>
     get().tasks.filter((task) => task.taskStatus === "complete"),
+  getIncompleteTasks: () => get().tasks.filter((task) => !task.isComplete),
+
   getIncompleteTasks: () =>
     get().tasks.filter((task) => task.taskStatus === "incomplete"),
 
@@ -580,6 +579,27 @@ const useTaskStore = create((set, get) => ({
         ),
       }));
     }
+  },
+
+  moveTaskUp: (taskId) => {
+    set((state) => {
+      const index = state.tasks.findIndex((t) => t.id === taskId);
+      if (index > 0) {
+        const newTasks = [...state.tasks];
+        [newTasks[index], newTasks[index - 1]] = [
+          newTasks[index - 1],
+          newTasks[index],
+        ];
+
+        const activeTask = newTasks.find((t) => t.timerActive);
+        if (activeTask) {
+          get().pauseTimer(activeTask.id);
+          get().togglePause();
+        }
+
+        return { tasks: newTasks };
+      }
+    });
   },
 }));
 
