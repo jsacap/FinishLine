@@ -5,6 +5,7 @@ import {
   View,
   Button,
 } from "react-native";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 import useTaskStore from "../store/TaskStore";
 import Header from "./Header";
 import TaskItem from "./TaskItem";
@@ -67,8 +68,10 @@ export default function IncompleteTaskList() {
           </TouchableOpacity>
           {incompleteTasks.length > 1 && (
             <View style={styles.buttonContainer}>
-              <Button
-                title="Up"
+              <MaterialCommunityIcons
+                style={styles.upButton}
+                name="arrow-up-bold"
+                size={30}
                 onPress={() => moveTaskUp(item.id)}
                 disabled={
                   index === 0 || (isTimerActiveOnFirstTask && index === 1)
@@ -136,5 +139,9 @@ const styles = StyleSheet.create({
   taskItemContainer: {
     flex: 1, // Takes up all available space except what the button needs
   },
-  buttonContainer: {},
+  upButton: {
+    color: "#fff",
+    alignItems: "center",
+    justifyContent: "center",
+  },
 });

@@ -18,15 +18,7 @@ export default function App() {
   const [user, setUser] = useState({});
   const [loading, setLoading] = useState(true);
 
-  const findUser = async () => {
-    const result = await AsyncStorage.getItem("user");
-    if (result !== null) {
-      setUser(JSON.parse(result));
-    }
-  };
-
   useEffect(() => {
-    // Notification handler setup
     Notifications.setNotificationHandler({
       handleNotification: async () => ({
         shouldShowAlert: true,
@@ -35,7 +27,6 @@ export default function App() {
       }),
     });
 
-    // Load user data from storage
     const loadUserData = async () => {
       try {
         const result = await AsyncStorage.getItem("user");
@@ -63,23 +54,19 @@ export default function App() {
     );
   }
 
-  if (user?.name) {
-    return (
-      <>
-        <NavigationContainer>
-          <GestureHandlerRootView style={{ flex: 1 }}>
-            <Stack.Navigator screenOptions={{ headerShown: false }}>
-              <Stack.Screen name="Welcome" component={WelcomeScreen} />
-              <Stack.Screen name="TaskList" component={TaskListScreen} />
-              <Stack.Screen name="AddTask" component={AddTaskScreen} />
-              <Stack.Screen name="ActiveTask" component={ActiveTaskScreen} />
-              <Stack.Screen name="SandBox" component={SandBox} />
-            </Stack.Navigator>
-            <Toast />
-          </GestureHandlerRootView>
-        </NavigationContainer>
-      </>
-    );
-  }
-  return <NameInputScreen onFinish={() => setLoading(true) && findUser()} />;
+  return (
+    <NavigationContainer>
+      <GestureHandlerRootView style={{ flex: 1 }}>
+        <Stack.Navigator screenOptions={{ headerShown: false }}>
+          <Stack.Screen name="NameInput" component={NameInputScreen} />
+          <Stack.Screen name="Welcome" component={WelcomeScreen} />
+          <Stack.Screen name="TaskList" component={TaskListScreen} />
+          <Stack.Screen name="AddTask" component={AddTaskScreen} />
+          <Stack.Screen name="ActiveTask" component={ActiveTaskScreen} />
+          <Stack.Screen name="SandBox" component={SandBox} />
+        </Stack.Navigator>
+        <Toast />
+      </GestureHandlerRootView>
+    </NavigationContainer>
+  );
 }

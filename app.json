@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "TimeSlot",
+    "name": "TimeStack",
     "slug": "TimeStack",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -18,13 +18,20 @@
       "supportsTablet": true
     },
     "android": {
+      "package": "com.timestack",
+      "versionCode": 1,
       "adaptiveIcon": {
-        "foregroundImage": "./app/assets/Background.webp",
+        "foregroundImage": "./app/assets/foreground.png",
         "backgroundColor": "#ffffff"
       }
     },
     "web": {
       "favicon": "./app/assets/favicon.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "ba5be0c0-3f53-4528-a5be-630410f20ff8"
+      }
     }
   }
 }

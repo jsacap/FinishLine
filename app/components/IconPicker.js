@@ -15,6 +15,8 @@ const IconPicker = ({ visible, onSelect, onClose }) => {
     "home",
     "account",
     "mail",
+    "run",
+    "code-braces",
     "bell",
     "cart",
     "bookmark",

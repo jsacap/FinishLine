@@ -63,7 +63,6 @@ const useTaskStore = create((set, get) => ({
   playCompleteSound: async () => {
     const { sound } = get();
     if (!sound) {
-      console.log("Sound not loaded or already unloaded");
       return;
     }
 
@@ -435,7 +434,6 @@ const useTaskStore = create((set, get) => ({
 
     try {
       await Notifications.cancelAllScheduledNotificationsAsync(); // Cancel all notifications
-      console.log("All notifications have been cancelled");
     } catch (error) {
       console.error("Failed to cancel all notifications", error);
     }
@@ -466,7 +464,6 @@ const useTaskStore = create((set, get) => ({
 
       // Update AsyncStorage with the new tasks array
       await AsyncStorage.setItem("tasks", JSON.stringify(updatedTasks));
-      console.log("Tasks updated in AsyncStorage");
 
       return { tasks: updatedTasks };
     });

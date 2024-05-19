@@ -30,8 +30,6 @@ const TaskListScreen = () => {
 
   const handleSheetChanges = useCallback(
     (index) => {
-      console.log("handleSheetChanges", index);
-      // Optional: update the visibility state when the bottom sheet is dismissed
       if (index === -1) {
         toggleBottomSheetVisibility();
       }

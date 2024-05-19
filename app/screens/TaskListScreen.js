@@ -160,7 +160,7 @@ export default function TaskListScreen() {
       {/* <Button title="SandbOx" onPress={() => navigation.navigate("SandBox")} /> */}
 
       <View style={styles.incompleteList}>
-        <View>
+        <View style={styles.addTaskButton}>
           <AppButton title="Add Task" onPress={openBottomSheet} />
         </View>
         {tasks.length > 0 && (
@@ -201,9 +201,13 @@ const styles = StyleSheet.create({
   activeTask: {
     color: colors.white,
   },
+  addTaskButton: {
+    width: "100%",
+  },
   buttons: {
     alignItems: "center",
     justiofycContent: "center",
+
     padding: 20,
   },
   closeBottomSheet: {

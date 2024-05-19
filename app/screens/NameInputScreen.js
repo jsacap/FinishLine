@@ -11,11 +11,10 @@ import AppText from "../components/AppText/AppText";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { addNotificationsDroppedListener } from "expo-notifications";
 import * as Notifications from "expo-notifications";
-
 import colors from "../config/colors";
 import IconButton from "../components/IconButton";
 
-function NameInputScreen({ onFinish }) {
+function NameInputScreen({ navigation }) {
   const [name, setName] = useState("");
 
   const handleOnChangeText = (text) => {
@@ -23,10 +22,21 @@ function NameInputScreen({ onFinish }) {
   };
 
   const handleSubmit = async () => {
-    const user = { name: name };
-    await AsyncStorage.setItem("user", JSON.stringify(user));
-    await requestPermissions();
-    if (onFinish) onFinish();
+    const capitalizeWords = (str) =>
+      str.replace(/\b\w/g, (char) => char.toUpperCase());
+
+    const capitalizedName = capitalizeWords(name);
+    const user = { name: capitalizedName };
+
+    try {
+      await AsyncStorage.setItem("user", JSON.stringify(user));
+      await requestPermissions();
+      console.log("Navigating to Welcome screen");
+      navigation.navigate("Welcome"); // Navigate to WelcomeScreen
+    } catch (error) {
+      Alert.alert("Error", "Failed to save user or navigate.");
+      console.error(error);
+    }
   };
 
   async function requestPermissions() {
@@ -44,21 +54,11 @@ function NameInputScreen({ onFinish }) {
     }
   }
 
-  async function schedulePushNotification() {
-    await Notifications.scheduleNotificationAsync({
-      content: {
-        title: "Task Complete!",
-        body: "Your task has been completed.",
-      },
-      trigger: { seconds: 2 },
-    });
-  }
-
   return (
     <>
       <StatusBar hidden />
       <View style={styles.container}>
-        <AppText>Welcome!</AppText>
+        <Text>Welcome!</Text>
         <TextInput
           value={name}
           onChangeText={handleOnChangeText}
@@ -86,26 +86,36 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
+    padding: 20,
+    backgroundColor: "#f8f9fa",
   },
   textInput: {
     borderWidth: 2,
-    borderColor: colors.primary,
+    borderColor: "#007bff",
     width,
     height: 50,
     borderRadius: 10,
     paddingLeft: 10,
-    fontSize: 20,
-    marginBottom: 10,
+    fontSize: 18,
+    marginBottom: 20,
+    backgroundColor: "#ffffff",
   },
   explanationContainer: {
     marginTop: 20,
+    padding: 10,
+    backgroundColor: "#ffffff",
+    borderRadius: 10,
+    shadowColor: "#000000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 5,
   },
   explanationText: {
-    fontSize: 12,
-    color: colors.dark,
+    fontSize: 14,
+    color: "#343a40",
     textAlign: "center",
     marginBottom: 10,
-    padding: 5,
   },
 });
 

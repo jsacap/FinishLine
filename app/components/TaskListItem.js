@@ -142,7 +142,6 @@ function TaskListScreen() {
       });
       setTasks(updatedTasks);
       AsyncStorage.setItem("tasks", JSON.stringify(updatedTasks));
-      console.log(updatedTasks);
     };
     markCurrentTaskAsComplete();
     if (currentTaskIndex < tasks.length - 1) {
