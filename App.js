@@ -40,9 +40,9 @@ export default function App() {
     });
   };
 
-  registerBackgroundFetchAsync()
-    .then(() => console.log("Background fetch registered"))
-    .catch((err) => console.error("Failed to register background fetch", err));
+  registerBackgroundFetchAsync().catch((err) =>
+    console.error("Failed to register background fetch", err)
+  );
 
   useEffect(() => {
     Notifications.setNotificationHandler({
@@ -56,7 +56,7 @@ export default function App() {
     if (Platform.OS === "android") {
       Notifications.setNotificationChannelAsync("default", {
         name: "default",
-        importance: Notifications.AndroidImportance.HIGH, // Set importance to HIGH
+        importance: Notifications.AndroidImportance.HIGH,
         sound: true, // Ensure sound is enabled
       });
     }

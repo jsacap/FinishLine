@@ -12,7 +12,7 @@ export async function scheduleTaskProgressNotifications(task) {
       const halfwayNotificationId =
         await Notifications.scheduleNotificationAsync({
           content: {
-            title: "Task Halfway Complete!",
+            title: "TimeStack",
             body: `Halfway through: ${task.text}`,
             data: { taskId: task.id },
           },
@@ -23,7 +23,7 @@ export async function scheduleTaskProgressNotifications(task) {
       const ninetyPercentNotificationId =
         await Notifications.scheduleNotificationAsync({
           content: {
-            title: "Task Nearly Complete!",
+            title: "TimeStack",
             body: `Almost done with: ${task.text}`,
             data: { taskId: task.id },
           },
@@ -41,7 +41,7 @@ export async function scheduleNotification(task, delaySeconds) {
   try {
     const notificationId = await Notifications.scheduleNotificationAsync({
       content: {
-        title: "Task Complete!",
+        title: "TimeStack",
         body: `${task.text} is now complete. Great job! 🎉`,
         data: { taskId: task.id },
       },

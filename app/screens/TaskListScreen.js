@@ -171,10 +171,6 @@ export default function TaskListScreen() {
             </AppText>
           </View>
         )}
-        {/* <Button
-          title="SANDBOX"
-          onPress={() => navigation.navigate("SandBox")}
-        /> */}
 
         <IncompleteTaskList />
       </View>

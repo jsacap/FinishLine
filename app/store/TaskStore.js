@@ -63,30 +63,30 @@ const useTaskStore = create((set, get) => ({
 
   // Play the complete sound
   playCompleteSound: async () => {
-    const { sound } = get();
-    if (!sound) {
-      return;
-    }
-
     try {
-      const status = await sound.getStatusAsync();
-      if (status.isLoaded && !status.isPlaying) {
-        await sound.playAsync();
-        sound.setOnPlaybackStatusUpdate(async (status) => {
-          if (status.didJustFinish) {
-            await sound.unloadAsync();
-            set({ sound: null });
-          }
-        });
+      const { sound: existingSound } = get();
+
+      if (existingSound) {
+        await existingSound.unloadAsync();
+        set({ sound: null });
       }
+
+      const { sound } = await Audio.Sound.createAsync(
+        require("../assets/sounds/achievement-bell.wav"),
+        { shouldPlay: false }
+      );
+
+      sound.setOnPlaybackStatusUpdate(async (status) => {
+        if (status.didJustFinish) {
+          await sound.unloadAsync();
+          set({ sound: null });
+        }
+      });
+
+      await sound.playAsync();
+      set({ sound });
     } catch (error) {
       console.error("Failed to play or manage sound", error);
-      try {
-        await sound.unloadAsync();
-      } catch (e) {
-        console.error("Failed to unload sound", e);
-      }
-      set({ sound: null });
     }
   },
 
@@ -157,8 +157,18 @@ const useTaskStore = create((set, get) => ({
   },
 
   updateTask: () => {
-    const updatedTasks = get().tasks.map((t) => {
-      if (t.id === get().selectedTaskId) {
+    const { tasks, selectedTaskId } = get();
+    const task = tasks.find((t) => t.id === selectedTaskId);
+
+    if (task) {
+      // Cancel existing notifications
+      get().cancelNotification(task.notificationId);
+      get().cancelNotification(task.halfwayNotificationId);
+      get().cancelNotification(task.ninetyPercentNotificationId);
+    }
+
+    const updatedTasks = tasks.map((t) => {
+      if (t.id === selectedTaskId) {
         return {
           ...t,
           text: get().taskInput,
@@ -168,6 +178,7 @@ const useTaskStore = create((set, get) => ({
       }
       return t;
     });
+
     set({ tasks: updatedTasks, selectedTaskId: null });
     AsyncStorage.setItem("tasks", JSON.stringify(updatedTasks));
     get().clearTaskInputs();
@@ -177,8 +188,11 @@ const useTaskStore = create((set, get) => ({
       text1: "Task Edited!",
       position: "bottom",
     });
-  },
 
+    if (task) {
+      get().handleTaskNotifications(task.id);
+    }
+  },
   deleteTask: (taskId) => {
     const updatedTasks = get().tasks.filter((task) => task.id !== taskId);
     set({ tasks: updatedTasks });
@@ -512,11 +526,20 @@ const useTaskStore = create((set, get) => ({
 
   incrementTaskTime: async (incrementMinutes) => {
     const { activeTaskId, tasks } = get();
+    const task = tasks.find((t) => t.id === activeTaskId);
+
     get().togglePause();
     get().pauseTimer(activeTaskId);
 
+    if (task) {
+      // Cancel existing notifications
+      get().cancelNotification(task.notificationId);
+      get().cancelNotification(task.halfwayNotificationId);
+      get().cancelNotification(task.ninetyPercentNotificationId);
+    }
+
     const updatedTasks = tasks.map((task) => {
-      if (task.id === activeTaskId && task.timerActive) {
+      if (task.id === activeTaskId) {
         const additionalSeconds = incrementMinutes * 60;
         return {
           ...task,
@@ -526,9 +549,13 @@ const useTaskStore = create((set, get) => ({
       }
       return task;
     });
+
     set({ tasks: updatedTasks });
     try {
       await AsyncStorage.setItem("tasks", JSON.stringify(updatedTasks));
+      if (task) {
+        get().handleTaskNotifications(task.id);
+      }
     } catch (error) {
       Toast.show({
         type: "error",
