@@ -5,10 +5,13 @@ import {
   TextInput,
   StyleSheet,
   FlatList,
+  Dimensions,
   TouchableOpacity,
 } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import colors from "../config/colors";
+
+const { height: windowHeight } = Dimensions.get("window");
 
 const IconPicker = ({ visible, onSelect, onClose }) => {
   const icons = [
@@ -129,6 +132,16 @@ const IconPicker = ({ visible, onSelect, onClose }) => {
     icon.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  const handleSelect = (icon) => {
+    onSelect(icon);
+    setSearchQuery(""); // Clear the search query
+  };
+
+  const handleClose = () => {
+    onClose();
+    setSearchQuery(""); // Clear the search query
+  };
+
   return (
     <Modal visible={visible} animationType="slide" transparent>
       <View style={styles.centeredView}>
@@ -146,7 +159,7 @@ const IconPicker = ({ visible, onSelect, onClose }) => {
             renderItem={({ item }) => (
               <TouchableOpacity
                 style={styles.iconButton}
-                onPress={() => onSelect(item)}
+                onPress={() => handleSelect(item)}
               >
                 <MaterialCommunityIcons
                   name={item}
@@ -155,8 +168,9 @@ const IconPicker = ({ visible, onSelect, onClose }) => {
                 />
               </TouchableOpacity>
             )}
+            style={{ maxHeight: windowHeight * 0.5 }} // Set max height to half of the screen
           />
-          <TouchableOpacity style={styles.iconButton} onPress={onClose}>
+          <TouchableOpacity style={styles.iconButton} onPress={handleClose}>
             <MaterialCommunityIcons
               name="close-circle"
               size={36}

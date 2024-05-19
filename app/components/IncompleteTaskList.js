@@ -134,10 +134,10 @@ const styles = StyleSheet.create({
   },
   taskItemRow: {
     flexDirection: "row",
-    alignItems: "center", // Vertically centers the items
+    alignItems: "center",
   },
   taskItemContainer: {
-    flex: 1, // Takes up all available space except what the button needs
+    flex: 1,
   },
   upButton: {
     color: "#fff",
