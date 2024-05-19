@@ -66,7 +66,7 @@ export default function IncompleteTaskList() {
           >
             <TaskItem taskId={item.id} />
           </TouchableOpacity>
-          {incompleteTasks.length > 1 && (
+          {index !== 0 && incompleteTasks.length > 1 && (
             <View style={styles.buttonContainer}>
               <MaterialCommunityIcons
                 style={styles.upButton}
