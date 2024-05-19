@@ -8,6 +8,8 @@ import * as Notifications from "expo-notifications";
 import Toast from "react-native-toast-message";
 import { create } from "zustand";
 import { Audio } from "expo-av";
+import * as BackgroundFetch from "expo-background-fetch";
+import * as TaskManager from "expo-task-manager";
 
 const useTaskStore = create((set, get) => ({
   tasks: [],

@@ -13,10 +13,36 @@ import TaskListScreen from "./app/screens/TaskListScreen";
 import WelcomeScreen from "./app/screens/WelcomeScreen";
 import * as Notifications from "expo-notifications";
 const Stack = createStackNavigator();
+import { Platform } from "react-native";
+import * as TaskManager from "expo-task-manager";
+import * as BackgroundFetch from "expo-background-fetch";
 
 export default function App() {
   const [user, setUser] = useState({});
   const [loading, setLoading] = useState(true);
+
+  const BACKGROUND_FETCH_TASK = "background-fetch-task";
+
+  TaskManager.defineTask(BACKGROUND_FETCH_TASK, async () => {
+    try {
+      // Reschedule notifications here if needed
+      return BackgroundFetch.Result.NewData;
+    } catch (err) {
+      return BackgroundFetch.Result.Failed;
+    }
+  });
+
+  const registerBackgroundFetchAsync = async () => {
+    return BackgroundFetch.registerTaskAsync(BACKGROUND_FETCH_TASK, {
+      minimumInterval: 60 * 15, // 15 minutes
+      stopOnTerminate: false,
+      startOnBoot: true,
+    });
+  };
+
+  registerBackgroundFetchAsync()
+    .then(() => console.log("Background fetch registered"))
+    .catch((err) => console.error("Failed to register background fetch", err));
 
   useEffect(() => {
     Notifications.setNotificationHandler({
@@ -27,11 +53,21 @@ export default function App() {
       }),
     });
 
+    if (Platform.OS === "android") {
+      Notifications.setNotificationChannelAsync("default", {
+        name: "default",
+        importance: Notifications.AndroidImportance.HIGH, // Set importance to HIGH
+        sound: true, // Ensure sound is enabled
+      });
+    }
+
     const loadUserData = async () => {
       try {
         const result = await AsyncStorage.getItem("user");
         if (result !== null) {
           setUser(JSON.parse(result));
+        } else {
+          console.log("No user found in AsyncStorage");
         }
       } catch (error) {
         Toast.show({
@@ -46,6 +82,10 @@ export default function App() {
     loadUserData();
   }, []);
 
+  useEffect(() => {
+    console.log("User state updated:", user);
+  }, [user]);
+
   if (loading) {
     return (
       <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
@@ -58,12 +98,17 @@ export default function App() {
     <NavigationContainer>
       <GestureHandlerRootView style={{ flex: 1 }}>
         <Stack.Navigator screenOptions={{ headerShown: false }}>
-          <Stack.Screen name="NameInput" component={NameInputScreen} />
-          <Stack.Screen name="Welcome" component={WelcomeScreen} />
-          <Stack.Screen name="TaskList" component={TaskListScreen} />
-          <Stack.Screen name="AddTask" component={AddTaskScreen} />
-          <Stack.Screen name="ActiveTask" component={ActiveTaskScreen} />
-          <Stack.Screen name="SandBox" component={SandBox} />
+          {user?.name ? (
+            <>
+              <Stack.Screen name="Welcome" component={WelcomeScreen} />
+              <Stack.Screen name="TaskList" component={TaskListScreen} />
+              <Stack.Screen name="AddTask" component={AddTaskScreen} />
+              <Stack.Screen name="ActiveTask" component={ActiveTaskScreen} />
+              <Stack.Screen name="SandBox" component={SandBox} />
+            </>
+          ) : (
+            <Stack.Screen name="NameInput" component={NameInputScreen} />
+          )}
         </Stack.Navigator>
         <Toast />
       </GestureHandlerRootView>
