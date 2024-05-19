@@ -10,6 +10,7 @@ import {
   View,
   Text,
   Button,
+  Alert,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Toast from "react-native-toast-message";
@@ -37,6 +38,7 @@ export default function TaskListScreen() {
     tasks,
     pauseTimer,
     isPaused,
+    clearAllTasks,
     togglePause,
   } = useTaskStore((state) => ({
     loadTasks: state.loadTasks,
@@ -56,6 +58,7 @@ export default function TaskListScreen() {
     getIncompleteTasks: state.getIncompleteTasks,
     isPaused: state.isPaused,
     togglePause: state.togglePause,
+    clearAllTasks: state.clearAllTasks,
   }));
 
   const snapPoints = useMemo(() => ["25%", "50%", "70%"]);
@@ -74,8 +77,6 @@ export default function TaskListScreen() {
   useEffect(() => {
     const handleAppStateChange = (nextAppState) => {
       if (nextAppState === "active") {
-        // App has come to the foreground
-        // Check if any timer should be adjusted
         const { startTime, tasks, updateTimersOnForeground } =
           useTaskStore.getState();
         if (startTime && tasks.some((task) => task.timerActive)) {
@@ -118,6 +119,24 @@ export default function TaskListScreen() {
     return `${hours}h ${minutes}m`;
   };
 
+  const confirmClearAllTasks = () => {
+    Alert.alert(
+      "Clear All Tasks",
+      "Are you sure you want to clear all tasks?",
+      [
+        {
+          text: "Cancel",
+          style: "cancel",
+        },
+        {
+          text: "OK",
+          onPress: () => clearAllTasks(),
+        },
+      ],
+      { cancelable: true }
+    );
+  };
+
   const futureCompletionTime = calculateFutureCompletionTime();
   const totalTime = useMemo(calculateTotalTime, [tasks]);
 
@@ -157,7 +176,9 @@ export default function TaskListScreen() {
           </Text>
         )}
       </View>
-      {/* <Button title="SandbOx" onPress={() => navigation.navigate("SandBox")} /> */}
+      {tasks.length > 0 && (
+        <Button title="Clear All Tasks" onPress={confirmClearAllTasks} />
+      )}
 
       <View style={styles.incompleteList}>
         <View style={styles.addTaskButton}>

@@ -627,6 +627,23 @@ const useTaskStore = create((set, get) => ({
       }
     });
   },
+  clearAllTasks: async () => {
+    try {
+      await AsyncStorage.removeItem("tasks");
+      set({ tasks: [] });
+      Toast.show({
+        type: "success",
+        text1: "All tasks cleared!",
+        position: "bottom",
+      });
+    } catch (error) {
+      Toast.show({
+        type: "error",
+        text1: "Failed to clear tasks",
+        text2: error.message,
+      });
+    }
+  },
 }));
 
 export default useTaskStore;
